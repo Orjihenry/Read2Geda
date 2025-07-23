@@ -67,7 +67,7 @@
 
 ```bash
 # Clone this repo
-git clone https://github.com/Orjihenry/read2geda.git
+git clone https://github.com/your-username/read2geda.git
 cd read2geda
 
 # Install dependencies
