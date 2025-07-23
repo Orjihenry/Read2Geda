@@ -1,69 +1,77 @@
-# React + TypeScript + Vite
+# 📚 Read2Geda – Your Virtual Book Club Hub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Read2Geda** is a web-based application designed to simplify and enhance the way readers connect, organize, and grow through book clubs. Whether you're joining your first reading group or managing multiple clubs, Read2Geda makes the experience engaging and seamless.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Screenshots / Preview
 
-## Expanding the ESLint configuration
+> Coming soon — screenshots and live demo
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🚀 Features
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### ✅ MVP Features
+- 🧑‍💻 **Public Profiles** to showcase reading stats, clubs, and progress
+- 📘 **Join or Manage Book Clubs**
+- 📅 **Meeting Reminders** with calendar feed
+- 📚 **Current Read Progress Tracker**
+- ⭐ **Contribution Ratings** for club members
+- 📖 **Book History & Reviews**
+- 🔔 **Notifications** for club chats, comments, and mentions
+- 🧠 **Smart Suggestions** for books and clubs
+- ⚙️ **Basic Profile Settings**
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+> Authentication and real-time communication will be introduced in future releases.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ Tech Stack
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+| Layer        | Technology                  |
+|--------------|-----------------------------|
+| Frontend     | React + TypeScript          |
+| UI Framework | Bootstrap (or CSS Modules) |
+| Routing      | React Router                |
+| Tooling      | Vite, ESLint, Prettier      |
+| State Mgmt   | useState, useEffect (MVP)   |
+
+---
+
+## 🎯 Module Roadmap
+
+- 🖥️ Responsive UI
+- 🔍 Book Search via Google Books or Goodreads API
+- 🏆 Gamified Achievements
+- 💬 Real-time Chat (Socket.io/Firebase)
+
+---
+
+## 🎯 Future Features
+- 📱 Mobile Version
+- 🗂️ Club Admin Dashboards
+- 🔒 User Authentication (Firebase/Auth0)
+- 📈 Analytics for club reading trends
+
+---
+
+## 💡 Inspiration
+
+> _"Reading is better together."_  
+> Read2Geda was built with a mission to revive intentional reading and social learning through a modern, intuitive, book club platform.
+
+---
+
+## 📦 Getting Started
+
+```bash
+# Clone this repo
+git clone https://github.com/your-username/read2geda.git
+cd read2geda
+
+# Install dependencies
+npm install
+
+# Run in dev mode
+npm run dev
