@@ -1,3 +1,4 @@
+import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import NavButton from "../../components/NavButton";
 import "./Home.css";
@@ -27,6 +28,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
