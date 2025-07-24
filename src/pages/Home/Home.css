@@ -1,0 +1,7 @@
+.bg-image {
+  background-image: url("../../assets/reading.png");
+  background-size: cover;
+  background-position: center;
+  height: 100%;
+  min-height: 500px;
+}
