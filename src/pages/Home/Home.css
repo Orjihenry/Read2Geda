@@ -4,4 +4,19 @@
   background-position: center;
   height: 100%;
   min-height: 500px;
+  z-index: -1;
+}
+
+#key-features {
+    padding: 4rem 0;
+    margin-top: -9rem;
+    /* background-color: #f8f9fa; */
+    background-color: #bdbfc2;
+}
+
+@media screen and (max-width: 768px) {
+  #key-features {
+    margin: auto;
+  }
+    
 }

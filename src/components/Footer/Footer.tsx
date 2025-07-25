@@ -11,7 +11,7 @@ export default function Footer() {
 
             <div className="subscribe">
               <input type="email" placeholder="Subscribe for updates" />
-              <Button className="btn-light">Subscribe</Button>
+              <Button className="btn-light btn-sm">Subscribe</Button>
             </div>
 
             <div className="socials">
