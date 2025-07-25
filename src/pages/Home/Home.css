@@ -10,8 +10,8 @@
 #key-features {
     padding: 4rem 0;
     margin-top: -9rem;
-    /* background-color: #f8f9fa; */
-    background-color: #bdbfc2;
+    background-color: #f8f9fa;
+    /* background-color: #bdbfc2; */
 }
 
 @media screen and (max-width: 768px) {

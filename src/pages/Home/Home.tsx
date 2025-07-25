@@ -1,7 +1,11 @@
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import NavButton from "../../components/NavButton";
+import keepingInTouch from "../../assets/keeping_in_touch.png";
+import trackYourProgress from "../../assets/track_your_progress.png";
+import discoverNewReads from "../../assets/discover_new_reads.png";
 import "./Home.css";
+import Card from "../../components/Card";
 
 export default function Home() {
   return (
@@ -31,16 +35,30 @@ export default function Home() {
         <div className="p-md-5 mb-3 w-custom">
             <div className="container mx-0 row" id="key-features">
                 <div className="col-md-4">
-                    <h5>Stay Connected</h5>
-                    <p>Join our community to connect with fellow readers and share your thoughts.</p>
+                    <Card
+                        imgSrc={keepingInTouch}
+                        imgAlt="Keeping In Touch Image"
+                        title="Stay Connected"
+                        text="Join our community to connect with fellow readers and share your thoughts."
+                    />
                 </div>
+                    
                 <div className="col-md-4">
-                    <h5>Track Your Progress</h5>
-                    <p>Keep tabs on your reading journey and celebrate your achievements.</p>
+                    <Card
+                        imgSrc={trackYourProgress}
+                        imgAlt="Track Your Progress Image"
+                        title="Track Your Progress"
+                        text="Keep tabs on your reading journey and celebrate your achievements."
+                    />
                 </div>
+
                 <div className="col-md-4">
-                    <h5>Discover New Reads</h5>
-                    <p>Explore a curated selection of books tailored to your interests.</p>
+                    <Card
+                        imgSrc={discoverNewReads}
+                        imgAlt="Discover New Reads Image"
+                        title="Discover New Reads"
+                        text="Explore a curated selection of books tailored to your interests."
+                    />
                 </div>
 
             </div>
