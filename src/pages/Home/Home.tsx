@@ -78,7 +78,7 @@ export default function Home() {
 
             <Carousel />
 
-            <NavButton className="btn btn-outline-success mt-5" href="/book-club" label="Discover More" />
+            <NavButton className="btn-outline-success mt-5" href="/book-club" label="Discover More" />
         </div>
       </div>
       <Footer />

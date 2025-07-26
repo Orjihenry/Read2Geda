@@ -2,6 +2,7 @@ import { defaultBookClubs } from "../../utils/bookClub";
 import { useEffect } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
+import NavButton from "../NavButton";
 import "slick-carousel/slick/slick-theme.css";
 import "./Carousel.css"
 
@@ -80,8 +81,8 @@ export default function Carousel() {
                         <p className="mb-1 small">📅 Next Meeting: {item.nextMeeting ? new Date(item.nextMeeting).toLocaleDateString() : "N/A"}</p>
                     </div>
                     <div className="d-flex gap-2 pt-2 justify-content-center">
-                        <button className="btn btn-sm btn-primary">Join Club</button>
-                        <button className="btn btn-sm btn-outline-secondary">View Details</button>
+                        <NavButton className="btn-dark text-light btn-sm" href={`#/book-club/${item.id}`} label="Join Club" />
+                        <NavButton className="btn-outline-primary btn-sm" href={`#/book-club/${item.id}`} label="View Details" />
                     </div>
                 </div>
             </div>
