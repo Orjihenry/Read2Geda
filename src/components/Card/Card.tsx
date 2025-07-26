@@ -13,7 +13,7 @@ type CardProps = {
 export default function Card({ children, className = "", style = {}, imgSrc, imgAlt = "", title, text,
 }: CardProps) {
   return (
-    <div className={`card ${className}`} style={style}>
+    <div className={`card mb-5 ${className}`} style={style}>
       {imgSrc && <img className="card-img-top" src={imgSrc} alt={imgAlt} />}
       <div className="card-body">
         {title && <h5 className="card-title">{title}</h5>}

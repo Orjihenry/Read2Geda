@@ -33,8 +33,8 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="p-md-5 mb-3 w-custom">
-            <div className="container mx-0 row" id="key-features">
+        <div className="p-md-5 px-md-0 mb-3">
+            <div className="mx-0 row" id="key-features">
                 <h2 className="display-6 text-center mb-2">Key Features</h2>
                 <p className="lead text-center mb-5">
                     Explore the features that make Read2Geda your go-to platform for book clubs.
