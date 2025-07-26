@@ -1,11 +1,12 @@
+import Card from "../../components/Card";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import NavButton from "../../components/NavButton";
+import Carousel from "../../components/Carousel/Carousel";
 import keepingInTouch from "../../assets/keeping_in_touch.png";
 import trackYourProgress from "../../assets/track_your_progress.png";
 import discoverNewReads from "../../assets/discover_new_reads.png";
 import "./Home.css";
-import Card from "../../components/Card";
 
 export default function Home() {
   return (
@@ -34,6 +35,11 @@ export default function Home() {
 
         <div className="p-md-5 mb-3 w-custom">
             <div className="container mx-0 row" id="key-features">
+                <h2 className="display-6 text-center mb-2">Key Features</h2>
+                <p className="lead text-center mb-5">
+                    Explore the features that make Read2Geda your go-to platform for book clubs.
+                </p>
+
                 <div className="col-md-4">
                     <Card
                         imgSrc={keepingInTouch}
@@ -62,6 +68,17 @@ export default function Home() {
                 </div>
 
             </div>
+        </div>
+        
+        <div className="section mb-5 text-center">
+            <div className="display-6 mb-2">Join A Book Club</div>
+            <p className="lead mb-5">
+              Connect with like-minded readers and dive into engaging discussions.
+            </p>
+
+            <Carousel />
+
+            <NavButton className="btn btn-outline-success mt-5" href="/book-club" label="Discover More" />
         </div>
       </div>
       <Footer />
