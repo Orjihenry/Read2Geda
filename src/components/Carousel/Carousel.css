@@ -1,0 +1,19 @@
+.card-custom-wrapper {
+    height: 100%;
+}
+
+.slick-arrow {
+    width: 30px;
+    height: 30px;
+    background: rgba(122, 116, 116, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.slick-arrow:hover {
+    background: rgb(37, 36, 36);
+}
