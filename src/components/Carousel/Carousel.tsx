@@ -27,6 +27,13 @@ export default function Carousel() {
         speed: 500,
         slidesToShow: 3,
         slidesToScroll: 1,
+        focusOnSelect: true,
+        arrows: true,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        cssEase: "linear",
+        centerMode: true,
+        centerPadding: "20px",
         responsive: [
             {
                 breakpoint: 1024,
@@ -55,28 +62,34 @@ export default function Carousel() {
             <div key={index} className="px-2">
                 <div className="p-3 border rounded shadow-sm bg-light card-custom-wrapper">
                     <div className="d-flex text-start align-items-center">
-                    {/* Left: Avatar / Image */}
                         <div className="flex-shrink-0 me-3">
                             <img
                             src={item.imageUrl}
                             alt={item.name}
                             className="rounded-circle"
-                            style={{ width: "64px", height: "64px", objectFit: "cover" }}
+                            style={{ width: "64px", height: "64px" }}
                             />
                         </div>
 
-                        {/* Right: Content */}
                         <div className="flex-grow-1">
                             <h5 className="mb-1 fw-bold">{item.name}</h5>
                             <p className="mb-1 text-muted">{item.description}</p>
 
                         </div>
                     </div>
-                    <div className="d-flex mt-2 justify-content-around">
-                        <p className="mb-0 small text-muted">Location: {item.location || "Online"}</p>
-                        <p className="mb-0 small">👥 Members: {item.members.length}</p>
+                    <div className="d-flex mt-2 justify-content-center gap-2">
+                        <p className="mb-0 small px-2 border-right">Location: {item.location || "Online"}</p>
+                        <p className="mb-0 small"> Members: {item.members.length}</p>
                     </div>
                     <div className="">
+                        <div className="d-flex align-items-center justify-content-center">
+                            <span className="me-2">⭐ Rating:</span>
+                            <div className="d-flex">
+                                {Array.from({ length: 5 }, (_, i) => (
+                                    <span key={i} className={`star ${i < item.rating ? "filled" : ""}`}>★</span>
+                                ))}
+                            </div>
+                        </div>
                         <p className="mb-1 small text-muted"><span className="font-weight-bold">🏷️ Tags:</span> {item.tags?.join(", ") || "None"}</p>
                         <p className="mb-1 small">📅 Next Meeting: {item.nextMeeting ? new Date(item.nextMeeting).toLocaleDateString() : "N/A"}</p>
                     </div>

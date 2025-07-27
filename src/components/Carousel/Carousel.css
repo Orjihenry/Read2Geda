@@ -17,3 +17,7 @@
 .slick-arrow:hover {
     background: rgb(37, 36, 36);
 }
+
+.border-right {
+    border-right: 1px solid #0a0b0b;
+}

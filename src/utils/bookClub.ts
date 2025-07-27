@@ -12,6 +12,7 @@ export type bookClub = {
   ownerImageUrl?: string;
   isPublic: boolean;
   isActive: boolean;
+  rating: number;
   tags?: string[];
   location?: string;
   meetingFrequency?: string;
@@ -34,6 +35,7 @@ export const defaultBookClubs: bookClub[] = [
     ownerImageUrl: "",
     isPublic: true,
     isActive: true,
+    rating: 4.5,
     tags: ["fiction", "mystery"],
     location: "Online",
     meetingFrequency: "Weekly",
@@ -54,6 +56,7 @@ export const defaultBookClubs: bookClub[] = [
     ownerImageUrl: "",
     isPublic: true,
     isActive: true,
+    rating: 4.0,
     tags: ["science fiction", "fantasy"],
     location: "Online",
     meetingFrequency: "Bi-weekly",
@@ -74,6 +77,7 @@ export const defaultBookClubs: bookClub[] = [
     ownerImageUrl: "",
     isPublic: true,
     isActive: true,
+    rating: 4.8,
     tags: ["mystery", "thriller"],
     location: "Online",
     meetingFrequency: "Monthly",
@@ -94,6 +98,7 @@ export const defaultBookClubs: bookClub[] = [
     ownerImageUrl: "",
     isPublic: true,
     isActive: true,
+    rating: 3.5,
     tags: ["history", "non-fiction"],
     location: "Online",
     meetingFrequency: "Monthly",
@@ -114,6 +119,7 @@ export const defaultBookClubs: bookClub[] = [
     ownerImageUrl: "",
     isPublic: true,
     isActive: true,
+    rating: 4.2,
     tags: ["fantasy", "adventure"],
     location: "Online",
     meetingFrequency: "Weekly",
