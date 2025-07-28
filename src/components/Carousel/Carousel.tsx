@@ -2,8 +2,8 @@ import { defaultBookClubs } from "../../utils/bookClub";
 import { MdAddLocationAlt, MdCalendarMonth, MdPeopleAlt, MdStar } from "react-icons/md";
 import { IoMdPricetag } from "react-icons/io";
 import { useEffect } from "react";
-import Slider from "react-slick";
 import NavButton from "../NavButton";
+import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Carousel.css"
@@ -61,7 +61,7 @@ export default function Carousel() {
         <div className="slider-container">
             <Slider {...settings}>
             {defaultBookClubs.map((item, index) => (
-            <div key={index} className="px-2 py-5">
+            <div key={index} className="px-2">
                 <div className="p-3 border rounded shadow-sm bg-light card-custom-wrapper">
                     <div className="d-flex text-start align-items-center">
                         <div className="flex-shrink-0 me-3">
