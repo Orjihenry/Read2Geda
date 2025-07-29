@@ -1,0 +1,38 @@
+
+@media screen and ( min-width: 780px ) {
+  
+  .py-10 {
+    padding: 6.5rem 0;
+  }
+}
+
+@media screen and ( max-width: 780px ) {
+  
+  .py-10 {
+    padding: 3rem 0;
+  }
+}
+
+.bg-image,
+.bg-image-section2,
+.bg-image-section3 {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100%;
+}
+
+.bg-image {
+  background-image: url("../../assets/about-us-reading.png");
+  min-height: 500px;
+}
+
+.bg-image-section2 {
+  background-image: url("../../assets/about-us.png");
+  min-height: 300px;
+}
+
+.bg-image-section3 {
+  background-image: url("../../assets/about-us-vision.png");
+  min-height: 300px;
+}
