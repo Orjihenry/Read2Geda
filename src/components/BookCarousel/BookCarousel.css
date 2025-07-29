@@ -1,0 +1,17 @@
+.card-custom-wrapper {
+  transition: all 0.3s ease;
+}
+
+.card-custom-wrapper:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+.star {
+  font-size: 0.9rem;
+  margin-right: 2px;
+}
+
+.star.filled {
+  color: #f4c150;
+}
