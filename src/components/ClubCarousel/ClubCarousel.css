@@ -1,0 +1,29 @@
+.slick-arrow {
+    width: 30px;
+    height: 30px;
+    background: rgba(122, 116, 116, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.slick-arrow:hover {
+    background: rgb(37, 36, 36);
+}
+
+.card-custom-wrapper {
+  transition: all 0.3s ease;
+}
+
+.card-custom-wrapper:hover {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+}
+
+.star {
+  font-size: 0.9rem;
+  margin-right: 2px;
+}
