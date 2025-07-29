@@ -2,11 +2,12 @@ import Card from "../../components/Card";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import NavButton from "../../components/NavButton";
-import Carousel from "../../components/Carousel";
+import ClubCarousel from "../../components/ClubCarousel";
 import keepingInTouch from "../../assets/keeping_in_touch.png";
 import trackYourProgress from "../../assets/track_your_progress.png";
 import discoverNewReads from "../../assets/discover_new_reads.png";
 import "./Home.css";
+import BookCarousel from "../../components/BookCarousel";
 
 export default function Home() {
   return (
@@ -39,7 +40,6 @@ export default function Home() {
                 <p className="lead text-center mb-5">
                     Explore the features that make Read2Geda your go-to platform for book clubs.
                 </p>
-
                 <div className="col-md-4">
                     <Card
                         imgSrc={keepingInTouch}
@@ -48,7 +48,6 @@ export default function Home() {
                         text="Join our community to connect with fellow readers and share your thoughts."
                     />
                 </div>
-                    
                 <div className="col-md-4">
                     <Card
                         imgSrc={trackYourProgress}
@@ -57,7 +56,6 @@ export default function Home() {
                         text="Keep tabs on your reading journey and celebrate your achievements."
                     />
                 </div>
-
                 <div className="col-md-4">
                     <Card
                         imgSrc={discoverNewReads}
@@ -66,7 +64,6 @@ export default function Home() {
                         text="Explore a curated selection of books tailored to your interests."
                     />
                 </div>
-
             </div>
         </div>
         
@@ -76,9 +73,18 @@ export default function Home() {
               Connect with like-minded readers and dive into engaging discussions.
             </p>
 
-            <Carousel />
+            <ClubCarousel />
 
             <NavButton className="btn-outline-success mt-5" href="/book-club" label="Discover More" />
+        </div>
+
+        <div className="section text-center py-5 my-5 bg-light">
+            <h2 className="display-6 mb-4">Book Carousel</h2>
+            <p className="lead mb-5">
+              Explore our curated selection of books and find your next favorite read.
+            </p>
+
+            <BookCarousel />
         </div>
       </div>
       <Footer />
