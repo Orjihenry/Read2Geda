@@ -1,4 +1,5 @@
 import Button from "../Button";
+import "./../../index.css"
 
 export default function Footer() {
   return (
@@ -26,21 +27,21 @@ export default function Footer() {
               <h5>Quick Links</h5>
               <div className="row mx-0">
                 <div className="col-md-4 px-0">
-                  <a href="/about" className="nav-link">About Us</a>
-                  <a href="/privacy" className="nav-link">Privacy Policy</a>
-                  <a href="/terms" className="nav-link">Terms of Service</a>
+                  <a href="/about" className="nav-link quick-links">About Us</a>
+                  <a href="/privacy" className="nav-link quick-links">Privacy Policy</a>
+                  <a href="/terms" className="nav-link quick-links">Terms of Service</a>
                 </div>
 
                 <div className="col-md-4 px-0">
-                  <a href="/book-club" className="nav-link">Join A Book Club</a>
-                  <a href="/community-guidelines" className="nav-link">Community Guidelines</a>
-                  <a href="/faqs" className="nav-link">FAQs</a>
+                  <a href="/book-club" className="nav-link quick-links">Join A Book Club</a>
+                  <a href="/community-guidelines" className="nav-link quick-links">Community Guidelines</a>
+                  <a href="/faqs" className="nav-link quick-links">FAQs</a>
                 </div>
 
                 <div className="col-md-4 px-0">
-                  <a href="/discussion" className="nav-link">Community Discussions</a>
-                  <a href="/contact" className="nav-link">Contact Us</a>
-                  <a href="/how-it-works" className="nav-link">How It Works</a>
+                  <a href="/discussion" className="nav-link quick-links">Community Discussions</a>
+                  <a href="/contact" className="nav-link quick-links">Contact Us</a>
+                  <a href="/how-it-works" className="nav-link quick-links">How It Works</a>
                 </div>
               </div>
             </nav>
