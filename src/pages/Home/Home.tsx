@@ -3,11 +3,13 @@ import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import NavButton from "../../components/NavButton";
 import ClubCarousel from "../../components/ClubCarousel";
+import BookCarousel from "../../components/BookCarousel";
+
 import keepingInTouch from "../../assets/keeping_in_touch.png";
 import trackYourProgress from "../../assets/track_your_progress.png";
 import discoverNewReads from "../../assets/discover_new_reads.png";
+
 import "./Home.css";
-import BookCarousel from "../../components/BookCarousel";
 
 export default function Home() {
   return (
