@@ -1,13 +1,13 @@
-// import 'Header.css'
 import NavButton from "../NavButton";
 import Button from "../Button";
+import "./Header.css"
 
 export default function Header() {
   return (
     <header className="header">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container ">
-          <a className="navbar-brand" href="#">
+          <a className="navbar-brand p-3 logo-glass" href="/">
             Read2Geda
           </a>
           <Button
