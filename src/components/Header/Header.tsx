@@ -28,17 +28,17 @@ export default function Header() {
           >
             <ul className="navbar-nav mr-auto">
               <li className="nav-item active">
-                <a className="nav-link active" href="#">
+                <a className="nav-link active" href="/discover">
                   Discover
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">
+                <a className="nav-link" href="/my_shelf">
                   My Shelf
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">
+                <a className="nav-link" href="/highlights">
                   Highlights
                 </a>
               </li>
