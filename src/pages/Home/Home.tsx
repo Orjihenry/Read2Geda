@@ -2,6 +2,7 @@ import Card from "../../components/Card";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import NavButton from "../../components/NavButton";
+import BookCarousel from "../../components/BookCarousel";
 import ClubCarousel from "../../components/ClubCarousel";
 import BookCarousel from "../../components/BookCarousel";
 
