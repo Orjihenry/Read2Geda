@@ -113,7 +113,7 @@ export const defaultBookClubs: bookClub[] = [
     members: ["user9", "user10"],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    imageUrl: "/src/assets/discover_new_reads.jpg",
+    imageUrl: "/src/assets/discover_new_reads.png",
     ownerId: "user9",
     ownerName: "User Nine",
     ownerImageUrl: "",
