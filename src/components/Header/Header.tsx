@@ -28,17 +28,17 @@ export default function Header() {
           >
             <ul className="navbar-nav mr-auto">
               <li className="nav-item active">
-                <a className="nav-link active" href="/discover">
+                <a className="nav-link active" href="/Read2Geda/discover">
                   Discover
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/my_shelf">
+                <a className="nav-link" href="/Read2Geda/my_shelf">
                   My Shelf
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/highlights">
+                <a className="nav-link" href="/Read2Geda/highlights">
                   Highlights
                 </a>
               </li>
@@ -50,7 +50,7 @@ export default function Header() {
             </ul>
 
             <NavButton
-              href="/login"
+              href="/Read2Geda/login"
               className=" m-md-2 my-sm-0"
               label="Login / Register"
             />

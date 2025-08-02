@@ -13,14 +13,14 @@ function App() {
 
   return (
     <>
-      <Router basename="/Read2Geda/">
+      <Router basename="/Read2Geda">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="about" element={<About />} />
-          <Route path="discover" element={<Discover />} />
-          <Route path="highlights" element={<Profile />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="my_shelf" element={<BookShelf />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/highlights" element={<Profile />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/my_shelf" element={<BookShelf />} />
         </Routes>
       </Router>
     </>
