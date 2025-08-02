@@ -29,7 +29,7 @@ export const bookData: BookData[] = [
     genre: "Dystopian",
     publishedYear: 1949,
     summary: "A novel that presents a terrifying vision of a totalitarian future.",
-    coverImage: "https://example.com/1984.jpg",
+    coverImage: "https://m.media-amazon.com/images/I/910cf05vZmL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["dystopian", "political"],
     rating: 4.7
   },
@@ -40,7 +40,7 @@ export const bookData: BookData[] = [
     genre: "Adventure",
     publishedYear: 1851,
     summary: "The narrative of Captain Ahab's obsessive quest to kill the white whale, Moby Dick.",
-    coverImage: "https://example.com/moby-dick.jpg",
+    coverImage: "https://m.media-amazon.com/images/I/81XS2mY6qfL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "adventure"],
     rating: 4.5
   },
@@ -51,7 +51,7 @@ export const bookData: BookData[] = [
     genre: "Romance",
     publishedYear: 1813,
     summary: "A romantic novel that critiques the British landed gentry at the end of the 18th century.",
-    coverImage: "https://example.com/pride-and-prejudice.jpg",
+    coverImage: "https://m.media-amazon.com/images/I/91fDvMK+aEL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "romance"],
     rating: 4.6
   },
@@ -62,7 +62,7 @@ export const bookData: BookData[] = [
     genre: "Fiction",
     publishedYear: 1925,
     summary: "A novel about the American dream and the disillusionment that comes with it.",
-    coverImage: "https://example.com/the-great-gatsby.jpg",
+    coverImage: "https://m.media-amazon.com/images/I/6150zvwveOL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "fiction"],
     rating: 4.4
   }
