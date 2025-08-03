@@ -8,7 +8,6 @@ import {
 import { IoMdPricetag } from "react-icons/io";
 import { useEffect } from "react";
 import NavButton from "../NavButton";
-// import "./ClubCarousel.css";
 
 type clubCardProps = {
   index: number
