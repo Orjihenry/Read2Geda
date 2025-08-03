@@ -1,30 +1,42 @@
-import { defaultBookClubs } from "../../utils/bookClub";
-import { useEffect } from "react";
-
+import { useEffect, useRef, useState } from "react";
 import Carousel from "../Carousel";
 import ClubCard from "../ClubCard";
-
+import useClubData from "../../hooks/useClubData";
 import "./ClubCarousel.css";
 
 export default function ClubCarousel() {
+  const { clubs, loading } = useClubData();
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [maxHeight, setMaxHeight] = useState<number | null>(null);
+
   useEffect(() => {
-    const cards = document.querySelectorAll(".card-custom-wrapper");
-    let maxHeight = 0;
-
-    cards.forEach((card) => {
-      const h = card.getBoundingClientRect().height;
-      if (h > maxHeight) maxHeight = h;
-    });
-
-    cards.forEach((card) => {
-      (card as HTMLElement).style.height = `${maxHeight}px`;
-    });
-  }, []);
+    if (!loading && clubs.length > 0) {
+      const heights = cardRefs.current.map((card) => card?.offsetHeight || 0);
+      setMaxHeight(Math.max(...heights));
+    }
+  }, [loading, clubs]);
 
   return (
-    <Carousel
-      data={defaultBookClubs}
-      renderItem={(item, index) => ( <ClubCard key={index} item={item} index={index} /> )}
-    />
+    <div>
+      {loading ? (
+        <div className="text-center py-4">
+          <div className="spinner-border text-primary mb-3" role="status" />
+          <p className="lead text-muted">📚 Please wait, loading your next great read...</p>
+        </div>
+      ) : (
+        <Carousel
+          data={clubs}
+          renderItem={(item, index) => (
+            <div
+              ref={(el) => { cardRefs.current[index] = el; }}
+              key={item.id || index}
+              style={{ height: maxHeight ? `${maxHeight}px` : "auto" }}
+            >
+              <ClubCard item={item} index={index} />
+            </div>
+          )}
+        />
+      )}
+    </div>
   );
 }
