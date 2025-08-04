@@ -28,3 +28,7 @@
 .dark-color {
     color: #20247b;
 }
+
+.font-italic {
+    font-style: italic;
+}
