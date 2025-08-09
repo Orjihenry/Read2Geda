@@ -1,3 +1,4 @@
+import { NavLink } from "react-router-dom";
 import NavButton from "../NavButton";
 import Button from "../Button";
 import "./Header.css"
@@ -7,7 +8,7 @@ export default function Header() {
     <header className="header">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container ">
-          <a className="navbar-brand p-3 logo-glass" href="/">
+          <a className="navbar-brand p-3 logo-glass" href="/Read2Geda/">
             Read2Geda
           </a>
           <Button
@@ -27,33 +28,35 @@ export default function Header() {
             id="navbarSupportedContent"
           >
             <ul className="navbar-nav mr-auto">
-              <li className="nav-item active">
-                <a className="nav-link active" href="/Read2Geda/discover">
+              <li className="nav-item">
+                <NavLink to="/discover" className={({ isActive }) => isActive ? "nav-link active" : "nav-link" }>
                   Discover
-                </a>
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/Read2Geda/my_shelf">
+                 <NavLink to="/my_shelf" className={({ isActive }) => isActive ? "nav-link active" : "nav-link" }>
                   My Shelf
-                </a>
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="/Read2Geda/highlights">
+                 <NavLink to="/highlights" className={({ isActive }) => isActive ? "nav-link active" : "nav-link" }>
                   Highlights
-                </a>
+                </NavLink>
               </li>
               <li className="nav-item">
-                <a className="nav-link" href="#">
+                 <NavLink to="/how_it_works" className={({ isActive }) => isActive ? "nav-link active" : "nav-link" }>
                   How it works
-                </a>
+                </NavLink>
               </li>
             </ul>
 
-            <NavButton
-              href="/Read2Geda/login"
-              className=" m-md-2 my-sm-0"
-              label="Login / Register"
-            />
+            <NavLink to="/login" className={({ isActive }) => isActive ? "nav-link active" : "nav-link " }>
+             <NavButton
+                href="/login"
+                className=" m-md-2 my-sm-0"
+                label="Login / Register"
+              />
+            </NavLink>
           </div>
         </div>
       </nav>
