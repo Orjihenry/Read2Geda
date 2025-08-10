@@ -7,7 +7,7 @@ import {
 } from "react-icons/md";
 import { IoMdPricetag } from "react-icons/io";
 import { useEffect } from "react";
-import NavButton from "../NavButton";
+import { NavLink } from "react-router-dom";
 
 type clubCardProps = {
   index: number
@@ -107,16 +107,16 @@ export default function ClubCard({ index, item}: clubCardProps ) {
               </p>
             </div>
             <div className="d-flex gap-2 pt-2 justify-content-center">
-              <NavButton
-                className="btn-dark text-light btn-sm"
-                href={`#/book-club/${item.id}`}
-                label="Join Club"
-              />
-              <NavButton
-                className="btn-outline-primary btn-sm"
-                href={`#/book-club/${item.id}`}
-                label="View Details"
-              />
+              <NavLink
+                to={`/book_club/${item.id}`}
+                className="btn btn-dark btn-sm">
+                Join Club
+              </NavLink>
+              <NavLink
+                to={`/club/${item.id}`}
+                className="btn btn-outline-success btn-sm">
+                View Details
+              </NavLink>
             </div>
           </div>
         </div>

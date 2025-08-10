@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import NavButton from "../NavButton";
 import Button from "../Button";
 import "./Header.css"
 
@@ -50,12 +49,8 @@ export default function Header() {
               </li>
             </ul>
 
-            <NavLink to="/login" className={({ isActive }) => isActive ? "nav-link active" : "nav-link " }>
-             <NavButton
-                href="/login"
-                className=" m-md-2 my-sm-0"
-                label="Login / Register"
-              />
+            <NavLink to="/login" className={({ isActive }) => isActive ? "btn btn-outline-success m-md-2 my-sm-0 active" : "btn btn-outline-success m-md-2 my-sm-0" }>
+              Login / Register
             </NavLink>
           </div>
         </div>
