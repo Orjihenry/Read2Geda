@@ -1,6 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
+import ClubDetails from './pages/ClubDetails';
 import About from './pages/About';
 import Profile from './pages/Profile';
 import Contact from './pages/Contact';
@@ -21,6 +22,7 @@ function App() {
           <Route path="/highlights" element={<Profile />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/my_shelf" element={<BookShelf />} />
+          <Route path="/club/:clubId" element={<ClubDetails />} />
         </Routes>
       </Router>
     </>
