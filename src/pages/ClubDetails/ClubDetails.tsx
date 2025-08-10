@@ -3,6 +3,7 @@ import Footer from "../../components/Footer"
 import Header from "../../components/Header"
 import { FaArrowLeftLong } from "react-icons/fa6"
 import { defaultBookClubs } from "../../utils/bookClub";
+import BookCarousel from "../../components/BookCarousel";
 
 
 export default function ClubDetails() {
@@ -90,7 +91,25 @@ export default function ClubDetails() {
         </div>
       </div>
 
-      
+      <div className="container py-5">
+        <h2 className="display-6 py-2">Club Reviews</h2>
+        <NavLink to="" className="btn btn-dark btn-md">Discussion Questions</NavLink>
+
+        <div className="py-4">
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem nisi id exercitationem dignissimos expedita veritatis error fugiat assumenda sunt et quis earum, temporibus architecto? At delectus sit dolor rem facilis?</p>
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem nisi id exercitationem dignissimos expedita veritatis error fugiat assumenda sunt et quis earum, temporibus architecto? At delectus sit dolor rem facilis?</p>
+          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem nisi id exercitationem dignissimos expedita veritatis error fugiat assumenda sunt et quis earum, temporibus architecto? At delectus sit dolor rem facilis?</p>
+        </div>
+
+      </div>
+
+      <div className="bg-light py-5">
+        <div className="container py-4">
+          <h3 className="display-6 pb-2">Other Books On Our List</h3>
+
+          <BookCarousel />
+        </div>
+      </div>
       <Footer />
     </>
   )
