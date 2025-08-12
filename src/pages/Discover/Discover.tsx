@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import ClubCard from "../../components/ClubCard";
@@ -7,6 +8,20 @@ import useClubData from "../../hooks/useClubData";
 
 export default function Discover() {
   const { clubs, loading } = useClubData();
+  const [searchInput, setSearchInput] = useState("");
+  const [categoryInput, setCategoryInput] = useState("");
+
+  const filteredClubs = clubs.filter((club) => {
+    const matchesSearch = club.name
+      .toLowerCase()
+      .includes(searchInput.toLowerCase());
+
+    const matchesCategory =
+      categoryInput === "" ||
+      club.tags?.some((tag) => tag.toLowerCase() === categoryInput.toLowerCase());
+
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <>
@@ -35,33 +50,26 @@ export default function Discover() {
                   className="form-control"
                   placeholder="Search..."
                   id="searchInput"
+                  onChange={(e) => setSearchInput(e.target.value)}
                 />
               </div>
 
-              <div className="col-md-4">
-                <select className="form-select" id="filterSelect">
+              <div className="col-md-6">
+                <select className="form-select" id="filterSelect"
+                onChange={(e) => setCategoryInput(e.target.value)}>
                   <option value="">All Categories</option>
-                  <option value="nonfiction">Biography</option>
-                  <option value="nonfiction">Documentary</option>
+                  <option value="biography">Biography</option>
+                  <option value="documentary">Documentary</option>
                   <option value="fantasy">Fantasy</option>
                   <option value="fiction">Fiction</option>
-                  <option value="nonfiction">Historical</option>
-                  <option value="nonfiction">Horror</option>
-                  <option value="mystery">Memoir</option>
+                  <option value="historical">Historical</option>
+                  <option value="horror">Horror</option>
+                  <option value="memoir">Memoir</option>
                   <option value="mystery">Mystery</option>
                   <option value="nonfiction">Non-fiction</option>
-                  <option value="mystery">Romance</option>
-                  <option value="mystery">Science Fiction</option>
+                  <option value="romance">Romance</option>
+                  <option value="scienceFiction">Science Fiction</option>
                 </select>
-              </div>
-
-              <div className="col-md-2">
-                <button
-                  className="btn btn-outline-success w-100"
-                  id="applyFilter"
-                >
-                  Filter
-                </button>
               </div>
             </div>
           </div>
@@ -71,14 +79,14 @@ export default function Discover() {
               <div className="spinner-border text-primary mb-2" role="status" />
               <p>📚 Fetching awesome book clubs for you...</p>
             </div>
-          ) : clubs && clubs.length > 0 ? (
-            clubs.map((item, index) => (
-              <div key={item.id || index} className="col-md-4">
-                <ClubCard item={item} index={index} />
-              </div>
-            ))
+          ) : filteredClubs.length > 0 ? (
+                filteredClubs.map((item, index) => (
+                <div key={item.id || index} className="col-md-4">
+                    <ClubCard item={item} index={index} />
+                </div>
+                ))
           ) : (
-            <p className="text-muted">No book clubs available right now.</p>
+            <p className="text-muted">No book clubs match these filters.</p>
           )}
         </div>
       </div>
