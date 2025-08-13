@@ -5,11 +5,15 @@ import ClubCard from "../../components/ClubCard";
 import NavButton from "../../components/NavButton";
 import ClubCarousel from "../../components/ClubCarousel";
 import useClubData from "../../hooks/useClubData";
+import "./discover.css"
 
 export default function Discover() {
   const { clubs, loading } = useClubData();
   const [searchInput, setSearchInput] = useState("");
   const [categoryInput, setCategoryInput] = useState("");
+
+  const [currentClubs, setCurrentClubs] = useState(1);
+  const clubsPerPage = 3;
 
   const filteredClubs = clubs.filter((club) => {
     const matchesSearch = club.name
@@ -22,6 +26,14 @@ export default function Discover() {
 
     return matchesSearch && matchesCategory;
   });
+
+  const lastClubsIndex = currentClubs * clubsPerPage;
+  const firstClubsIndex = lastClubsIndex - clubsPerPage;
+
+  const currentClubPost = filteredClubs.slice(firstClubsIndex, lastClubsIndex);
+
+  const nClubs = Math.ceil(filteredClubs.length/clubsPerPage)
+  const numbers = [...Array(nClubs + 1).keys()].slice(1)
 
   return (
     <>
@@ -68,7 +80,7 @@ export default function Discover() {
                   <option value="mystery">Mystery</option>
                   <option value="nonfiction">Non-fiction</option>
                   <option value="romance">Romance</option>
-                  <option value="scienceFiction">Science Fiction</option>
+                  <option value="science fiction">Science Fiction</option>
                 </select>
               </div>
             </div>
@@ -79,18 +91,52 @@ export default function Discover() {
               <div className="spinner-border text-primary mb-2" role="status" />
               <p>📚 Fetching awesome book clubs for you...</p>
             </div>
-          ) : filteredClubs.length > 0 ? (
-                filteredClubs.map((item, index) => (
+          ) : currentClubPost.length > 0 ? (
+                currentClubPost.map((item, index) => (
                 <div key={item.id || index} className="col-md-4">
                     <ClubCard item={item} index={index} />
+                    
                 </div>
                 ))
           ) : (
             <p className="text-muted">No book clubs match these filters.</p>
           )}
+          <nav className="cursor">
+            <ul className="pagination justify-content-center">
+              <li className="page-item btn-outline-success">
+                <a className="btn btn-outline-success" onClick={prevPage}>Prev</a>
+              </li>
+              {
+                numbers.map((n, i) => (
+                  <li className={`page-item ${currentClubs === n ? 'active' : ''}`} key={i}>
+                    <a className="btn btn-outline-success" onClick={() => changCurrPage(n)}>{n}</a>
+                  </li>
+                ))
+              }
+              <li className="page.item">
+                <a className="btn btn-outline-success" onClick={nextPage}>Next</a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
       <Footer />
     </>
   );
+
+  function prevPage() {
+    if (currentClubs !== 1) {
+        setCurrentClubs(currentClubs - 1)
+    }
+  }
+  
+  function nextPage() {
+    if (currentClubs !== nClubs) {
+        setCurrentClubs(currentClubs + 1)
+    }
+  }
+
+  function changCurrPage(id) {
+    setCurrentClubs(id)
+  }
 }
