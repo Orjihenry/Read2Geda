@@ -1,3 +1,4 @@
+import { IoLogoFacebook, IoLogoInstagram, IoLogoLinkedin, IoLogoTwitter } from "react-icons/io";
 import Button from "../Button";
 import "./../../index.css"
 
@@ -15,10 +16,11 @@ export default function Footer() {
               <Button className="btn-light btn-sm">Subscribe</Button>
             </div>
 
-            <div className="socials">
-              <a href="#" className="text-light me-2">Facebook</a>
-              <a href="#" className="text-light me-2">Twitter</a>
-              <a href="#" className="text-light">Instagram</a>
+            <div className="socials py-2">
+              <a href="#" className="text-light me-2 "><IoLogoFacebook size="40px"/></a>
+              <a href="#" className="text-light me-2 "><IoLogoTwitter size="40px"/></a>
+              <a href="#" className="text-light me-2 "><IoLogoInstagram size="40px"/></a>
+              <a href="#" className="text-light me-2 "><IoLogoLinkedin size="40px"/></a>
             </div>
           </div>
 
@@ -27,21 +29,21 @@ export default function Footer() {
               <h5>Quick Links</h5>
               <div className="row mx-0">
                 <div className="col-md-4 px-0">
-                  <a href="/Read2Geda/about" className="nav-link quick-links">About Us</a>
-                  <a href="/Read2Geda/privacy" className="nav-link quick-links">Privacy Policy</a>
-                  <a href="/Read2Geda/terms" className="nav-link quick-links">Terms of Service</a>
+                  <a href="/about" className="nav-link quick-links">About Us</a>
+                  <a href="/privacy" className="nav-link quick-links">Privacy Policy</a>
+                  <a href="/terms" className="nav-link quick-links">Terms of Service</a>
                 </div>
 
                 <div className="col-md-4 px-0">
-                  <a href="/Read2Geda/discover" className="nav-link quick-links">Join A Book Club</a>
-                  <a href="/Read2Geda/community-guidelines" className="nav-link quick-links">Community Guidelines</a>
-                  <a href="/Read2Geda/faqs" className="nav-link quick-links">FAQs</a>
+                  <a href="/discover" className="nav-link quick-links">Join A Book Club</a>
+                  <a href="/community-guidelines" className="nav-link quick-links">Community Guidelines</a>
+                  <a href="/faqs" className="nav-link quick-links">FAQs</a>
                 </div>
 
                 <div className="col-md-4 px-0">
-                  <a href="/Read2Geda/discussion" className="nav-link quick-links">Community Discussions</a>
-                  <a href="/Read2Geda/contact" className="nav-link quick-links">Contact Us</a>
-                  <a href="/Read2Geda/how-it-works" className="nav-link quick-links">How It Works</a>
+                  <a href="/discussion" className="nav-link quick-links">Community Discussions</a>
+                  <a href="/contact" className="nav-link quick-links">Contact Us</a>
+                  <a href="/how-it-works" className="nav-link quick-links">How It Works</a>
                 </div>
               </div>
             </nav>
