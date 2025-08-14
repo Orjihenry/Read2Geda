@@ -13,7 +13,7 @@ import "bootstrap/dist/js/bootstrap.bundle";
 function App() {
   return (
     <>
-      <Router basename="/Read2Geda">
+      <Router basename="/">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
