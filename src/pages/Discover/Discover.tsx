@@ -1,49 +1,34 @@
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import ClubCard from "../../components/ClubCard";
-import NavButton from "../../components/NavButton";
 import ClubCarousel from "../../components/ClubCarousel";
 import useClubData from "../../hooks/useClubData";
+import useSearchFilter from "../../hooks/useSearchFilter";
 import "./discover.css"
 
 export default function Discover() {
   const { clubs, loading } = useClubData();
-  const [searchInput, setSearchInput] = useState("");
-  const [categoryInput, setCategoryInput] = useState("");
 
   const [currentClubs, setCurrentClubs] = useState(1);
   const clubsPerPage = 3;
 
-  const filteredClubs = clubs.filter((club) => {
-    const matchesSearch = club.name
-      .toLowerCase()
-      .includes(searchInput.toLowerCase());
-
-    const matchesCategory =
-      categoryInput === "" ||
-      club.tags?.some((tag) => tag.toLowerCase() === categoryInput.toLowerCase());
-
-    return matchesSearch && matchesCategory;
-  });
+  const { filteredData, searchInput, setSearchInput, categoryInput, setCategoryInput } = useSearchFilter(clubs);
 
   const lastClubsIndex = currentClubs * clubsPerPage;
   const firstClubsIndex = lastClubsIndex - clubsPerPage;
 
-  const currentClubPost = filteredClubs.slice(firstClubsIndex, lastClubsIndex);
+  const currentClubPost = filteredData.slice(firstClubsIndex, lastClubsIndex);
 
-  const nClubs = Math.ceil(filteredClubs.length/clubsPerPage)
+  const nClubs = Math.ceil(filteredData.length/clubsPerPage)
   const numbers = [...Array(nClubs + 1).keys()].slice(1)
 
   return (
     <>
       <Header />
       <div className="container my-5">
-        <NavButton
-          className="my-3"
-          href="/create-club"
-          label="Create New Group"
-        />
+        <NavLink className="btn btn-outline-success my-3" to="/create_club">Create New Group</NavLink>
 
         <div className="section my-2">
           <h1 className="display-6 py-3">Popular Clubs</h1>
@@ -58,6 +43,7 @@ export default function Discover() {
             <div className="row g-3 align-items-center">
               <div className="col-md-6">
                 <input
+                  value={searchInput}
                   type="text"
                   className="form-control"
                   placeholder="Search..."
@@ -68,7 +54,7 @@ export default function Discover() {
 
               <div className="col-md-6">
                 <select className="form-select" id="filterSelect"
-                onChange={(e) => setCategoryInput(e.target.value)}>
+                onChange={(e) => setCategoryInput(e.target.value)} value={categoryInput}>
                   <option value="">All Categories</option>
                   <option value="biography">Biography</option>
                   <option value="documentary">Documentary</option>
