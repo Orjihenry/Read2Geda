@@ -67,47 +67,50 @@ export default function Profile() {
           </div>
         </section>
         
-        <section className=" py-5 about-section">
+        <section className=" py-5 pb-3 about-section">
           <h2 className="display-6 text-center py-4">
             On My Bookshelf Today
           </h2>
           <div className="container">
-            <div className="row align-items-center">
-              <div className="col-lg-6">
-                <h4 className="display-6 text-center py-3">Current Club</h4>
-                <div className="d-flex justify-content-center">
-                  <img
-                    className="rounded-circle shadow"
-                    src="/Read2Geda/src/assets/track_your_progress.png"
-                    title="Fantasy Realm"
-                    alt="Book Club"
-                  />
-                </div>
-              </div>
-              <div className="col-lg-6 py-4 py-md-0">
-                <div className="about-text">
-                  <div>
-                    <div className="d-flex justify-content-start text-center mb-3">
-                      <img
-                        src="https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg"
-                        alt="Title"
-                        className="shadow img-fluid me-4"
-                        style={{ maxHeight: "220px", objectFit: "cover" }}
-                        />
-
-                        <div className="text-start">
-                            <h3 className="display-8 dark-color my-0">To Kill A Mockingbird</h3>
-                            <p className="text-mute small my-0">Harper Lee</p>
-                            <p className="text-mute small my-0">Published: 1960</p>
-                            <p className="text-mute small my-0">Tags: classic, literature</p>
-                        </div>
-
-                    </div>
+            <div className="card p-4">
+              <div className="row align-items-center">
+                <div className="col-lg-6">
+                  <h4 className="display-6 text-center pb-3">Current Club</h4>
+                  <div className="d-flex justify-content-center">
+                    <img
+                      className="rounded-circle shadow"
+                      src="/Read2Geda/src/assets/track_your_progress.png"
+                      title="Fantasy Realm"
+                      alt="Book Club"
+                      style={{ maxHeight: "220px", objectFit: "cover" }}
+                    />
                   </div>
-                  
-                  <h6>Reading Progress</h6>
-                  <div className="progress mb-3">
-                    <div className="progress-bar bg-dark" style={{ width: "80%" }}>80% Complete</div>
+                </div>
+                <div className="col-lg-6 py-4 py-md-0">
+                  <div className="about-text">
+                    <div>
+                      <div className="d-flex justify-content-start text-center mb-3">
+                        <img
+                          src="https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg"
+                          alt="Title"
+                          className="shadow img-fluid me-4"
+                          style={{ maxHeight: "220px", objectFit: "cover" }}
+                          />
+
+                          <div className="text-start">
+                              <h3 className="display-8 dark-color my-0">To Kill A Mockingbird</h3>
+                              <p className="text-mute small my-0">Harper Lee</p>
+                              <p className="text-mute small my-0">Published: 1960</p>
+                              <p className="text-mute small my-0">Tags: classic, literature</p>
+                          </div>
+
+                      </div>
+                    </div>
+                    
+                    <h6>Reading Progress</h6>
+                    <div className="progress mb-3">
+                      <div className="progress-bar bg-dark" style={{ width: "80%" }}>80% Complete</div>
+                    </div>
                   </div>
                 </div>
               </div>
