@@ -7,7 +7,7 @@ export default function Header() {
     <header className="header">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container ">
-          <a className="navbar-brand p-3 logo-glass" href="/Read2Geda/">
+          <a className="navbar-brand p-3 logo-glass" href="/">
             Read2Geda
           </a>
           <Button
