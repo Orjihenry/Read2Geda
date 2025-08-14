@@ -122,7 +122,7 @@ export default function Discover() {
     }
   }
 
-  function changCurrPage(id) {
+  function changCurrPage(id: number) {
     setCurrentClubs(id)
   }
 }
