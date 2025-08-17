@@ -9,7 +9,9 @@ import CreateClub from "./pages/CreateClub";
 import Discover from "./pages/Discover";
 import Home from "./pages/Home";
 import HowItWoks from "./pages/HowItWorks";
+import PrivacyPolicy from "./pages/Privacy";
 import Profile from "./pages/Profile";
+import Terms from "./pages/T&C";
 
 // Bootstrap
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -29,6 +31,8 @@ function App() {
           <Route path="/how_it_works" element={<HowItWoks />} />
           <Route path="/club/:clubId" element={<ClubDetails />} />
           <Route path="/create_club" element={<CreateClub />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<Terms />} />
         </Routes>
       </Router>
     </>
