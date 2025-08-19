@@ -7,6 +7,7 @@ import ClubDetails from "./pages/ClubDetails";
 import Contact from "./pages/Contact";
 import CreateClub from "./pages/CreateClub";
 import Discover from "./pages/Discover";
+import Discussions from "./pages/Discussions";
 import Home from "./pages/Home";
 import HowItWoks from "./pages/HowItWorks";
 import PrivacyPolicy from "./pages/Privacy";
@@ -33,6 +34,7 @@ function App() {
           <Route path="/create_club" element={<CreateClub />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/discussions" element={<Discussions />} />
         </Routes>
       </Router>
     </>
