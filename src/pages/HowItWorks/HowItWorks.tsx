@@ -8,10 +8,17 @@ export default function HowItWoks() {
           <Header />
 
           <div className="container py-5">
-            <div className="accordion py-5" id="accordionExample">
+            <div className="py-3">
+              <h1 className="display-6">📚 How It Works</h1>
+              <p className="lead text-muted">
+                Read2Geda makes it easy to build reading habits, share opinions, and grow in community.
+              </p>
+            </div>
+
+            <div className="accordion pb-5" id="accordionExample">
               <div className="accordion-item">
                 <h2 className="accordion-header" id="headingOne">
-                  <button className="fs-3 accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  <button className="fs-4 accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                     Discover Book Clubs
                   </button>
                 </h2>
@@ -23,7 +30,7 @@ export default function HowItWoks() {
               </div>
               <div className="accordion-item">
                 <h2 className="accordion-header" id="headingTwo">
-                  <button className="fs-3 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  <button className="fs-4 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                     Join or Create a Club
                   </button>
                 </h2>
@@ -35,7 +42,7 @@ export default function HowItWoks() {
               </div>
               <div className="accordion-item">
                 <h2 className="accordion-header" id="headingThree">
-                  <button className="fs-3 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  <button className="fs-4 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                     Track Your Reads
                   </button>
                 </h2>
@@ -47,7 +54,7 @@ export default function HowItWoks() {
               </div>
               <div className="accordion-item">
                 <h2 className="accordion-header" id="headingFour">
-                  <button className="fs-3 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                  <button className="fs-4 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                     Share and Discuss
                   </button>
                 </h2>
@@ -59,7 +66,7 @@ export default function HowItWoks() {
               </div>
               <div className="accordion-item">
                 <h2 className="accordion-header" id="headingFive">
-                  <button className="fs-3 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                  <button className="fs-4 accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
                     Stay Connected
                   </button>
                 </h2>
@@ -69,6 +76,16 @@ export default function HowItWoks() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="text-sm-center">
+              <h3 className="fw-bold">Ready to start your reading journey?</h3>
+              <p className="lead text-muted">
+                Join a vibrant community and discover your next great read today.
+              </p>
+              <a href="/discover" className="btn btn-outline-success btn-lg">
+                Explore Clubs
+              </a>
             </div>
           </div>
 
