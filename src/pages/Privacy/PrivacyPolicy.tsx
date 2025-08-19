@@ -72,7 +72,7 @@ export default function PrivacyPolicy() {
           </p>
         </section>
 
-        <div className="alert alert-success text-center mt-4">
+        <div className="alert alert-info text-center mt-4">
           ✨ With Read2Geda, your data stays yours. We just help you share your love for books.
         </div>
       </div>
