@@ -12,7 +12,7 @@ export default function Discover() {
   const { clubs, loading } = useClubData();
 
   const [currentClubs, setCurrentClubs] = useState(1);
-  const clubsPerPage = 3;
+  const clubsPerPage = 6;
 
   const { filteredData, searchInput, setSearchInput, categoryInput, setCategoryInput } = useSearchFilter(clubs);
 
