@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { bookData, type BookData } from "../utils/bookData";
+import Swal from "sweetalert2";
 
 export default function useBookData() {
     const [books, setBooks] = useState<BookData[]>([]);
@@ -18,7 +19,17 @@ export default function useBookData() {
           } catch (err) {
             console.warn("Error fetching books from API:", err);
             setBooks(bookData);
-            setError("Using local books data");
+            if (!error) {
+                setError("Couldn't fetch books from API.");
+                Swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    timer: 3000,
+                    icon: "error",
+                    text: "Couldn't fetch books from API. Showing local data instead.",
+                    showConfirmButton: false,
+                });
+            }
           } finally {
             setLoading(false);
           }

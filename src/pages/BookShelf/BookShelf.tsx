@@ -4,7 +4,7 @@ import Header from "../../components/Header";
 import useBookData from "../../hooks/useBookData";
 
 export default function BookShelf() {
-    const { books, loading, error } = useBookData();
+    const { books, loading } = useBookData();
 
   return (
     <>
@@ -13,7 +13,6 @@ export default function BookShelf() {
 
         <div className="row g-3 my-5">
           <h1 className="display-6 py-3">Book Shelf</h1>
-          {error && <div className="alert alert-danger text-center mt-4">{error}</div>}
           {loading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-primary mb-2" role="status" />
