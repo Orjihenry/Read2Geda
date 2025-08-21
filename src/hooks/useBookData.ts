@@ -21,31 +21,63 @@ export default function useBookData() {
     }, []);
 
     const addBook = (book: BookData) => {
-      const newBooks = [...books, book];
-      setBooks(newBooks);
-      localStorage.setItem("bookData", JSON.stringify(newBooks));
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        timer: 3000,
-        icon: "success",
-        text: "Book added successfully.",
-        showConfirmButton: false,
-      })
+      try {
+        const newBooks = [...books, book];
+        setBooks(newBooks);
+        localStorage.setItem("bookData", JSON.stringify(newBooks));
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          timer: 3000,
+          icon: "success",
+          text: "Book added successfully.",
+          showConfirmButton: false,
+        })
+      } catch (err) {
+        console.warn("Error adding book:", err);
+        setError("Couldn't add book.");
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          timer: 3000,
+          icon: "error",
+          text: "Couldn't add book.",
+          showConfirmButton: false,
+        })
+      } finally {
+        setLoading(false);
+        setError(null);
+      }
     }
 
     const removeBook = (book: BookData) => {
-      const newBooks = books.filter(b => b.author !== book.author);
-      setBooks(newBooks);
-      localStorage.setItem("bookData", JSON.stringify(newBooks));
+      try {
+        const newBooks = books.filter(b => b.author !== book.author);
+        setBooks(newBooks);
+        localStorage.setItem("bookData", JSON.stringify(newBooks));
       Swal.fire({
         toast: true,
         position: "top-end",
         timer: 3000,
         icon: "success",
         text: "Book removed successfully.",
-        showConfirmButton: false,
-      })
+          showConfirmButton: false,
+        })
+      } catch (err) {
+        console.warn("Error removing book:", err);
+        setError("Couldn't remove book.");
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          timer: 3000,
+          icon: "error",
+          text: "Couldn't remove book.",
+          showConfirmButton: false,
+        })
+      } finally {
+        setLoading(false);
+        setError(null);
+      }
     }
 
     return { books, loading, error, addBook, removeBook };
