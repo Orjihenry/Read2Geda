@@ -8,34 +8,45 @@ export default function useBookData() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        async function fetchBooks() {
-          setLoading(true);
-          try {
-            const response = await fetch("https://api.example.com/books");
-            if (!response.ok) throw new Error("API Failed, using local books data");
-      
-            const data: BookData[] = await response.json();
-            setBooks(data);
-          } catch (err) {
-            console.warn("Error fetching books from API:", err);
-            setBooks(bookData);
-            if (!error) {
-                setError("Couldn't fetch books from API.");
-                Swal.fire({
-                    toast: true,
-                    position: "top-end",
-                    timer: 3000,
-                    icon: "error",
-                    text: "Couldn't fetch books from API. Showing local data instead.",
-                    showConfirmButton: false,
-                });
-            }
-          } finally {
-            setLoading(false);
-          }
+        const savedBooks = localStorage.getItem("bookData");
+    
+        if (savedBooks) {
+          setBooks(JSON.parse(savedBooks));
+        } else {
+          setBooks(bookData);
+          localStorage.setItem("bookData", JSON.stringify(bookData));
         }
-        fetchBooks();
-      }, []);
+    
+        setLoading(false);
+    }, []);
 
-    return { books, loading, error };
+    const addBook = (book: BookData) => {
+      const newBooks = [...books, book];
+      setBooks(newBooks);
+      localStorage.setItem("bookData", JSON.stringify(newBooks));
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        timer: 3000,
+        icon: "success",
+        text: "Book added successfully.",
+        showConfirmButton: false,
+      })
+    }
+
+    const removeBook = (book: BookData) => {
+      const newBooks = books.filter(b => b.author !== book.author);
+      setBooks(newBooks);
+      localStorage.setItem("bookData", JSON.stringify(newBooks));
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        timer: 3000,
+        icon: "success",
+        text: "Book removed successfully.",
+        showConfirmButton: false,
+      })
+    }
+
+    return { books, loading, error, addBook, removeBook };
 }
