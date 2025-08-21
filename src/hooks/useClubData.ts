@@ -24,5 +24,38 @@ export default function useClubData() {
     }
   }, [clubs]);
 
-  return { clubs, setClubs, loading };
+  function handleCreateClub(club: bookClub) {
+    const newClub = {
+        id: String(clubs.length + 1),
+        name: club.name,
+        description: club.description,
+        members: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        imageUrl: club.imageUrl,
+        isPublic: club.isPublic,
+        isActive: club.isActive,
+        rating: club.rating,
+        tags: club.tags,
+        ownerId: club.ownerId,
+        ownerName: club.ownerName,
+    }
+
+    setClubs([...clubs, newClub]);
+  }
+  
+  function handleUpdateClub(club: bookClub) {
+    const updateClub = {
+        ...club,
+        updatedAt: new Date().toISOString(),
+    }
+
+    setClubs(clubs.map(c => c.id === club.id ? updateClub : c));
+  }
+
+  function handleDeleteClub(clubId: string) {
+    setClubs(clubs.filter(item => item.id !== clubId));
+  }
+
+  return { clubs, setClubs, loading, handleCreateClub, handleUpdateClub, handleDeleteClub };
 }
