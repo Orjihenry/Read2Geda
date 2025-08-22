@@ -10,6 +10,7 @@ import Discover from "./pages/Discover";
 import Discussions from "./pages/Discussions";
 import Home from "./pages/Home";
 import HowItWoks from "./pages/HowItWorks";
+import Login from "./pages/Auth";
 import PrivacyPolicy from "./pages/Privacy";
 import Profile from "./pages/Profile";
 import Terms from "./pages/T&C";
@@ -35,6 +36,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/discussions" element={<Discussions />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </Router>
     </>
