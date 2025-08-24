@@ -18,6 +18,7 @@ import Terms from "./pages/T&C";
 // Bootstrap
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
+import Register from "./pages/Auth/Register";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/discussions" element={<Discussions />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </Router>
     </>

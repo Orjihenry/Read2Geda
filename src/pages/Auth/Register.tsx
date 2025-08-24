@@ -1,11 +1,15 @@
 import { NavLink } from "react-router-dom";
 
-export default function Login() {
+export default function Register() {
     return (
         <>
           <section className="vh-100">
             <div className="container-fluid h-100">
               <div className="row h-100">
+
+                <div className="col-md-6 d-none d-md-block p-0">
+                  <div className="h-100 w-100 bg-success"></div>
+                </div>
                 
                 <div className="col-md-6 d-flex justify-content-center align-items-center bg-light shadow">
                   <div className="col-sm-10 col-md-8 col-lg-7">
@@ -17,9 +21,17 @@ export default function Login() {
                         </a>
                       </div>
                       <div className="card-body px-4 py-5 pt-3">
-                        <h3 className="fw-normal fs-6 mb-0 text-center">Log in</h3>
-                        <p className="text-center mb-4">Welcome back!</p>
+                        <h3 className="fw-normal fs-6 mb-0 text-center">Sign up</h3>
+                        <p className="text-center mb-4">Open an account to enjoy exciting features!</p>
                         <form>
+                          <div className="mb-3">
+                            <label htmlFor="first_name" className="form-label">First Name</label>
+                            <input type="text" id="first_name" className="form-control" />
+                          </div>
+                          <div className="mb-3">
+                            <label htmlFor="last_name" className="form-label">Last Name</label>
+                            <input type="text" id="last_name" className="form-control" />
+                          </div>
                           <div className="mb-3">
                             <label htmlFor="email" className="form-label">Email address</label>
                             <input type="email" id="email" className="form-control" />
@@ -33,19 +45,15 @@ export default function Login() {
                             <label htmlFor="remember" className="form-check-label">Remember me</label>
                           </div>
                           <button type="submit" className="btn btn-outline-success w-100 mb-3">
-                            Sign in
+                            Sign up
                           </button>
                           <div className="text-center">
-                            <p>Not a member? <NavLink to="/register">Sign up</NavLink></p>
+                            <p>Not a member? <NavLink to="/login">Sign in</NavLink></p>
                           </div>
                         </form>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="col-md-6 d-none d-md-block p-0">
-                    <div className="h-100 w-100 bg-success"></div>
                 </div>
               </div>
             </div>
