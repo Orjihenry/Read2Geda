@@ -29,10 +29,6 @@ export default function Register() {
                             <input type="text" id="first_name" className="form-control" />
                           </div>
                           <div className="mb-3">
-                            <label htmlFor="last_name" className="form-label">Last Name</label>
-                            <input type="text" id="last_name" className="form-control" />
-                          </div>
-                          <div className="mb-3">
                             <label htmlFor="email" className="form-label">Email address</label>
                             <input type="email" id="email" className="form-control" />
                           </div>
@@ -40,15 +36,19 @@ export default function Register() {
                             <label htmlFor="password" className="form-label">Password</label>
                             <input type="password" id="password" className="form-control" />
                           </div>
+                          <div className="mb-3">
+                            <label htmlFor="confirm" className="form-label">Confirm Password</label>
+                            <input type="password" id="confirm" className="form-control" />
+                          </div>
                           <div className="form-check mb-3">
                             <input type="checkbox" id="remember" className="form-check-input" />
-                            <label htmlFor="remember" className="form-check-label">Remember me</label>
+                            <label htmlFor="remember" className="form-check-label">Agree to <a href="#">terms of service</a></label>
                           </div>
                           <button type="submit" className="btn btn-outline-success w-100 mb-3">
                             Sign up
                           </button>
                           <div className="text-center">
-                            <p>Not a member? <NavLink to="/login">Sign in</NavLink></p>
+                            <p>Already a member? <NavLink to="/login">Sign in</NavLink></p>
                           </div>
                         </form>
                       </div>
