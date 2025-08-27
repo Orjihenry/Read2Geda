@@ -1,6 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react'
 
+import read2gedaLogo from "../../assets/read2geda.ico"
+
 const USER_REGEX = /^[a-zA-z][a-zA-z0-9-_]{2,23}$/
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,24}$/
@@ -83,7 +85,7 @@ export default function Register() {
                   <div className="card shadow-sm border-0">
                     <div className="card-header text-center bg-dark text-light border-0">
                       <a href="/" className="navbar-brand p-3 fs-2 logo-glass d-flex justify-content-center align-items-center">
-                        <img className="rounded rounded-circle me-2" src="/src/assets/read2geda.ico" alt="logo" style={{ width: "40px "}} />
+                        <img className="rounded rounded-circle me-2" src={read2gedaLogo} alt="logo" style={{ width: "40px "}} />
                         Read2Geda
                       </a>
                     </div>
