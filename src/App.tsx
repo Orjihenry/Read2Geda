@@ -19,12 +19,18 @@ import Terms from "./pages/T&C";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
 import Register from "./pages/Auth/Register";
+import ProtectedRoutes from "./utils/ProtectedRoutes";
 
 function App() {
   return (
     <>
       <Router basename="/">
         <Routes>
+          
+          <Route element={<ProtectedRoutes />}>
+          
+          </Route>
+
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/discover" element={<Discover />} />
