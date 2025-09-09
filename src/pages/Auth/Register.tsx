@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react'
+import Swal from "sweetalert2";
 
 import read2gedaLogo from "../../assets/read2geda.ico"
 
@@ -31,6 +32,27 @@ export default function Register() {
 
   const [errMsg, setErrMsg] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    Swal.fire({
+      icon: "info",
+      html: `
+        You can sign up with dummy data. No real info needed.<br />
+        All details are saved safely in your browser's localStorage only.
+      `,
+      showCloseButton: true,
+      focusConfirm: false,
+      confirmButtonText: `Gotcha!`,
+      confirmButtonAriaLabel: "Thumbs up, gotcha!",
+      timer: 6000,
+      timerProgressBar: true,
+      customClass: {
+        confirmButton: "btn btn-outline-success",
+        popup: "rounded-3 shadow"
+      },
+      buttonsStyling: false
+    });
+  }, [])
   
   useEffect(() =>{
     userRef?.current?.focus();
