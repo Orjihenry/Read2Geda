@@ -1,14 +1,10 @@
 import { useEffect, useState } from "react";
-
-export interface OpenLibraryBook {
-  key: string;
-  title: string;
-  author_name?: string[];
-  cover_i?: number;
-}
+import type { BookData } from "../utils/bookData";
+import { convertDataSet } from "../utils/convertDataSet";
+import Swal from "sweetalert2";
 
 export default function useRandomBooks(subject: string = "fiction") {
-  const [books, setBooks] = useState<OpenLibraryBook[]>([]);
+  const [books, setBooks] = useState<BookData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,11 +19,21 @@ export default function useRandomBooks(subject: string = "fiction") {
 
         const data = await response.json();
 
-        const shuffled = data.works.sort(() => 0.5 - Math.random());
+        const books = data.works.map(convertDataSet);
+
+        const shuffled = books.sort(() => 0.5 - Math.random());
 
         setBooks(shuffled.slice(0, 10));
       } catch (err: any) {
         setError(err.message);
+        Swal.fire({
+            toast: true,
+            position: "top-end",
+            timer: 4000,
+            icon: "error",
+            text: "Couldn't fetch books from API.",
+            showConfirmButton: false,
+        })
       } finally {
         setLoading(false);
       }
