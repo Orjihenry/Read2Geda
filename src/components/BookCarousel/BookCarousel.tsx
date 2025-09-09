@@ -2,11 +2,11 @@ import Carousel from "../Carousel";
 import BookCard from "../BookCard";
 
 import "./BookCarousel.css";
-import useBookData from "../../hooks/useBookData";
+import useRandomBooks from "../../hooks/useOpenLibrary";
 
 export default function BookCarouselPage() {
 
-  const { books, loading } = useBookData();
+  const { books: randomBooks, loading } = useRandomBooks();
 
   if (loading) return(
     <>
@@ -19,7 +19,7 @@ export default function BookCarouselPage() {
 
   return (
     <Carousel
-      data={books}
+      data={randomBooks}
       renderItem={(item, index) => ( <BookCard key={index} item={item} index={index} />)}
     />
   );
