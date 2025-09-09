@@ -1,10 +1,25 @@
+import { useState } from "react";
 import BookCard from "../../components/BookCard";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import useBookData from "../../hooks/useBookData";
+import useRandomBooks from "../../hooks/useOpenLibrary";
+import useSearchBooks from "../../hooks/useSearchBooks";
 
 export default function BookShelf() {
+  
   const { books, loading } = useBookData();
+  const { books: randomBooks } = useRandomBooks();
+
+  const [query, setQuery] = useState("");
+  const [trigger, setTrigger] = useState(false);
+  
+  const { books: searchResults, loading: searchLoading } = useSearchBooks(query, trigger);
+  
+  const handleSearch = () => {
+    setTrigger(false);
+    setTimeout(() => setTrigger(true), 0);
+  };
 
   return (
     <>
@@ -36,18 +51,32 @@ export default function BookShelf() {
         <section className="container py-5">
           <h2 className="mb-3">🔎 Explore Books</h2>
           <div className="input-group mb-4">
-            <input type="text" className="form-control" placeholder="Search for books..." />
-            <button className="btn btn-outline-success">Search</button>
+            <input type="text" className="form-control" placeholder="Search for books..." value={query} onChange={(e) => setQuery(e.target.value)} />
+            <button className="btn btn-outline-success" onClick={handleSearch}>Search</button>
           </div>
           <div className="row g-3">
-            {books && books.length > 0 ? (
-              books.map((item, index) => (
-                <div key={item.id || index} className="col-md-4">
-                  <BookCard item={item} index={index} />
-                </div>
-              ))
+            {trigger ? (
+              searchLoading ? (
+                <p className="lead text-muted">Searching for books...</p>
+              ) : searchResults && searchResults.length > 0 ? (
+                searchResults.map((item, index) => (
+                  <div key={item.id || index} className="col-md-4">
+                    <BookCard item={item} index={index} />
+                  </div>
+                ))
+              ) : (
+                <p className="lead text-muted">No books found. Try another search.</p>
+              )
             ) : (
-              <p className="lead text-muted">No books found. Try a different search.</p>
+              randomBooks && randomBooks.length > 0 ? (
+                randomBooks.map((item, index) => (
+                  <div key={item.id || index} className="col-md-4">
+                    <BookCard item={item} index={index} />
+                  </div>
+                ))
+              ) : (
+                <p className="lead text-muted">No books to explore right now.</p>
+              )
             )}
           </div>
         </section>
