@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { SavedBooksProvider } from "./context/SavedBooksContext";
 
 // Pages
 import About from "./pages/About";
@@ -25,27 +26,29 @@ function App() {
   return (
     <>
       <Router basename="/">
-        <Routes>
-          
-          <Route element={<ProtectedRoutes />}>
-          
-          </Route>
+        <SavedBooksProvider>
+          <Routes>
+            
+            <Route element={<ProtectedRoutes />}>
+            
+            </Route>
 
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/discover" element={<Discover />} />
-          <Route path="/highlights" element={<Profile />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/my_shelf" element={<BookShelf />} />
-          <Route path="/how_it_works" element={<HowItWoks />} />
-          <Route path="/club/:clubId" element={<ClubDetails />} />
-          <Route path="/create_club" element={<CreateClub />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/discussions" element={<Discussions />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/discover" element={<Discover />} />
+            <Route path="/highlights" element={<Profile />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/my_shelf" element={<BookShelf />} />
+            <Route path="/how_it_works" element={<HowItWoks />} />
+            <Route path="/club/:clubId" element={<ClubDetails />} />
+            <Route path="/create_club" element={<CreateClub />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/discussions" element={<Discussions />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </SavedBooksProvider>
       </Router>
     </>
   );
