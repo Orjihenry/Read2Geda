@@ -1,6 +1,7 @@
 import { type BookData } from "../../utils/bookData"
-import { MdAddLocationAlt, MdPeopleAlt, MdStar } from "react-icons/md";
-import { IoMdPricetag } from "react-icons/io";
+import { MdAddLocationAlt, MdOutlineFavorite, MdPeopleAlt, MdStar } from "react-icons/md";
+import { IoMdClose, IoMdPricetag } from "react-icons/io";
+import useSavedBooks from "../../hooks/useSavedBooks";
 
 type bookCardProps = {
     index: number
@@ -8,6 +9,11 @@ type bookCardProps = {
 }
 
 export default function BookCard({ index, item }: bookCardProps) {
+
+  const { addBook, removeBook, isInShelf } = useSavedBooks();
+
+  const inShelf = isInShelf(item.id);
+  
   return (
     <>
       <div
@@ -15,13 +21,21 @@ export default function BookCard({ index, item }: bookCardProps) {
         className="p-3 rounded-3 shadow-sm bg-white border card-custom-wrapper transition-all hover:shadow-lg h-100 d-flex flex-column justify-content-between"
       >
         <div>
-          <div className="d-flex justify-content-around text-center mb-3">
+          <div className="d-flex justify-content-between text-center mb-3">
             <img
               src={item.coverImage}
               alt={item.title}
-              className="img-fluid rounded"
+              className="img-fluid rounded mx-auto"
               style={{ maxHeight: "220px", objectFit: "cover" }}
             />
+
+            <div className="d-flex justify-content-end">
+              {inShelf ? (
+                <IoMdClose className="me-2" title="Remove from Shelf" onMouseDown={() => removeBook(item.id)} />
+              ) : (
+                <MdOutlineFavorite className="me-2" title="Add to Shelf" onMouseDown={() => addBook(item)} />
+              )}
+              </div>
           </div>
 
           <h5
