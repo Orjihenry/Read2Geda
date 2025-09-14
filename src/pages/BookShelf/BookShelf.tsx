@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import BookCard from "../../components/BookCard";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
@@ -9,16 +9,19 @@ import useSearchBooks from "../../hooks/useSearchBooks";
 export default function BookShelf() {
   const { books, loading } = useSavedBooks();
   const { books: randomBooks } = useRandomBooks();
+  const { books: searchResults, loading: searchLoading, search } = useSearchBooks();
 
   const [query, setQuery] = useState("");
-  const [trigger, setTrigger] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const { books: searchResults, loading: searchLoading } = useSearchBooks(query, trigger);
-
-  const handleSearch = () => {
-    setTrigger(false);
-    setTimeout(() => setTrigger(true), 0);
-  };
+  const handleSearch = useCallback(() => {
+    if (!query.trim()) {
+      setHasSearched(false);
+      return;
+    }
+    setHasSearched(true);
+    search(query);
+  }, [query, search]);
 
   return (
     <>
@@ -66,9 +69,12 @@ export default function BookShelf() {
           </div>
 
           <div className="row g-3">
-            {trigger ? (
+            {hasSearched ? (
               searchLoading ? (
-                <p className="lead text-muted">Searching for books...</p>
+                <div className="text-center py-5">
+                  <div className="spinner-border text-primary mb-2" role="status" />
+                  <p className="lead text-muted">Searching for books...</p>
+                </div>
               ) : searchResults && searchResults.length > 0 ? (
                 searchResults.map((item, index) => (
                   <div key={item.id || index} className="col-md-4">
