@@ -1,15 +1,36 @@
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { NavLink } from "react-router-dom";
+import { useCreateClub } from "../../hooks/useCreateClub";
 
 export default function CreateClub() {
+
+  const {
+    clubNameRef,
+    clubName, setClubName,
+    description, setDescription,
+    location, setLocation,
+    tags, setTags,
+    meetingFrequency, setMeetingFrequency,
+    meetingPlatform, setMeetingPlatform,
+    isPublic, setIsPublic,
+    imageUrl, setImageUrl,
+    errMsg,
+    success,
+    loading,
+    handleCreateClub
+  } = useCreateClub();
+
   return (
     <>
       <Header />
       <div className="container my-5">
         <h1 className="display-6 mb-4">Create a New Book Club</h1>
         <div className="card p-5">
-          <form className="row g-3">
+          <form className="row g-3" onSubmit={handleCreateClub}>
+            { errMsg && <p className="text-danger">{errMsg}</p> }
+            { success && <p className="text-success">Club created successfully! 🎉</p> }
+            { loading && <p className="text-warning">Creating club... 🎉</p> }
             <div className="col-md-6">
               <label htmlFor="name" className="form-label fw-bold">
                 Club Name
@@ -21,6 +42,10 @@ export default function CreateClub() {
                 name="name"
                 placeholder="Enter club name"
                 required
+                ref={clubNameRef}
+                onChange={(e) => setClubName(e.target.value)}
+                onFocus={() => clubNameRef?.current?.focus()}
+                value={clubName}
               />
             </div>
 
@@ -34,6 +59,8 @@ export default function CreateClub() {
                 id="location"
                 name="location"
                 placeholder="City or 'Online'"
+                onChange={(e) => setLocation(e.target.value)}
+                value={location}
               />
             </div>
 
@@ -48,6 +75,8 @@ export default function CreateClub() {
                 rows={3}
                 placeholder="Brief description about your club"
                 required
+                onChange={(e) => setDescription(e.target.value)}
+                value={description}
               />
             </div>
 
@@ -61,6 +90,8 @@ export default function CreateClub() {
                 id="tags"
                 name="tags"
                 placeholder="e.g. fiction, romance, fantasy"
+                onChange={(e) => setTags(e.target.value)}
+                value={tags}
               />
             </div>
 
@@ -72,6 +103,8 @@ export default function CreateClub() {
                 className="form-select"
                 id="meetingFrequency"
                 name="meetingFrequency"
+                onChange={(e) => setMeetingFrequency(e.target.value)}
+                value={meetingFrequency}
               >
                 <option value="">Select frequency</option>
                 <option value="Weekly">Weekly</option>
@@ -90,6 +123,8 @@ export default function CreateClub() {
                 id="meetingPlatform"
                 name="meetingPlatform"
                 placeholder="e.g. Zoom, Google Meet, Discord"
+                onChange={(e) => setMeetingPlatform(e.target.value)}
+                value={meetingPlatform}
               />
             </div>
 
@@ -100,6 +135,8 @@ export default function CreateClub() {
                   type="checkbox"
                   id="isPublic"
                   name="isPublic"
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                  checked={isPublic}
                 />
                 <label className="form-check-label" htmlFor="isPublic">
                   Public Club
@@ -117,6 +154,8 @@ export default function CreateClub() {
                 id="imageUrl"
                 name="imageUrl"
                 placeholder="Paste image link or leave blank for default"
+                onChange={(e) => setImageUrl(e.target.value)}
+                value={imageUrl}
               />
             </div>
 

@@ -15,7 +15,6 @@ export default function useSearchBooks() {
       return;
     }
 
-    // Cancel previous request
     abortRef.current?.abort();
     abortRef.current = new AbortController();
 
