@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { SavedBooksProvider } from "./context/SavedBooksContext";
+import { ContextProvider } from "./context/ContextProvider";
 
 // Pages
 import About from "./pages/About";
@@ -20,19 +20,13 @@ import Terms from "./pages/T&C";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
 import Register from "./pages/Auth/Register";
-import ProtectedRoutes from "./utils/ProtectedRoutes";
 
 function App() {
   return (
     <>
       <Router basename="/">
-        <SavedBooksProvider>
+        <ContextProvider>
           <Routes>
-            
-            <Route element={<ProtectedRoutes />}>
-            
-            </Route>
-
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/discover" element={<Discover />} />
@@ -48,7 +42,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
           </Routes>
-        </SavedBooksProvider>
+        </ContextProvider>
       </Router>
     </>
   );
