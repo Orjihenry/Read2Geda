@@ -4,21 +4,28 @@ import { NavLink } from "react-router-dom";
 import { useCreateClub } from "../../hooks/useCreateClub";
 
 export default function CreateClub() {
-
   const {
-    clubNameRef,
-    clubName, setClubName,
-    description, setDescription,
-    location, setLocation,
-    tags, setTags,
-    meetingFrequency, setMeetingFrequency,
-    meetingPlatform, setMeetingPlatform,
-    isPublic, setIsPublic,
-    imageUrl, setImageUrl,
+    clubName,
+    setClubName,
+    location,
+    setLocation,
+    description,
+    setDescription,
+    tags,
+    setTags,
+    meetingFrequency,
+    setMeetingFrequency,
+    meetingPlatform,
+    setMeetingPlatform,
+    isPublic,
+    setIsPublic,
+    imageUrl,
+    setImageUrl,
     errMsg,
     success,
     loading,
-    handleCreateClub
+    clubNameRef,
+    handleCreateClub,
   } = useCreateClub();
 
   return (
@@ -36,15 +43,14 @@ export default function CreateClub() {
                 Club Name
               </label>
               <input
+                ref={clubNameRef}
                 type="text"
                 className="form-control"
                 id="name"
                 name="name"
                 placeholder="Enter club name"
                 required
-                ref={clubNameRef}
                 onChange={(e) => setClubName(e.target.value)}
-                onFocus={() => clubNameRef?.current?.focus()}
                 value={clubName}
               />
             </div>
