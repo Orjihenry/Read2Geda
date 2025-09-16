@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useClub } from "../context/ClubContext";
 import type { bookClub } from "../utils/bookClub";
 
 export const useCreateClub = () => {
-    const [clubs, setClubs] = useState<bookClub[]>([]);
+    const { createClub, clubNameExists } = useClub();
     const navigate = useNavigate();
     const clubNameRef = useRef<HTMLInputElement>(null);
 
@@ -15,6 +16,7 @@ export const useCreateClub = () => {
     const [meetingPlatform, setMeetingPlatform] = useState("");
     const [isPublic, setIsPublic] = useState(true);
     const [imageUrl, setImageUrl] = useState("");
+    
     const [errMsg, setErrMsg] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -37,6 +39,11 @@ export const useCreateClub = () => {
             return;
         }
 
+        if (clubNameExists(clubName.trim())) {
+            setErrMsg("A club with this name already exists");
+            return;
+        }
+
         const currentUser = getCurrentUser();
         if (!currentUser) {
             setErrMsg("You must be logged in to create a club");
@@ -48,15 +55,15 @@ export const useCreateClub = () => {
 
         try {
             const newClub: bookClub = {
-                id: String(clubs.length + 1),
+                id: "",
                 name: clubName.trim(),
                 description: description.trim(),
-                members: [currentUser.email], // Use email as user ID
+                members: [currentUser.name],
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 imageUrl: imageUrl || undefined,
-                ownerId: currentUser.email, // Use email as owner ID
-                ownerName: currentUser.user, // Use the name field from registration
+                ownerId: currentUser.id,
+                ownerName: currentUser.user,
                 ownerImageUrl: undefined,
                 isPublic: isPublic,
                 isActive: true,
@@ -69,21 +76,10 @@ export const useCreateClub = () => {
                 meetingPlatform: meetingPlatform || undefined,
             };
 
-            const savedClubs = JSON.parse(localStorage.getItem('bookClubs') || '[]');
-            const updatedClubs = [...savedClubs, newClub];
-            localStorage.setItem('bookClubs', JSON.stringify(updatedClubs));
-            
-            setClubs(updatedClubs);
+            createClub(newClub);
             setSuccess(true);
             
-            setClubName("");
-            setLocation("");
-            setDescription("");
-            setTags("");
-            setMeetingFrequency("");
-            setMeetingPlatform("");
-            setIsPublic(true);
-            setImageUrl("");
+            resetForm();
 
             setTimeout(() => {
                 navigate('/clubs');
@@ -95,6 +91,17 @@ export const useCreateClub = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const resetForm = () => {
+        setClubName("");
+        setLocation("");
+        setDescription("");
+        setTags("");
+        setMeetingFrequency("");
+        setMeetingPlatform("");
+        setIsPublic(true);
+        setImageUrl("");
     };
 
     return {
@@ -114,7 +121,6 @@ export const useCreateClub = () => {
         setIsPublic,
         imageUrl,
         setImageUrl,
-        
         errMsg,
         success,
         loading,
