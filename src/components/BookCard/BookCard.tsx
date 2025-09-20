@@ -1,7 +1,7 @@
 import { type BookData } from "../../utils/bookData"
 import { MdAddLocationAlt, MdOutlineFavorite, MdPeopleAlt, MdStar } from "react-icons/md";
 import { IoMdClose, IoMdPricetag } from "react-icons/io";
-import useSavedBooks from "../../hooks/useSavedBooks";
+import { useSavedBooks } from "../../context/SavedBooksContext";
 
 type bookCardProps = {
     index: number
