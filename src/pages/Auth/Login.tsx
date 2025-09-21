@@ -38,6 +38,7 @@ export default function Login() {
         setEmail('');
         setPwd('');
         setSuccess(true);
+        navigate("/highlights");
       }
   }
 

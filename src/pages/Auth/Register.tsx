@@ -107,6 +107,7 @@ export default function Register() {
       setPwd('');
       setMatchPwd('');
       setSuccess(true);
+      navigate("/highlights");
     }
   }
 

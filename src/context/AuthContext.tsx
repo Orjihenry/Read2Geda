@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 type AuthContextType = {
@@ -14,7 +13,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export default function AuthProvider({ children }: { children: React.ReactNode}) {
     
-    const navigate = useNavigate();
     const [currentUser, setCurrentUser] = useState<{user: string, email: string} | null>(null);
     
     useEffect(() => {
@@ -42,7 +40,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
         localStorage.setItem("users", JSON.stringify(newUsers));
         localStorage.setItem("currentUser", JSON.stringify({ user, email }));
         setCurrentUser({ user, email });
-        navigate("/highlights");
 
         return true;
     };
@@ -71,7 +68,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
         setCurrentUser({ user: user.user, email: user.email });
         localStorage.setItem("currentUser", JSON.stringify({ user: user.user, email: user.email }));
         localStorage.setItem("isLoggedIn", "true");
-        navigate("/highlights");
 
         return true;
     }
@@ -80,7 +76,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("currentUser");
         setCurrentUser(null);
-        navigate("/login");
     }
 
     return (
