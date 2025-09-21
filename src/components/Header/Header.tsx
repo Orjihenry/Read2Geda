@@ -1,8 +1,11 @@
 import { NavLink } from "react-router-dom";
+import { useAuthContext } from "../../context/AuthContext";
 import Button from "../Button";
-import "./Header.css"
+import "./Header.css";
 
 export default function Header() {
+  const { logout, currentUser } = useAuthContext();
+  
   return (
     <header className="header">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -49,9 +52,15 @@ export default function Header() {
               </li>
             </ul>
 
-            <NavLink to="/login" className={({ isActive }) => isActive ? "btn btn-outline-success m-md-2 my-sm-0 active" : "btn btn-outline-success m-md-2 my-sm-0" }>
-              Login / Register
-            </NavLink>
+            { currentUser ? (
+              <Button className={"btn-outline-success m-md-2 my-sm-0" } onClick={logout}>
+                Logout
+              </Button>
+            ) : (
+              <NavLink to="/login" className={({ isActive }) => isActive ? "btn btn-outline-success m-md-2 my-sm-0 active" : "btn btn-outline-success m-md-2 my-sm-0" }>
+                Login / Register
+              </NavLink>
+            )}
           </div>
         </div>
       </nav>
