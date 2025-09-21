@@ -11,15 +11,16 @@ import Discover from "./pages/Discover";
 import Discussions from "./pages/Discussions";
 import Home from "./pages/Home";
 import HowItWoks from "./pages/HowItWorks";
-import Login from "./pages/Auth";
+import Login from "./pages/Auth/Login";
 import PrivacyPolicy from "./pages/Privacy";
 import Profile from "./pages/Profile";
+import Register from "./pages/Auth/Register";
 import Terms from "./pages/T&C";
+import ProtectedRoutes from "./utils/ProtectedRoutes";
 
 // Bootstrap
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle";
-import Register from "./pages/Auth/Register";
 
 function App() {
   return (
@@ -29,18 +30,19 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
-            <Route path="/discover" element={<Discover />} />
-            <Route path="/highlights" element={<Profile />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/my_shelf" element={<BookShelf />} />
+            <Route path="/discover" element={<Discover />} />
             <Route path="/how_it_works" element={<HowItWoks />} />
             <Route path="/club/:clubId" element={<ClubDetails />} />
-            <Route path="/create_club" element={<CreateClub />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/discussions" element={<Discussions />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
+            <Route path="/my_shelf" element={<ProtectedRoutes><BookShelf /></ProtectedRoutes>} />
+            <Route path="/create_club" element={<ProtectedRoutes><CreateClub /></ProtectedRoutes>} />
+            <Route path="/highlights" element={<ProtectedRoutes><Profile /></ProtectedRoutes>} />
           </Routes>
         </ContextProvider>
       </Router>

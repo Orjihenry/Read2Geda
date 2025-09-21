@@ -1,10 +1,21 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { type ReactNode } from "react";
+import { useAuthContext } from "../context/AuthContext";
 
-const ProtectedRoutes = () => {
-    const user = null;
+type ProtectedRouteProps = {
+  children: ReactNode;
+};
 
-    return user ? <Outlet /> : <Navigate to="/login" />
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const auth = useAuthContext();
 
+  if (!auth) throw new Error("ProtectedRoute must be used inside AuthProvider");
+
+  const { currentUser } = auth;
+
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
 }
-
-export default ProtectedRoutes;
