@@ -1,10 +1,16 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 import Button from "../Button";
 import "./Header.css";
 
 export default function Header() {
   const { logout, currentUser } = useAuthContext();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
   
   return (
     <header className="header">
@@ -53,7 +59,7 @@ export default function Header() {
             </ul>
 
             { currentUser ? (
-              <Button className={"btn-outline-success m-md-2 my-sm-0" } onClick={logout}>
+              <Button className={"btn-outline-success m-md-2 my-sm-0" } onClick={handleLogout}>
                 Logout
               </Button>
             ) : (
