@@ -40,9 +40,11 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
+            {/* Protected Routes */}
             <Route path="/my_shelf" element={<ProtectedRoutes><BookShelf /></ProtectedRoutes>} />
             <Route path="/create_club" element={<ProtectedRoutes><CreateClub /></ProtectedRoutes>} />
             <Route path="/highlights" element={<ProtectedRoutes><Profile /></ProtectedRoutes>} />
+            
           </Routes>
         </ContextProvider>
       </Router>
