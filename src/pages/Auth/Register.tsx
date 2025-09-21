@@ -1,5 +1,6 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react'
+import { useAuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 
 import read2gedaLogo from "../../assets/read2geda.ico"
@@ -9,8 +10,8 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,24}$/
 
 export default function Register() {
-  
-  const navigate = useNavigate();
+  const { register } = useAuthContext();
+
   const userRef = useRef<HTMLInputElement>(null);
   const errRef = useRef<HTMLParagraphElement>(null);
 
@@ -89,12 +90,16 @@ export default function Register() {
       setErrMsg("Invalid Entries")
       return
     }
+    
+    const success = register(user, email, pwd)
 
-    const newUser = { user, email, pwd };
-    localStorage.setItem("user", JSON.stringify(newUser));
-    setSuccess(true);
-
-    navigate("/highlights")
+    if (success) {
+      setUser('');
+      setEmail('');
+      setPwd('');
+      setMatchPwd('');
+      setSuccess(true);
+    }
   }
 
   return (
