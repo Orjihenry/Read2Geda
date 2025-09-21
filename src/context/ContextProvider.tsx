@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { SavedBooksProvider } from "./SavedBooksContext";
 import { ClubProvider } from "./ClubContext";
+import AuthProvider from "./AuthContext";
 
 interface ContextProviderProps {
   children: ReactNode;
@@ -8,12 +9,14 @@ interface ContextProviderProps {
 
 export function ContextProvider({ children }: ContextProviderProps) {
   return (
-    <SavedBooksProvider>
-      <ClubProvider>
-        {children}
-      </ClubProvider>
-    </SavedBooksProvider>
+    <AuthProvider>
+      <SavedBooksProvider>
+        <ClubProvider>
+          {children}
+        </ClubProvider>
+      </SavedBooksProvider>
+    </AuthProvider>
   );
 }
 
-export { SavedBooksProvider, ClubProvider };
+export { SavedBooksProvider, ClubProvider, AuthProvider };
