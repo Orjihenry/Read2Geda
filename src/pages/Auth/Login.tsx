@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 
 import read2gedaLogo from "../../assets/read2geda.ico"
 
 export default function Login() {
-  const { login } = useAuthContext();
+  const { login, currentUser } = useAuthContext();
+  const navigate = useNavigate();
 
   const userRef = useRef<HTMLInputElement>(null);
   const errRef = useRef<HTMLParagraphElement>(null);
@@ -16,8 +17,13 @@ export default function Login() {
   const [ success, setSuccess ] = useState(false);
 
   useEffect(() => {
-      userRef.current?.focus();
-  }, [])
+    if (currentUser) {
+      navigate("/highlights");
+      return;
+    }
+
+    userRef.current?.focus();
+  }, [currentUser, navigate])
 
   useEffect(() => {
       setErrorMsg('');

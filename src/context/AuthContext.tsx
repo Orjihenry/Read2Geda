@@ -59,7 +59,11 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
                 icon: "error",
                 title: "Invalid credentials",
                 text: "Please try again",
-                confirmButtonText: "OK"
+                confirmButtonText: "OK",
+                customClass: {
+                    confirmButton: "btn btn-outline-success",
+                    popup: "rounded-3 shadow"
+                },
             })
             return false;
         }
