@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
+import { useSavedBooks } from "../../context/SavedBooksContext";
 import BookCard from "../../components/BookCard";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
-import { useSavedBooks } from "../../context/SavedBooksContext";
 import useRandomBooks from "../../hooks/useOpenLibrary";
 import useSearchBooks from "../../hooks/useSearchBooks";
 
@@ -61,6 +61,9 @@ export default function BookShelf() {
               className="form-control"
               placeholder="Search for books..."
               value={query}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {handleSearch()}
+              }}
               onChange={(e) => setQuery(e.target.value)}
             />
             <button className="btn btn-outline-success" onClick={handleSearch}>
