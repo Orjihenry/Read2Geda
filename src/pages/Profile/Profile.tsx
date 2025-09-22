@@ -2,9 +2,17 @@ import BookCarousel from "../../components/BookCarousel";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import NavButton from "../../components/NavButton";
+import { useAuthContext } from "../../context/AuthContext";
+import { useClub } from "../../context/ClubContext";
 import "./Profile.css";
 
 export default function Profile() {
+
+  const { currentUser } = useAuthContext();
+  const { clubs } = useClub();
+  
+  const currentClub = clubs.find(club => club.isActive && club.members.length > 0);
+
   const stats = [
     { count: 5, label: "Books Read" },
     { count: 150, label: "Contributions" },
@@ -30,7 +38,7 @@ export default function Profile() {
               </div>
               <div className="col-lg-6 py-4 py-md-0">
                 <div className="about-text">
-                  <h3 className="display-6 dark-color">Henry Orjiude</h3>
+                  <h3 className="display-6 dark-color">{currentUser?.user}</h3>
                   <p className="lead">
                     Hi, I'm <strong>Henry</strong>. I love leading book clubs,
                     exploring diverse narratives, and contributing to positive
@@ -67,49 +75,61 @@ export default function Profile() {
           </div>
         </section>
         
-        <section className=" py-5 pb-3 about-section">
-          <h2 className="display-6 text-center py-4">
-            On My Bookshelf Today
-          </h2>
+        <section className="py-5">
           <div className="container">
-            <div className="card p-4">
-              <div className="row align-items-center">
-                <div className="col-lg-6">
-                  <h4 className="display-6 text-center pb-3">Current Club</h4>
-                  <div className="d-flex justify-content-center">
-                    <img
-                      className="rounded-circle shadow"
-                      src="/Read2Geda/src/assets/track_your_progress.png"
-                      title="Fantasy Realm"
-                      alt="Book Club"
-                      style={{ maxHeight: "220px", objectFit: "cover" }}
-                    />
-                  </div>
-                </div>
-                <div className="col-lg-6 py-4 py-md-0">
-                  <div className="about-text">
-                    <div>
-                      <div className="d-flex justify-content-start text-center mb-3">
-                        <img
-                          src="https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg"
-                          alt="Title"
-                          className="shadow img-fluid me-4"
-                          style={{ maxHeight: "220px", objectFit: "cover" }}
-                          />
-
-                          <div className="text-start">
-                              <h3 className="display-8 dark-color my-0">To Kill A Mockingbird</h3>
-                              <p className="text-mute small my-0">Harper Lee</p>
-                              <p className="text-mute small my-0">Published: 1960</p>
-                              <p className="text-mute small my-0">Tags: classic, literature</p>
-                          </div>
-
+            <h2 className="display-6 text-center mb-5">On My Bookshelf Today</h2>
+            
+            <div className="row justify-content-center">
+              <div className="col-lg-8">
+                <div className="card shadow-sm border-0">
+                  <div className="card-body p-4">
+                    <div className="text-center mb-4">
+                      <img
+                        src="https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg"
+                        alt="Currently Reading"
+                        className="img-fluid rounded shadow-sm mb-3"
+                        style={{ maxHeight: "200px" }}
+                      />
+                      <h4 className="mb-1">To Kill A Mockingbird</h4>
+                      <p className="text-muted mb-3">by Harper Lee</p>
+                    </div>
+                    
+                    <div className="mb-3">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span className="small text-muted">Reading Progress</span>
+                        <span className="small text-muted">80%</span>
+                      </div>
+                      <div className="progress" style={{ height: "8px" }}>
+                        <div 
+                          className="progress-bar bg-success" 
+                          style={{ width: "80%" }}
+                        ></div>
                       </div>
                     </div>
                     
-                    <h6>Reading Progress</h6>
-                    <div className="progress mb-3">
-                      <div className="progress-bar bg-dark" style={{ width: "80%" }}>80% Complete</div>
+                    {currentClub && (
+                      <div className="mb-3 p-3 bg-light rounded">
+                        <div className="d-flex align-items-center">
+                          <div className="me-3">
+                            <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                 style={{ width: "40px", height: "40px" }}>
+                              <span className="text-white fw-bold">{currentClub.name.charAt(0)}</span>
+                            </div>
+                          </div>
+                          <div className="flex-grow-1">
+                            <h6 className="mb-1">{currentClub.name}</h6>
+                            <small className="text-muted">
+                              {currentClub.meetingFrequency} • {currentClub.members.length} members
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="text-center">
+                      <button className="btn btn-outline-success btn-sm">
+                        Continue Reading
+                      </button>
                     </div>
                   </div>
                 </div>
