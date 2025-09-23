@@ -11,7 +11,17 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!auth) throw new Error("ProtectedRoute must be used inside AuthProvider");
 
-  const { currentUser } = auth;
+  const { currentUser, isLoading } = auth;
+
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <span className="visually-hidden">Loading...</span>
+        <div className="spinner-border text-primary" role="status">
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return <Navigate to="/login" replace />;

@@ -3,6 +3,7 @@ import Swal from "sweetalert2";
 
 type AuthContextType = {
     currentUser: { user: string; email: string } | null;
+    isLoading: boolean;
     login: (email: string, pwd: string) => boolean;
     register: (user: string, email: string, pwd: string) => boolean;
     logout: () => void;
@@ -14,12 +15,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export default function AuthProvider({ children }: { children: React.ReactNode}) {
     
     const [currentUser, setCurrentUser] = useState<{user: string, email: string} | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
         const user = localStorage.getItem("currentUser");
         if (user) {
             setCurrentUser(JSON.parse(user));
         }
+        setIsLoading(false);
     }, [])
     
     const register = (user: string, email: string, pwd: string) => {
@@ -79,7 +82,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
     }
 
     return (
-        <AuthContext.Provider value={{ currentUser, register, login, logout }}>
+        <AuthContext.Provider value={{ currentUser, isLoading, register, login, logout }}>
             {children}
         </AuthContext.Provider>
     )
