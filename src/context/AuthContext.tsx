@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 type AuthContextType = {
     currentUser: { user: string; email: string } | null;
     isLoading: boolean;
+    hasCheckedAuth: boolean;
     login: (email: string, pwd: string) => boolean;
     register: (user: string, email: string, pwd: string) => boolean;
     logout: () => void;
@@ -16,12 +17,15 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
     
     const [currentUser, setCurrentUser] = useState<{user: string, email: string} | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasCheckedAuth, setHasCheckedAuth] = useState(true);
+
     
     useEffect(() => {
         const user = localStorage.getItem("currentUser");
         if (user) {
             setCurrentUser(JSON.parse(user));
         }
+        setHasCheckedAuth(false);
         setIsLoading(false);
     }, [])
     
@@ -82,7 +86,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
     }
 
     return (
-        <AuthContext.Provider value={{ currentUser, isLoading, register, login, logout }}>
+        <AuthContext.Provider value={{ currentUser, isLoading, hasCheckedAuth, register, login, logout }}>
             {children}
         </AuthContext.Provider>
     )

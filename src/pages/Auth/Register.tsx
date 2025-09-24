@@ -10,7 +10,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,24}$/
 
 export default function Register() {
-  const { register, currentUser } = useAuthContext();
+  const { register, currentUser, hasCheckedAuth } = useAuthContext();
   const navigate = useNavigate();
 
   const userRef = useRef<HTMLInputElement>(null);
@@ -43,25 +43,27 @@ export default function Register() {
   }, [currentUser]);
 
   useEffect(() => {
-    Swal.fire({
-      icon: "info",
-      html: `
-        You can sign up with dummy data. No real info needed.<br />
-        All details are saved safely in your browser's localStorage only.
-      `,
-      showCloseButton: true,
-      focusConfirm: false,
-      confirmButtonText: `Gotcha!`,
-      confirmButtonAriaLabel: "Thumbs up, gotcha!",
-      timer: 6000,
-      timerProgressBar: true,
-      customClass: {
-        confirmButton: "btn btn-outline-success",
-        popup: "rounded-3 shadow"
-      },
-      buttonsStyling: false
-    });
-  }, [])
+    if (!hasCheckedAuth && !currentUser) {
+      Swal.fire({
+        icon: "info",
+        html: `
+          You can sign up with dummy data. No real info needed.<br />
+          All details are saved safely in your browser's localStorage only.
+        `,
+        showCloseButton: true,
+        focusConfirm: false,
+        confirmButtonText: `Gotcha!`,
+        confirmButtonAriaLabel: "Thumbs up, gotcha!",
+        timer: 6000,
+        timerProgressBar: true,
+        customClass: {
+          confirmButton: "btn btn-outline-success",
+          popup: "rounded-3 shadow"
+        },
+        buttonsStyling: false
+      });
+    }
+  }, [hasCheckedAuth, currentUser]);
   
   useEffect(() =>{
     userRef?.current?.focus();
