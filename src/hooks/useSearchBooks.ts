@@ -22,8 +22,9 @@ export default function useSearchBooks() {
     setError(null);
 
     try {
+      const quotedQuery = `"${query.trim()}"`;
       const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(query.trim())}&limit=20`,
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(quotedQuery)}&limit=20`,
         { signal: abortRef.current.signal }
       );
       
