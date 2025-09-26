@@ -10,7 +10,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,24}$/
 
 export default function Register() {
-  const { register, currentUser, hasCheckedAuth } = useAuthContext();
+  const { register, currentUser, isLoggedIn } = useAuthContext();
   const navigate = useNavigate();
 
   const userRef = useRef<HTMLInputElement>(null);
@@ -40,10 +40,8 @@ export default function Register() {
       navigate("/highlights");
       return
     }
-  }, [currentUser]);
-
-  useEffect(() => {
-    if (!hasCheckedAuth && !currentUser) {
+    
+    if (!isLoggedIn && !currentUser) {
       Swal.fire({
         icon: "info",
         html: `
@@ -63,7 +61,8 @@ export default function Register() {
         buttonsStyling: false
       });
     }
-  }, [hasCheckedAuth, currentUser]);
+    console.log(isLoggedIn);
+  }, [isLoggedIn, currentUser]);
   
   useEffect(() =>{
     userRef?.current?.focus();

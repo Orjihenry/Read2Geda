@@ -1,12 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import type { User } from "../types/user";
+import { v4 as uuidv4 } from "uuid"
 import Swal from "sweetalert2";
 
 type AuthContextType = {
-    currentUser: { user: string; email: string } | null;
+    currentUser: User | null;
     isLoading: boolean;
-    hasCheckedAuth: boolean;
+    isLoggedIn: boolean;
     login: (email: string, pwd: string) => boolean;
-    register: (user: string, email: string, pwd: string) => boolean;
+    register: (name: string, email: string, pwd: string) => boolean;
     logout: () => void;
 };
 
@@ -14,24 +16,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 
 export default function AuthProvider({ children }: { children: React.ReactNode}) {
-    
-    const [currentUser, setCurrentUser] = useState<{user: string, email: string} | null>(null);
+    const [users, setUsers] = useState<User[]>([]);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [hasCheckedAuth, setHasCheckedAuth] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    
     useEffect(() => {
-        const user = localStorage.getItem("currentUser");
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        setUsers(users);
+        
+        const userId = localStorage.getItem("currentUser");
+        const user = users.find((u: User) => u.id === userId);
         if (user) {
-            setCurrentUser(JSON.parse(user));
+          setCurrentUser(user);
+          setIsLoggedIn(true);
+        } else {
+          setCurrentUser(null);
+          setIsLoggedIn(false);
         }
-        setHasCheckedAuth(false);
         setIsLoading(false);
     }, [])
     
-    const register = (user: string, email: string, pwd: string) => {
-        const newUser = { user, email, pwd };
-        const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const register = (name: string, email: string, pwd: string) => {
+        const newUser: User = { id: uuidv4(), name, email, pwd, joinedAt: new Date().toString(), isActive: true };
 
         if (users.some((u: {email: string}) => u.email === email)) {
             Swal.fire({
@@ -43,16 +50,17 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
             return false;
         }
 
-        const newUsers = [...users, newUser]
+        const newUsers = [...(users ?? []), newUser]
         localStorage.setItem("users", JSON.stringify(newUsers));
-        localStorage.setItem("currentUser", JSON.stringify({ user, email }));
-        setCurrentUser({ user, email });
+        setUsers(newUsers);
+        localStorage.setItem("currentUser", newUser.id);
+        setCurrentUser(newUser);
+        setIsLoggedIn(true);
 
         return true;
     };
 
     const login = (email: string, pwd: string) => {
-        const users = JSON.parse(localStorage.getItem("users") || "[]");
 
         const user = users.find(
             (u: {email: string, pwd: string} ) => u.email === email && u.pwd === pwd 
@@ -72,21 +80,21 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
             return false;
         }
 
-        setCurrentUser({ user: user.user, email: user.email });
-        localStorage.setItem("currentUser", JSON.stringify({ user: user.user, email: user.email }));
-        localStorage.setItem("isLoggedIn", "true");
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+        localStorage.setItem("currentUser", user.id);
 
         return true;
     }
 
     const logout = () => {
-        localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("currentUser");
         setCurrentUser(null);
+        setIsLoggedIn(false);
     }
 
     return (
-        <AuthContext.Provider value={{ currentUser, isLoading, hasCheckedAuth, register, login, logout }}>
+        <AuthContext.Provider value={{ currentUser, isLoading, isLoggedIn, register, login, logout }}>
             {children}
         </AuthContext.Provider>
     )
