@@ -38,7 +38,7 @@ export default function Profile() {
               </div>
               <div className="col-lg-6 py-4 py-md-0">
                 <div className="about-text">
-                  <h3 className="display-6 dark-color">{currentUser?.user}</h3>
+                  <h3 className="display-6 dark-color">{currentUser?.name}</h3>
                   <p className="lead">
                     Hi, I'm <strong>Henry</strong>. I love leading book clubs,
                     exploring diverse narratives, and contributing to positive
@@ -55,7 +55,7 @@ export default function Profile() {
                       className="btn-dark text-light"
                       label="My Clubs"
                     />
-                    <NavButton href="#" className="mx-2" label="Edit Profile" />
+                    <NavButton href="edit_profile" className="mx-2" label="Edit Profile" />
                   </div>
                 </div>
               </div>
