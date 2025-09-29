@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import type { User } from "../types/user";
+import type { User } from "../types/user.ts";
 import { v4 as uuidv4 } from "uuid"
 import Swal from "sweetalert2";
 
@@ -9,6 +9,7 @@ type AuthContextType = {
     isLoggedIn: boolean;
     login: (email: string, pwd: string) => boolean;
     register: (name: string, email: string, pwd: string) => boolean;
+    updateProfile: (user: User) => boolean;
     logout: () => void;
 };
 
@@ -87,6 +88,23 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
         return true;
     }
 
+    const updateProfile = (user: User) => {
+        if (currentUser) {
+            const save = (updated: User[]) => {
+                setUsers(updated);
+                localStorage.setItem("users", JSON.stringify(updated));
+            }
+
+            const updatedUsers = users.map(u => u.id === currentUser?.id ? user : u);
+            save(updatedUsers);
+            setCurrentUser(user);
+            localStorage.setItem("currentUser", user.id);
+
+            return true;
+        }
+        return false;
+    }
+
     const logout = () => {
         localStorage.removeItem("currentUser");
         setCurrentUser(null);
@@ -94,7 +112,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
     }
 
     return (
-        <AuthContext.Provider value={{ currentUser, isLoading, isLoggedIn, register, login, logout }}>
+        <AuthContext.Provider value={{ currentUser, isLoading, isLoggedIn, register, updateProfile, login, logout }}>
             {children}
         </AuthContext.Provider>
     )
@@ -107,6 +125,6 @@ export function useAuthContext() {
 }
 
 export function useAuthContextData() {
-    const { currentUser, register, login, logout } = useAuthContext();
-    return { currentUser, register, login, logout };
+    const { currentUser, register, updateProfile, login, logout } = useAuthContext();
+    return { currentUser, register, updateProfile, login, logout };
 }
