@@ -30,7 +30,7 @@ export default function Profile() {
                 <div className="d-flex justify-content-center">
                   <img
                     className="rounded-circle shadow"
-                    src="https://bootdey.com/img/Content/avatar/avatar7.png"
+                    src={currentUser?.avatar ||"https://bootdey.com/img/Content/avatar/avatar7.png"}
                     title=""
                     alt="User Avatar"
                   />
@@ -40,13 +40,7 @@ export default function Profile() {
                 <div className="about-text">
                   <h3 className="display-6 dark-color">{currentUser?.name}</h3>
                   <p className="lead">
-                    Hi, I'm <strong>Henry</strong>. I love leading book clubs,
-                    exploring diverse narratives, and contributing to positive
-                    youth development.
-                  </p>
-                  <p className="lead">
-                    I also enjoy connecting with readers, leading discussions,
-                    and exploring new perspectives through books.
+                    {currentUser?.bio || "You can edit your profile to add a bio."}
                   </p>
 
                   <div className="pb-3">

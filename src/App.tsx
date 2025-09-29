@@ -13,7 +13,7 @@ import Home from "./pages/Home";
 import HowItWoks from "./pages/HowItWorks";
 import Login from "./pages/Auth/Login";
 import PrivacyPolicy from "./pages/Privacy";
-import Profile from "./pages/Profile";
+import { Profile, EditProfile } from "./pages/Profile";
 import Register from "./pages/Auth/Register";
 import Terms from "./pages/T&C";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
@@ -44,7 +44,7 @@ function App() {
             <Route path="/my_shelf" element={<ProtectedRoutes><BookShelf /></ProtectedRoutes>} />
             <Route path="/create_club" element={<ProtectedRoutes><CreateClub /></ProtectedRoutes>} />
             <Route path="/highlights" element={<ProtectedRoutes><Profile /></ProtectedRoutes>} />
-            
+            <Route path="/edit_profile" element={<ProtectedRoutes><EditProfile /></ProtectedRoutes>} />
           </Routes>
         </ContextProvider>
       </Router>
