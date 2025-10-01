@@ -1,6 +1,7 @@
 import { type BookData } from "../../utils/bookData"
 import { MdAddLocationAlt, MdOutlineFavorite, MdPeopleAlt, MdStar } from "react-icons/md";
 import { IoMdClose, IoMdPricetag } from "react-icons/io";
+import { MdPlayArrow } from "react-icons/md";
 import { useSavedBooks } from "../../context/SavedBooksContext";
 
 type bookCardProps = {
@@ -14,6 +15,13 @@ export default function BookCard({ index, item }: bookCardProps) {
 
   const inShelf = isInShelf(item.id);
   
+  const hasStartedReading = item.readingProgress?.toString() === "0" ? false : true;
+  console.log(hasStartedReading);
+  
+  const handleReadClick = () => {
+    console.log(`Opening book: ${item.title}`);
+  };
+
   return (
     <>
       <div
@@ -29,13 +37,6 @@ export default function BookCard({ index, item }: bookCardProps) {
               style={{ maxHeight: "220px", objectFit: "cover" }}
             />
 
-            <div className="d-flex justify-content-end">
-              {inShelf ? (
-                <IoMdClose className="me-2" title="Remove from Shelf" onMouseDown={() => removeBook(item.id)} />
-              ) : (
-                <MdOutlineFavorite className="me-2" title="Add to Shelf" onMouseDown={() => addBook(item)} />
-              )}
-              </div>
           </div>
 
           <h5
@@ -88,14 +89,67 @@ export default function BookCard({ index, item }: bookCardProps) {
               </div>
             </div>
 
-            <p className="small d-flex align-items-center text-secondary">
+            <p className="mb-1 small d-flex align-items-center text-secondary">
               <span className="me-2 text-muted">
                 <IoMdPricetag />
               </span>
               Tags:{" "}
-              <span className="ms-1">{item.tags?.join(", ") || "None"}</span>
+              <span className="ms-1 fw-medium">
+                {item.tags && item.tags.length > 0 
+                  ? item.tags.slice(0, 2).join(", ") + (item.tags.length > 2 ? "..." : "")
+                  : "None"
+                }
+              </span>
             </p>
           </div>
+        </div>
+
+        <div className="mt-3 pt-3 border-top">
+          {inShelf ? (
+            <>
+              {hasStartedReading && (
+                <div className="mb-2">
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <small className="text-muted">Progress</small>
+                    <small className="text-muted">{item.readingProgress}%</small>
+                  </div>
+                  <div className="progress" style={{ height: "4px" }}>
+                    <div 
+                      className="progress-bar bg-success" 
+                      style={{ width: `${item.readingProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+              
+              <div className="d-flex gap-2">
+                <button 
+                  className={`btn flex-fill ${hasStartedReading ? 'btn-outline-success' : 'btn-success'}`}
+                  onClick={handleReadClick}
+                >
+                  <MdPlayArrow className="me-1" />
+                  {hasStartedReading ? 'Continue Reading' : 'Start Reading'}
+                </button>
+                
+                <button 
+                  className="btn btn-outline-danger"
+                  onClick={() => removeBook(item.id)}
+                  title="Remove from Shelf"
+                >
+                  <IoMdClose />
+                </button>
+              </div>
+            </>
+          ) : (
+            <button 
+              className="btn btn-outline-success w-100"
+              onClick={() => addBook(item)}
+              title="Add to Shelf"
+            >
+              <MdOutlineFavorite className="me-1" />
+              Add to Shelf
+            </button>
+          )}
         </div>
       </div>
     </>

@@ -8,6 +8,7 @@ export type BookData = {
   coverImage: string;
   tags?: string[];
   rating?: number;
+  readingProgress?: number;
 };
 
 export const bookData: BookData[] = [
@@ -20,7 +21,8 @@ export const bookData: BookData[] = [
     summary: "A novel about the serious issues of rape and racial inequality.",
     coverImage: "https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "literature"],
-    rating: 4.8
+    rating: 4.8,
+    readingProgress: 100
   },
   {
     id: "2",
@@ -31,7 +33,8 @@ export const bookData: BookData[] = [
     summary: "A novel that presents a terrifying vision of a totalitarian future.",
     coverImage: "https://m.media-amazon.com/images/I/910cf05vZmL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["dystopian", "political"],
-    rating: 4.7
+    rating: 4.7,
+    readingProgress: 80
   },
   {
     id: "3",
@@ -42,7 +45,8 @@ export const bookData: BookData[] = [
     summary: "The narrative of Captain Ahab's obsessive quest to kill the white whale, Moby Dick.",
     coverImage: "https://m.media-amazon.com/images/I/81XS2mY6qfL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "adventure"],
-    rating: 4.5
+    rating: 4.5,
+    readingProgress: 0
   },
   {
     id: "4",
@@ -53,7 +57,8 @@ export const bookData: BookData[] = [
     summary: "A romantic novel that critiques the British landed gentry at the end of the 18th century.",
     coverImage: "https://m.media-amazon.com/images/I/91fDvMK+aEL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "romance"],
-    rating: 4.6
+    rating: 4.6,
+    readingProgress: 10
   },
   {
     id: "5",
@@ -64,6 +69,7 @@ export const bookData: BookData[] = [
     summary: "A novel about the American dream and the disillusionment that comes with it.",
     coverImage: "https://m.media-amazon.com/images/I/6150zvwveOL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "fiction"],
-    rating: 4.4
+    rating: 4.4,
+    readingProgress: 0
   }
 ];
