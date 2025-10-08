@@ -6,6 +6,7 @@ import { defaultBookClubs } from "../../utils/bookClub";
 import BookCarousel from "../../components/BookCarousel";
 import { MdArrowForward } from "react-icons/md";
 import { useEffect, useState } from "react";
+import type { BookData } from "../../utils/bookData";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -100,16 +101,8 @@ function BackButton() {
 
 function CurrentBookSection() {
 
-  const [books, setBooks] = useState<any[]>([]);
-  const [currentBook, setCurrentBook] = useState<{
-    id: string;
-    title: string;
-    author: string;
-    coverImage: string;
-    readingProgress: number;
-    publishedYear: string;
-    tags: string[];
-  } | null>(null);
+  const [books, setBooks] = useState<BookData[]>([]);
+  const [currentBook, setCurrentBook] = useState<BookData | null>(null);
 
   useEffect(() => {
     try {
@@ -119,8 +112,8 @@ function CurrentBookSection() {
 
       const currentBookId = localStorage.getItem("currentBookId");
       const currentClubBook = currentBookId
-        ? localBooks.find((b: any) => b.id === currentBookId)
-        : localBooks.find((b: any) => (b.readingProgress ?? 0) > 0) || localBooks[0];
+        ? localBooks.find((b: BookData) => b.id === currentBookId)
+        : localBooks.find((b: BookData) => (b.readingProgress ?? 0) > 0) || localBooks[0];
 
       if (currentClubBook) {
         setCurrentBook({
@@ -130,14 +123,16 @@ function CurrentBookSection() {
           coverImage: currentClubBook.coverImage,
           readingProgress: currentClubBook.readingProgress ?? 0,
           publishedYear: currentClubBook.publishedYear,
-          tags: currentClubBook.tags
+          tags: currentClubBook.tags,
+          genre: currentClubBook.genre,
+          summary: currentClubBook.summary
         });
       }
     } catch {}
   }, [])
 
   const changeCurrentBook = (bookId: string) => {
-    const next = books.find((b: any) => b.id === bookId);
+    const next = books.find((b: BookData) => b.id === bookId);
     if (!next) return;
     setCurrentBook({
       id: next.id,
@@ -146,7 +141,9 @@ function CurrentBookSection() {
       coverImage: next.coverImage,
       readingProgress: next.readingProgress ?? 0,
       publishedYear: next.publishedYear,
-      tags: next.tags
+      tags: next.tags,
+      genre: next.genre,
+      summary: next.summary
     });
     localStorage.setItem("currentBookId", next.id);
   };
@@ -176,7 +173,7 @@ function CurrentBookSection() {
                     value={currentBook?.id}
                     onChange={(e) => changeCurrentBook(e.target.value)}
                   >
-                    {books.map((b: any) => (
+                    {books.map((b: BookData) => (
                       <option key={b.id} value={b.id}>{b.title}</option>
                     ))}
                   </select>
@@ -216,6 +213,7 @@ function CurrentBookSection() {
                   </div>
                   <div className="col-md-3 text-center">
                     <NavLink to="/discussions" className="btn btn-outline-success mb-2 d-block">
+                      {/* {isMember ? "Join Discussions" : "Join Club"} */}
                       Join Discussions
                     </NavLink>
                   </div>
