@@ -45,7 +45,7 @@ export default function Discussions() {
                 </p>
                 <div className="d-flex justify-content-between align-items-center">
                   <small className="text-muted">Posted by Alice • 2h ago</small>
-                  <button className="btn btn-sm btn-outline-primary">
+                  <button className="btn btn-sm btn-outline-success">
                     12 Replies
                   </button>
                 </div>
@@ -61,7 +61,7 @@ export default function Discussions() {
                 </p>
                 <div className="d-flex justify-content-between align-items-center">
                   <small className="text-muted">Posted by Henry • 1d ago</small>
-                  <button className="btn btn-sm btn-outline-primary">
+                  <button className="btn btn-sm btn-outline-success">
                     8 Replies
                   </button>
                 </div>
@@ -77,7 +77,7 @@ export default function Discussions() {
                 </p>
                 <div className="d-flex justify-content-between align-items-center">
                   <small className="text-muted">Posted by Moderator • 3d ago</small>
-                  <button className="btn btn-sm btn-outline-primary">
+                  <button className="btn btn-sm btn-outline-success">
                     25 Replies
                   </button>
                 </div>

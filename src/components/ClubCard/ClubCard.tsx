@@ -37,7 +37,7 @@ export default function ClubCard({ index, item}: clubCardProps ) {
             <div className="d-flex text-start align-items-center">
               <div className="flex-shrink-0 me-3">
                 <img
-                  src={item.imageUrl}
+                  src={item.imageUrl?.toString()}
                   alt={item.name}
                   className="rounded-circle me-3"
                   style={{ width: "70px", height: "70px", maxWidth: "70px" }}

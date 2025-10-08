@@ -19,7 +19,6 @@ export default function CreateClub() {
     setMeetingPlatform,
     isPublic,
     setIsPublic,
-    imageUrl,
     setImageUrl,
     errMsg,
     success,
@@ -152,16 +151,15 @@ export default function CreateClub() {
 
             <div className="col-12">
               <label htmlFor="imageUrl" className="form-label fw-bold">
-                Club Image URL
+                Club Image
               </label>
               <input
-                type="text"
+                type="file"
                 className="form-control"
                 id="imageUrl"
                 name="imageUrl"
-                placeholder="Paste image link or leave blank for default"
-                onChange={(e) => setImageUrl(e.target.value)}
-                value={imageUrl}
+                placeholder="Select image"
+                onChange={(e) => setImageUrl(e.target.files?.[0] || null)}
               />
             </div>
 
