@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useClub } from "../context/ClubContext";
 import type { bookClub } from "../utils/bookClub";
+import { useAuthContext } from "../context/AuthContext";
 
 export const useCreateClub = () => {
     const { createClub, clubNameExists } = useClub();
     const navigate = useNavigate();
     const clubNameRef = useRef<HTMLInputElement>(null);
+    
+    const { currentUser } = useAuthContext();
 
     const [clubName, setClubName] = useState("");
     const [location, setLocation] = useState("");
@@ -15,17 +18,11 @@ export const useCreateClub = () => {
     const [meetingFrequency, setMeetingFrequency] = useState("");
     const [meetingPlatform, setMeetingPlatform] = useState("");
     const [isPublic, setIsPublic] = useState(true);
-    const [imageUrl, setImageUrl] = useState("");
+    const [imageUrl, setImageUrl] = useState<File | null>(null);
     
     const [errMsg, setErrMsg] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
-
-    const getCurrentUser = () => {
-        const storedUser = localStorage.getItem("user");
-        if (!storedUser) return null;
-        return JSON.parse(storedUser);
-    };
 
     useEffect(() => {
         clubNameRef?.current?.focus();
@@ -44,7 +41,6 @@ export const useCreateClub = () => {
             return;
         }
 
-        const currentUser = getCurrentUser();
         if (!currentUser) {
             setErrMsg("You must be logged in to create a club");
             return;
@@ -61,9 +57,9 @@ export const useCreateClub = () => {
                 members: [currentUser.name],
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
-                imageUrl: imageUrl || undefined,
+                imageUrl: imageUrl?.toString() || undefined, 
                 ownerId: currentUser.id,
-                ownerName: currentUser.user,
+                ownerName: currentUser.name,
                 ownerImageUrl: undefined,
                 isPublic: isPublic,
                 isActive: true,
@@ -82,7 +78,7 @@ export const useCreateClub = () => {
             resetForm();
 
             setTimeout(() => {
-                navigate('/clubs');
+                navigate('/discover');
             }, 1500);
 
         } catch (error) {
@@ -101,7 +97,7 @@ export const useCreateClub = () => {
         setMeetingFrequency("");
         setMeetingPlatform("");
         setIsPublic(true);
-        setImageUrl("");
+        setImageUrl(null);
     };
 
     return {
