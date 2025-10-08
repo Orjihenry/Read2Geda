@@ -4,7 +4,8 @@ import Header from "../../components/Header"
 import { FaArrowLeftLong } from "react-icons/fa6"
 import { defaultBookClubs } from "../../utils/bookClub";
 import BookCarousel from "../../components/BookCarousel";
-
+import { MdArrowForward } from "react-icons/md";
+import { useEffect, useState } from "react";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -98,55 +99,133 @@ function BackButton() {
 }
 
 function CurrentBookSection() {
-  const currentBook = {
-    title: "To Kill A Mockingbird",
-    author: "Harper Lee",
-    year: "1960",
-    tags: "classic, literature",
-    cover: "https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg",
-    progress: 70
+
+  const [books, setBooks] = useState<any[]>([]);
+  const [currentBook, setCurrentBook] = useState<{
+    id: string;
+    title: string;
+    author: string;
+    coverImage: string;
+    readingProgress: number;
+    publishedYear: string;
+    tags: string[];
+  } | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("bookData");
+      const localBooks = stored ? JSON.parse(stored) : [];
+      setBooks(localBooks);
+
+      const currentBookId = localStorage.getItem("currentBookId");
+      const currentClubBook = currentBookId
+        ? localBooks.find((b: any) => b.id === currentBookId)
+        : localBooks.find((b: any) => (b.readingProgress ?? 0) > 0) || localBooks[0];
+
+      if (currentClubBook) {
+        setCurrentBook({
+          id: currentClubBook.id,
+          title: currentClubBook.title,
+          author: currentClubBook.author,
+          coverImage: currentClubBook.coverImage,
+          readingProgress: currentClubBook.readingProgress ?? 0,
+          publishedYear: currentClubBook.publishedYear,
+          tags: currentClubBook.tags
+        });
+      }
+    } catch {}
+  }, [])
+
+  const changeCurrentBook = (bookId: string) => {
+    const next = books.find((b: any) => b.id === bookId);
+    if (!next) return;
+    setCurrentBook({
+      id: next.id,
+      title: next.title,
+      author: next.author,
+      coverImage: next.coverImage,
+      readingProgress: next.readingProgress ?? 0,
+      publishedYear: next.publishedYear,
+      tags: next.tags
+    });
+    localStorage.setItem("currentBookId", next.id);
   };
+
+  // const currentBook = {
+  //   title: "To Kill A Mockingbird",
+  //   author: "Harper Lee",
+  //   year: "1960",
+  //   tags: "classic, literature",
+  //   cover: "https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg",
+  //   progress: 70
+  // };
 
   return (
     <div className="py-5 bg-light">
       <div className="row mb-5">
         <div className="col-12">
-          <h2 className="display-6 mb-4">Current Book</h2>
-          <div className="card p-4">
-            <div className="row align-items-center">
-              <div className="col-md-3 text-center mb-3 mb-md-0">
-                <img
-                  src={currentBook.cover}
-                  alt={currentBook.title}
-                  className="shadow img-fluid"
-                  style={{ maxHeight: "200px", objectFit: "cover" }}
-                />
-              </div>
-              <div className="col-md-6">
-                <h3 className="h4 mb-2">{currentBook.title}</h3>
-                <p className="text-muted mb-1">{currentBook.author}</p>
-                <p className="text-muted mb-1">Published: {currentBook.year}</p>
-                <p className="text-muted mb-3">Tags: {currentBook.tags}</p>
-                
-                <div>
-                  <h6>Reading Progress</h6>
-                  <div className="progress">
-                    <div className="progress-bar bg-dark" style={{ width: `${currentBook.progress}%` }}>
-                      {currentBook.progress}% Complete
-                    </div>
-                  </div>
+          <div className="row">
+            <h2 className="display-6 mb-4 col-md-8">Current Book</h2>
+            <div className="col-md-4">
+              <div className="d-flex justify-content-start mb-2">
+                <div className="input-group" style={{ maxWidth: 360 }}>
+                  <label className="input-group-text" htmlFor="currentBookSelect">Select Book</label>
+                  <select
+                    id="currentBookSelect"
+                    className="form-select"
+                    value={currentBook?.id}
+                    onChange={(e) => changeCurrentBook(e.target.value)}
+                  >
+                    {books.map((b: any) => (
+                      <option key={b.id} value={b.id}>{b.title}</option>
+                    ))}
+                  </select>
                 </div>
-              </div>
-              <div className="col-md-3 text-center">
-                <NavLink to="/discussions" className="btn btn-outline-success mb-2 d-block">
-                  Join Discussion
-                </NavLink>
-                <NavLink to="/discussions" className="btn btn-dark d-block">
-                  View All Posts
-                </NavLink>
               </div>
             </div>
           </div>
+          {currentBook ? (
+            <div className="card p-4">
+              <div className="row align-items-center">
+                  <div className="col-md-3 text-center mb-3 mb-md-0">
+                    <img
+                      src={currentBook.coverImage}
+                      alt={currentBook.title}
+                      className="shadow img-fluid"
+                      style={{ maxHeight: "200px", objectFit: "cover" }}
+                    />
+                  </div>
+                  <div className="col-md-6">
+                    <h3 className="h4 mb-2">{currentBook.title}</h3>
+                    <p className="text-muted mb-1">{currentBook.author}</p>
+                    <p className="text-muted mb-1">Published: {currentBook.publishedYear}</p>
+                    <p className="text-muted mb-3">Tags: {currentBook.tags?.join(", ")}</p>
+                    
+                    <div className="mb-3">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span className="small text-muted">Reading Progress</span>
+                        <span className="small text-muted">{currentBook.readingProgress}%</span>
+                      </div>
+                      <div className="progress" style={{ height: "8px" }}>
+                        <div 
+                          className="progress-bar bg-success" 
+                          style={{ width: `${currentBook.readingProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-3 text-center">
+                    <NavLink to="/discussions" className="btn btn-outline-success mb-2 d-block">
+                      Join Discussions
+                    </NavLink>
+                  </div>
+              </div>
+            </div>
+          ) : (
+            <div className="col-12">
+              <h3 className="h4 mb-2">No current book selected yet</h3>
+            </div>
+          )}
         </div>
       </div>
       <RecentDiscussions />
@@ -168,6 +247,7 @@ function RecentDiscussions() {
           <h2 className="display-6 mb-0">Recent Discussions</h2>
           <NavLink to="/discussions" className="btn btn-outline-success">
             View All Discussions
+            <MdArrowForward />
           </NavLink>
         </div>
         
