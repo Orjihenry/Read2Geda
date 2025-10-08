@@ -2,17 +2,17 @@ import { NavLink, useParams, useNavigate } from "react-router-dom"
 import Footer from "../../components/Footer"
 import Header from "../../components/Header"
 import { FaArrowLeftLong } from "react-icons/fa6"
-import { defaultBookClubs } from "../../utils/bookClub";
 import BookCarousel from "../../components/BookCarousel";
 import { MdArrowForward } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../../utils/bookData";
-import { useClub } from "../../context/ClubContext";
+import { useClub, useClubData } from "../../context/ClubContext";
 import { FaTrash, FaEdit } from "react-icons/fa";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
-  const club = defaultBookClubs.find(c => c.id === clubId);
+  const { clubs } = useClubData();
+  const club = clubs.find(c => c.id === clubId);
   const { deleteClub } = useClub();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

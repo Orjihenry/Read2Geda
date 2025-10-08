@@ -1,4 +1,4 @@
-import { type bookClub } from "../../utils/bookClub";
+
 import {
   MdAddLocationAlt,
   MdCalendarMonth,
@@ -8,10 +8,11 @@ import {
 import { IoMdPricetag } from "react-icons/io";
 import { useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import type { UpdatedBookClub } from "../../types/models";
 
 type clubCardProps = {
   index: number
-  item: bookClub
+  item: UpdatedBookClub
 }
 
 export default function ClubCard({ index, item}: clubCardProps ) {

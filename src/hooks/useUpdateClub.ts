@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClub } from "../context/ClubContext";
-import { defaultBookClubs } from "../utils/bookClub";
 
 export default function useUpdateClub() {
   const { clubId } = useParams();
   const navigate = useNavigate();
-  const { updateClub, clubNameExists } = useClub();
+  const { clubs, updateClub, clubNameExists } = useClub();
   
   const [clubName, setClubName] = useState("");
   const [location, setLocation] = useState("");
@@ -21,8 +20,7 @@ export default function useUpdateClub() {
   
   const clubNameRef = useRef<HTMLInputElement>(null);
 
-  // Find the current club to edit
-  const currentClub = defaultBookClubs.find(c => c.id === clubId);
+  const currentClub = clubs.find(c => c.id === clubId);
 
   useEffect(() => {
     if (currentClub) {
@@ -34,7 +32,7 @@ export default function useUpdateClub() {
       setMeetingPlatform(currentClub.meetingPlatform || "");
       setIsPublic(currentClub.isPublic || true);
     }
-  }, [currentClub]);
+  }, [currentClub, clubs]);
 
   const handleUpdateClub = async (e: React.FormEvent) => {
     e.preventDefault();
