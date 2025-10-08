@@ -16,7 +16,6 @@ export default function BookCard({ index, item }: bookCardProps) {
   const inShelf = isInShelf(item.id);
   
   const hasStartedReading = item.readingProgress?.toString() === "0" || item.readingProgress === undefined ? false : true;
-  console.log(hasStartedReading);
   
   const handleReadClick = () => {
     console.log(`Opening book: ${item.title}`);
