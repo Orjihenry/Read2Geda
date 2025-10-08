@@ -1,4 +1,4 @@
-import { NavLink, useParams } from "react-router-dom"
+import { NavLink, useParams, useNavigate } from "react-router-dom"
 import Footer from "../../components/Footer"
 import Header from "../../components/Header"
 import { FaArrowLeftLong } from "react-icons/fa6"
@@ -7,10 +7,32 @@ import BookCarousel from "../../components/BookCarousel";
 import { MdArrowForward } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../../utils/bookData";
+import { useClub } from "../../context/ClubContext";
+import { FaTrash, FaEdit } from "react-icons/fa";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
   const club = defaultBookClubs.find(c => c.id === clubId);
+  const { deleteClub } = useClub();
+  const navigate = useNavigate();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDeleteClub = () => {
+    if (clubId) {
+      deleteClub(clubId);
+      navigate('/discover');
+    }
+  };
+
+  const handleJoinClub = () => {
+    console.log('Joining club:', clubId);
+  };
+
+  const handleUpdateClub = () => {
+    if (clubId) {
+      navigate(`/club/${clubId}/update`);
+    }
+  };
   
   if (!club) {
     return (
@@ -35,20 +57,41 @@ export default function ClubDetails() {
           <BackButton />
 
           <div className="py-4">
-            <h1 className="display-6">
-              {club.name}
-            </h1>
-
-            <p className="lead">
-              {club.description}
-            </p>
+            <div className="d-flex justify-content-between align-items-start mb-3">
+              <div className="flex-grow-1">
+                <h1 className="display-6 mb-2">
+                  {club.name}
+                </h1>
+                <p className="lead mb-0">
+                  {club.description}
+                </p>
+              </div>
+              <div className="ms-3 d-flex gap-2">
+                <button
+                  className="btn btn-outline-success btn-sm"
+                  onClick={handleUpdateClub}
+                  title="Update Club"
+                >
+                  <FaEdit className="me-1" />
+                  Update
+                </button>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  title="Delete Club"
+                >
+                  <FaTrash className="me-1" />
+                  Delete
+                </button>
+              </div>
+            </div>
 
             <div className="d-flex gap-2 pt-2 justify-content-start">
-              <NavLink
-                to={`/book_club/${club.id}`}
+              <button
+                onClick={handleJoinClub}
                 className="btn btn-dark btn-sm">
                 Join Club
-              </NavLink>
+              </button>
               <NavLink
                 to="/discussions"
                 className="btn btn-outline-success btn-sm">
@@ -85,6 +128,39 @@ export default function ClubDetails() {
           <BookCarousel />
         </div>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: "rgba(0,0,0,0.5)", zIndex: 1050 }}>
+          <div className="card shadow" style={{ maxWidth: 400, width: "90%" }}>
+            <div className="card-body">
+              <h5 className="card-title text-danger mb-3">
+                <FaTrash className="me-2" />
+                Delete Club
+              </h5>
+              <p className="mb-4">
+                Are you sure you want to delete <strong>{club?.name}</strong>? 
+                This action cannot be undone and will remove all club data including discussions and member information.
+              </p>
+              <div className="d-flex justify-content-end gap-2">
+                <button 
+                  className="btn btn-outline-secondary" 
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="btn btn-danger" 
+                  onClick={handleDeleteClub}
+                >
+                  <FaTrash className="me-1" />
+                  Delete Club
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   )
@@ -147,15 +223,6 @@ function CurrentBookSection() {
     });
     localStorage.setItem("currentBookId", next.id);
   };
-
-  // const currentBook = {
-  //   title: "To Kill A Mockingbird",
-  //   author: "Harper Lee",
-  //   year: "1960",
-  //   tags: "classic, literature",
-  //   cover: "https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg",
-  //   progress: 70
-  // };
 
   return (
     <div className="py-5 bg-light">

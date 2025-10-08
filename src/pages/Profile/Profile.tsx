@@ -294,7 +294,7 @@ export default function Profile() {
         </div>
 
         <div className="section text-center py-5 my-5 bg-light">
-          <h2 className="display-6 mb-4">Whishlist</h2>
+          <h2 className="display-6 mb-4">Wishlist</h2>
 
           <BookCarousel />
         </div>
