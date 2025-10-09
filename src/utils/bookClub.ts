@@ -6,7 +6,13 @@ export type bookClub = {
   id: string;
   name: string;
   description: string;
-  members: string[];
+  members: [
+    {
+      id: string;
+      name: string;
+      role: "member" | "moderator" | "owner";
+    }
+  ];
   createdAt: string;
   updatedAt: string;
   imageUrl?: string;
@@ -29,7 +35,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "1",
     name: "Book Lovers",
     description: "A club for people who love reading books.",
-    members: ["user1", "user2"],
+    members: [
+      {
+        id: "user1",
+        name: "User One",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
@@ -50,7 +62,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "2",
     name: "Sci-Fi Enthusiasts",
     description: "A club for fans of science fiction.",
-    members: ["user3", "user4"],
+    members: [
+      {
+        id: "user3",
+        name: "User Three",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
@@ -71,7 +89,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "3",
     name: "Mystery Solvers",
     description: "A club for those who love solving mysteries.",
-    members: ["user5", "user6"],
+    members: [
+      {
+        id: "user5",
+        name: "User Five",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
@@ -92,7 +116,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "4",
     name: "History Buffs",
     description: "A club for those who love history books.",
-    members: ["user7", "user8"],
+    members: [
+      {
+        id: "user7",
+        name: "User Seven",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
@@ -113,7 +143,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "5",
     name: "Fantasy Realm",
     description: "A club for fans of fantasy novels.",
-    members: ["user9", "user10"],
+    members: [
+      {
+        id: "user9",
+        name: "User Nine",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
@@ -134,7 +170,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "6",
     name: "Romance Readers",
     description: "A club for those who love romance novels.",
-    members: ["user11", "user12"],
+    members: [
+      {
+        id: "user11",
+        name: "User Eleven",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
@@ -155,7 +197,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "7",
     name: "Science Fiction Fans",
     description: "A club for fans of science fiction novels.",
-    members: ["user13", "user14"],
+    members: [
+      {
+        id: "user13",
+        name: "User Thirteen",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
@@ -176,7 +224,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "8",
     name: "Horror Enthusiasts",
     description: "A club for those who love horror novels.",
-    members: ["user15", "user16"],
+    members: [
+      {
+        id: "user15",
+        name: "User Fifteen",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
@@ -197,7 +251,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "9",
     name: "Classics Club",
     description: "A club for those who love classic literature.",
-    members: ["user17", "user18"],
+    members: [
+      {
+        id: "user17",
+        name: "User Seventeen",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: trackYourProgress,
@@ -218,7 +278,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "10",
     name: "Graphic Novel Guild",
     description: "A club for fans of graphic novels.",
-    members: ["user19", "user20"],
+    members: [
+      {
+        id: "user19",
+        name: "User Nineteen",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
@@ -239,7 +305,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "11",
     name: "Poetry Circle",
     description: "A club for those who love poetry.",
-    members: ["user21", "user22"],
+    members: [
+      {
+        id: "user21",
+        name: "User Twenty-One",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: trackYourProgress,
@@ -260,7 +332,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "12",
     name: "Biography Book Club",
     description: "A club for those who love biographies.",
-    members: ["user23", "user24"],
+    members: [
+      {
+        id: "user23",
+        name: "User Twenty-Three",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: trackYourProgress,
@@ -281,7 +359,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "13",
     name: "Memoir Lovers",
     description: "A club for those who love memoirs.",
-    members: ["user25", "user26"],
+    members: [
+      {
+        id: "user25",
+        name: "User Twenty-Five",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
@@ -302,7 +386,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "14",
     name: "Philosophy Discussion",
     description: "A club for those who love philosophical discussions.",
-    members: ["user27", "user28"],
+    members: [
+      {
+        id: "user27",
+        name: "User Twenty-Seven",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: trackYourProgress,
@@ -323,7 +413,13 @@ export const defaultBookClubs: bookClub[] = [
     id: "15",
     name: "Young Adult Fiction",
     description: "A club for fans of young adult fiction.",
-    members: ["user29", "user30"],
+    members: [
+      {
+        id: "user29",
+        name: "User Twenty-Nine",
+        role: "owner",
+      },
+    ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
