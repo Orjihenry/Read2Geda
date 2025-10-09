@@ -29,7 +29,7 @@ export default function useClubData() {
         id: String(clubs.length + 1),
         name: club.name,
         description: club.description,
-        members: [],
+        members: club.members,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         imageUrl: club.imageUrl,

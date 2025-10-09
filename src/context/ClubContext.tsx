@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { type bookClub, defaultBookClubs } from "../utils/bookClub";
+import { v4 as uuidv4 } from "uuid";
 
 type ClubContextType = {
     clubs: bookClub[];
@@ -31,10 +32,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     const createClub = (club: bookClub) => {
         const newClub = {
             ...club,
-            id: String(clubs.length + 1),
+            id: uuidv4(),
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            members: [club.ownerId],
+            members: club.members,
             ownerName: club.ownerName,
             ownerImageUrl: club.ownerImageUrl,
             isPublic: club.isPublic,
