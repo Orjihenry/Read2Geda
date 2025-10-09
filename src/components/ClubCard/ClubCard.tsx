@@ -8,11 +8,11 @@ import {
 import { IoMdPricetag } from "react-icons/io";
 import { useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import type { UpdatedBookClub } from "../../types/models";
+import type { bookClub } from "../../utils/bookClub";
 
 type clubCardProps = {
   index: number
-  item: UpdatedBookClub
+  item: bookClub
 }
 
 export default function ClubCard({ index, item}: clubCardProps ) {
