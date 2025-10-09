@@ -6,7 +6,7 @@ import About from "./pages/About";
 import BookShelf from "./pages/BookShelf";
 import ClubDetails from "./pages/ClubDetails";
 import Contact from "./pages/Contact";
-import CreateClub from "./pages/CreateClub";
+import ClubForm from "./pages/CreateClub";
 import Discover from "./pages/Discover";
 import Discussions from "./pages/Discussions";
 import Home from "./pages/Home";
@@ -16,7 +16,7 @@ import PrivacyPolicy from "./pages/Privacy";
 import { Profile, EditProfile } from "./pages/Profile";
 import Register from "./pages/Auth/Register";
 import Terms from "./pages/T&C";
-import UpdateClub from "./pages/UpdateClub";
+
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 
 // Bootstrap
@@ -43,8 +43,8 @@ function App() {
 
             {/* Protected Routes */}
             <Route path="/my_shelf" element={<ProtectedRoutes><BookShelf /></ProtectedRoutes>} />
-            <Route path="/create_club" element={<ProtectedRoutes><CreateClub /></ProtectedRoutes>} />
-            <Route path="/club/:clubId/update" element={<ProtectedRoutes><UpdateClub /></ProtectedRoutes>} />
+            <Route path="/create_club" element={<ProtectedRoutes><ClubForm /></ProtectedRoutes>} />
+            <Route path="/club/:clubId/update" element={<ProtectedRoutes><ClubForm /></ProtectedRoutes>} />
             <Route path="/highlights" element={<ProtectedRoutes><Profile /></ProtectedRoutes>} />
             <Route path="/edit_profile" element={<ProtectedRoutes><EditProfile /></ProtectedRoutes>} />
           </Routes>

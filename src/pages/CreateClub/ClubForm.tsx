@@ -1,9 +1,13 @@
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { NavLink } from "react-router-dom";
-import { useCreateClub } from "../../hooks/useCreateClub";
+import { NavLink, useParams } from "react-router-dom";
+import { useClubForm } from "../../hooks/useClubForm";
 
-export default function CreateClub() {
+type FormMode = "create" | "update";
+
+export default function ClubForm() {
+  const { mode, clubId } = useParams<{ mode?: string; clubId?: string}>();
+
   const {
     clubName,
     setClubName,
@@ -25,14 +29,17 @@ export default function CreateClub() {
     loading,
     clubNameRef,
     handleCreateClub,
-  } = useCreateClub();
+  } = useClubForm();
+
+  const componentMode: FormMode = mode === "update" || clubId ? "update" : "create";
+
 
   return (
     <>
       <Header />
       <div className="container my-5">
-        <h1 className="display-6 mb-4">Create a New Book Club</h1>
-        <div className="card p-5">
+          <h1 className="display-6 mb-4">{componentMode === "create" ? "Create a New Book Club" : "Update Book Club"}</h1>
+          <div className="card p-5">
           <form className="row g-3" onSubmit={handleCreateClub}>
             { errMsg && <p className="text-danger">{errMsg}</p> }
             { success && <p className="text-success">Club created successfully! 🎉</p> }

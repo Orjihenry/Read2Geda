@@ -1,3 +1,3 @@
-import CreateClub from "./CreateClub";
+import ClubForm from "./ClubForm";
 
-export default CreateClub;
+export default ClubForm;
