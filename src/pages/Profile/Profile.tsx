@@ -5,6 +5,7 @@ import NavButton from "../../components/NavButton";
 import { useAuthContext } from "../../context/AuthContext";
 import { useClub } from "../../context/ClubContext";
 import { useEffect, useState } from "react";
+import { db } from "../../utils/db";
 import "./Profile.css";
 
 export default function Profile() {
@@ -24,6 +25,18 @@ export default function Profile() {
   } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [progress, setProgress] = useState<number>(0);
+  const [avatar, setAvatar] = useState<string>("");
+
+  useEffect(() => {
+    const loadAvatar = async () => {
+      const avatar = await db.avatars
+        .where("userId").equals(currentUser?.id || "").toArray();
+      if (avatar) {
+        setAvatar(URL.createObjectURL(avatar[0].blob));
+      }
+    }
+      loadAvatar();
+  }, [currentUser?.id])
 
   useEffect(() => {
     try {
@@ -103,10 +116,11 @@ export default function Profile() {
               <div className="col-lg-6">
                 <div className="d-flex justify-content-center">
                   <img
-                    className="rounded-circle shadow"
-                    src={currentUser?.avatar ||"https://bootdey.com/img/Content/avatar/avatar7.png"}
+                    className="rounded shadow mb-3"
+                      src={avatar || "https://bootdey.com/img/Content/avatar/avatar7.png"}
                     title=""
                     alt="User Avatar"
+                    style={{ width: "200px", height: "200px", objectFit: "cover" }}
                   />
                 </div>
               </div>
