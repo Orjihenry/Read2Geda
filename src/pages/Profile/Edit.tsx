@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 import { type User } from "../../types/user";
+import { useImageStorage } from "../../hooks/useImageStorage";
 
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
-
 
 type UpdatedUser = User & {
     avatar?: string;
@@ -19,26 +19,76 @@ export default function EditProfile() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [avatar, setAvatar] = useState("");
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [bio, setBio] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+    const { uploadImage, getImage } = useImageStorage();
 
     useEffect(() => {
         setName(currentUser?.name || "");
         setEmail(currentUser?.email || "");
         setAvatar(currentUser?.avatar || "");
         setBio(currentUser?.bio || "");
-    }, [currentUser])
+    }, [currentUser]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    useEffect(() => {
+        let revokeUrl: string | null = null;
+
+        const loadAvatar = async () => {
+            if (!currentUser?.id) return;
+            const blob = await getImage(currentUser.id);
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                revokeUrl = url;
+                setAvatarUrl(url);
+            }
+        };
+
+        loadAvatar();
+
+        return () => {
+            if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+        };
+    }, [currentUser?.id]);
+
+    useEffect(() => {
+        if (selectedFile) {
+            const url = URL.createObjectURL(selectedFile);
+            setAvatarUrl(url);
+            
+            return () => {
+                URL.revokeObjectURL(url);
+            };
+        }
+    }, [selectedFile]);
+
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setSelectedFile(file);
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!currentUser) return;
+        
+        let imageId: string | undefined = avatar;
+
+        if (selectedFile) {
+            const uploadedId = await uploadImage(selectedFile, "avatar");
+            imageId = uploadedId || undefined;
+            if (!imageId) {
+                return;
+            }
+        }
 
         const updatedUser: UpdatedUser = {
             ...currentUser,
             name,
             email,
-            avatar,
-            bio
+            avatar: imageId,
+            bio,
         };
 
         const success = updateProfile(updatedUser);
@@ -67,18 +117,21 @@ export default function EditProfile() {
                 <div className="card p-5">
                     <form className="row g-3" onSubmit={handleSubmit}>
                         <div className="col-12 text-center mb-4">
-                            <img
-                                className="rounded-circle shadow mb-3"
-                                src="https://bootdey.com/img/Content/avatar/avatar7.png"
-                                alt="Profile Avatar"
-                                style={{ width: "120px", height: "120px", objectFit: "cover" }}
-                            />
+                            {(avatarUrl || avatar) && (
+                                <img
+                                    className="rounded-circle shadow mb-3"
+                                    src={avatarUrl || avatar}
+                                    alt="Profile Avatar"
+                                    style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                                />
+                            )}
                             <div>
                                 <label htmlFor="avatar" className="btn btn-outline-secondary btn-sm">Change Avatar</label>
                                 <input
                                     type="file"
+                                    accept="image/*"
                                     className="d-none"
-                                    onChange={(e) => e.target.files?.[0] && setAvatar(e.target.files[0].name)}
+                                    onChange={handleAvatarChange}
                                     id="avatar"
                                     name="avatar"
                                 />
