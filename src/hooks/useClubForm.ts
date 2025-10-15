@@ -4,9 +4,11 @@ import { useClub } from "../context/ClubContext";
 import type { bookClub } from "../utils/bookClub";
 import { useAuthContext } from "../context/AuthContext";
 import { v4 as uuidv4 } from "uuid";
+import { useImageStorage } from "./useImageStorage";
 
 export const useClubForm = () => {
     const { clubs, createClub, updateClub, clubNameExists } = useClub();
+    const { uploadImage, getImage } = useImageStorage();
     const { clubId } = useParams();
     const navigate = useNavigate();
     const clubNameRef = useRef<HTMLInputElement>(null);
@@ -21,10 +23,53 @@ export const useClubForm = () => {
     const [meetingPlatform, setMeetingPlatform] = useState("");
     const [isPublic, setIsPublic] = useState(true);
     const [imageUrl, setImageUrl] = useState<File | null>(null);
+
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [clubImage, setClubImage] = useState<string | null>(null);
     
     const [errMsg, setErrMsg] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let revokeUrl: string | null = null;
+
+    const loadImage = async () => {
+      if (!clubId) return;
+      const blob = await getImage(clubId);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        revokeUrl = url;
+        setClubImage(url);
+      }
+    }
+
+    loadImage();
+
+    return () => {
+      if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+    }
+  }, [clubId])
+
+  useEffect(() => {
+    if (selectedFile) {
+        const url = URL.createObjectURL(selectedFile);
+        setClubImage(url);
+        
+        return () => {
+            URL.revokeObjectURL(url);
+        };
+    }
+}, [selectedFile]);
+
+  const handleClubImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) {
+      setErrMsg("Please select a valid image file.");
+      return;
+    }
+    setSelectedFile(file);
+  }
 
     const currentClub = clubs.find(c => c.id === clubId);
 
@@ -52,11 +97,6 @@ export const useClubForm = () => {
             return;
         }
 
-        if (clubNameExists(clubName.trim())) {
-            setErrMsg("A club with this name already exists");
-            return;
-        }
-
         if (!currentUser) {
             setErrMsg("You must be logged in to create a club");
             return;
@@ -68,13 +108,18 @@ export const useClubForm = () => {
         setErrMsg(null);
         setSuccess(false);
 
+        const newClubId = clubId || uuidv4();
+        let imageId: string | undefined = clubImage || undefined;
+
+        if (selectedFile) {
+            const uploadedId = await uploadImage(selectedFile, "clubImage", { clubId: newClubId });
+            imageId = uploadedId || undefined;
+            if (!imageId) return;
+        }
+
         if (currentClub) {
             try {
-              if (clubName !== currentClub.name && clubNameExists(clubName)) {
-                setErrMsg("Club name already exists");
-                setLoading(false);
-                return;
-              }
+              
         
               const updatedClub = {
                 ...currentClub,
@@ -86,6 +131,7 @@ export const useClubForm = () => {
                 meetingPlatform: meetingPlatform,
                 isPublic: isPublic,
                 updatedAt: new Date().toISOString(),
+                imageUrl: imageId,
               };
             
               updateClub(updatedClub);
@@ -103,8 +149,14 @@ export const useClubForm = () => {
             }
         } else {
           try {
+            if (clubNameExists(clubName.trim())) {
+              setErrMsg("A club with this name already exists!");
+              setLoading(false);
+              return;
+            }
+
             const newClub: bookClub = {
-              id: uuidv4(),
+              id: newClubId,
               name: clubName.trim(),
               description: description.trim(),
               members: [
@@ -116,7 +168,7 @@ export const useClubForm = () => {
             ],
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
-              imageUrl: imageUrl?.toString() || undefined, 
+              imageUrl: imageId, 
               ownerId: currentUser.id,
               ownerName: currentUser.name,
               ownerImageUrl: undefined,
@@ -158,6 +210,8 @@ export const useClubForm = () => {
         setMeetingPlatform("");
         setIsPublic(true);
         setImageUrl(null);
+        setSelectedFile(null);
+        setClubImage(null);
     };
 
     return {
@@ -183,5 +237,8 @@ export const useClubForm = () => {
         clubNameRef,
         currentClub,
         handleCreateClub,
+
+        clubImage,
+        handleClubImageChange,
     };
 };
