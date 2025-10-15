@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { User } from "../types/user.ts";
 import { v4 as uuidv4 } from "uuid"
 import Swal from "sweetalert2";
+const placeholderAvatar =  "../../assets/placeholder.png";
 
 type AuthContextType = {
     currentUser: User | null;
@@ -29,7 +30,10 @@ export default function AuthProvider({ children }: { children: React.ReactNode})
         const userId = localStorage.getItem("currentUser");
         const user = users.find((u: User) => u.id === userId);
         if (user) {
-          setCurrentUser(user);
+          setCurrentUser({
+            ...user,
+            avatar: user.avatar || placeholderAvatar,
+          });
           setIsLoggedIn(true);
         } else {
           setCurrentUser(null);
