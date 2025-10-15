@@ -1,62 +1,67 @@
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../utils/db";
-import { useAuthContext } from "../context/AuthContext";
-import { useClub } from "../context/ClubContext";
-import { useParams } from "react-router-dom";
 
 export function useImageStorage() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const { currentUser } = useAuthContext();
-    const { clubId } = useParams();
-    const { clubs } = useClub();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const club = clubs.find(c => c.id === clubId);
+  const uploadImage = async (
+    file: File,
+    type: "avatar" | "clubImage",
+    options?: { userId?: string; clubId?: string }
+  ) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    const uploadImage = async (file: File, type: 'avatar' | 'clubImage') => {
-        try {
-            setLoading(true);
-            const id = uuidv4();
+      const id = uuidv4();
 
-            const uplaodData = {
-                id,
-                name: file.name,
-                userId: currentUser?.id || "",
-                clubId: club?.id || "", 
-                type,
-                blob: file,
-                createdAt: new Date(Date.now()).toISOString(),
-            };
+      const uploadData = {
+        id,
+        name: file.name,
+        userId: options?.userId ?? "",
+        clubId: options?.clubId ?? "",
+        type,
+        blob: file,
+        createdAt: new Date().toISOString(),
+      };
 
-            await db.avatars.add(uplaodData);
+      await db.avatars.add(uploadData);
 
-            setLoading(false);
-            return id;
-        } catch (error) {
-            setError(error as string);
-            return null;
-        }
+      return id;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
+      return null;
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const getImage = async (userId: string): Promise<Blob | null> => {
-        try {
-            const images = await db.avatars
-                .toArray()
-                .then(all => all.filter(img => img.userId === userId || img.clubId === userId));
-            
-            if (!images || images.length === 0) return null;
-            return images[0].blob as Blob;
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            setError(message);
-            return null;
-        }
-    };
+  const getImage = async (id: string): Promise<Blob | null> => {
+    try {
+      const images = await db.avatars
+        .toArray()
+        .then((all) => all.filter((img) => img.userId === id || img.clubId === id));
 
-    const deleteImage = async (id: string) => {
-        await db.avatars.delete(id);
+      if (images.length === 0) return null;
+      return images[0].blob as Blob;
+    } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message);
+        return null;
     }
+  };
 
-    return { uploadImage, getImage, deleteImage, loading, error };
+  const deleteImage = async (id: string) => {
+    try {
+      await db.avatars.delete(id);
+    } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message);
+    }
+  };
+
+  return { uploadImage, getImage, deleteImage, loading, error };
 }
