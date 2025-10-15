@@ -23,12 +23,13 @@ export default function ClubForm() {
     setMeetingPlatform,
     isPublic,
     setIsPublic,
-    setImageUrl,
     errMsg,
     success,
     loading,
     clubNameRef,
     handleCreateClub,
+    clubImage,
+    handleClubImageChange,
   } = useClubForm();
 
   const componentMode: FormMode = mode === "update" || clubId ? "update" : "create";
@@ -156,7 +157,18 @@ export default function ClubForm() {
               </div>
             </div>
 
-            <div className="col-12">
+            <div className="col-6">
+              <div>
+                  {clubImage && (
+                  <img
+                    src={clubImage}
+                    alt="Club Image"
+                    className="img-fluid rounded-3"
+                    style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                  />
+                )}
+              </div>
+
               <label htmlFor="imageUrl" className="form-label fw-bold">
                 Club Image
               </label>
@@ -166,7 +178,7 @@ export default function ClubForm() {
                 id="imageUrl"
                 name="imageUrl"
                 placeholder="Select image"
-                onChange={(e) => setImageUrl(e.target.files?.[0] || null)}
+                onChange={handleClubImageChange}
               />
             </div>
 
