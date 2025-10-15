@@ -39,8 +39,6 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
             ownerName: club.ownerName,
             ownerImageUrl: club.ownerImageUrl,
             isPublic: club.isPublic,
-            isActive: club.isActive,
-            rating: club.rating,
             tags: club.tags,
             location: club.location,
             meetingFrequency: club.meetingFrequency,
