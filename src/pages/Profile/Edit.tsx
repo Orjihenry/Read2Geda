@@ -6,6 +6,9 @@ import { useImageStorage } from "../../hooks/useImageStorage";
 
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
+import placeholderAvatar from "../../assets/placeholder.png";
+
+const  placeholder = placeholderAvatar;
 
 type UpdatedUser = User & {
     avatar?: string;
@@ -28,7 +31,7 @@ export default function EditProfile() {
     useEffect(() => {
         setName(currentUser?.name || "");
         setEmail(currentUser?.email || "");
-        setAvatar(currentUser?.avatar || "");
+        setAvatar(currentUser?.avatar ? currentUser.avatar : placeholder);
         setBio(currentUser?.bio || "");
     }, [currentUser]);
 
@@ -53,14 +56,10 @@ export default function EditProfile() {
     }, [currentUser?.id]);
 
     useEffect(() => {
-        if (selectedFile) {
-            const url = URL.createObjectURL(selectedFile);
-            setAvatarUrl(url);
-            
-            return () => {
-                URL.revokeObjectURL(url);
-            };
-        }
+        if (!selectedFile) return;
+        const url = URL.createObjectURL(selectedFile);
+        setAvatarUrl(url);
+        return () => URL.revokeObjectURL(url);
     }, [selectedFile]);
 
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +75,7 @@ export default function EditProfile() {
         let imageId: string | undefined = avatar;
 
         if (selectedFile) {
-            const uploadedId = await uploadImage(selectedFile, "avatar");
+            const uploadedId = await uploadImage(selectedFile, "avatar", { userId: currentUser.id });
             imageId = uploadedId || undefined;
             if (!imageId) {
                 return;
@@ -119,10 +118,10 @@ export default function EditProfile() {
                         <div className="col-12 text-center mb-4">
                             {(avatarUrl || avatar) && (
                                 <img
-                                    className="rounded-circle shadow mb-3"
+                                    className="rounded shadow mb-3"
                                     src={avatarUrl || avatar}
                                     alt="Profile Avatar"
-                                    style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                                    style={{ width: "200px", height: "200px", objectFit: "cover" }}
                                 />
                             )}
                             <div>
@@ -184,7 +183,10 @@ export default function EditProfile() {
                             <button
                                 type="button"
                                 className="btn btn-outline-success ms-2"
-                                onClick={() => navigate("/highlights")}
+                                onClick={() => {
+                                    setSelectedFile(null);
+                                    navigate("/highlights");
+                                }}
                             >
                                 Cancel
                             </button>

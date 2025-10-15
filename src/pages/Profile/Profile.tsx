@@ -7,6 +7,9 @@ import { useClub } from "../../context/ClubContext";
 import { useEffect, useState } from "react";
 import { db } from "../../utils/db";
 import "./Profile.css";
+import placeholderAvatar from "../../assets/placeholder.png";
+
+const placeholder = placeholderAvatar;
 
 export default function Profile() {
 
@@ -117,7 +120,7 @@ export default function Profile() {
                 <div className="d-flex justify-content-center">
                   <img
                     className="rounded shadow mb-3"
-                      src={avatar || "https://bootdey.com/img/Content/avatar/avatar7.png"}
+                      src={avatar || placeholder}
                     title=""
                     alt="User Avatar"
                     style={{ width: "200px", height: "200px", objectFit: "cover" }}
