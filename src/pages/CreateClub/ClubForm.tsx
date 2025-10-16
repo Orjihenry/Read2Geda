@@ -1,12 +1,12 @@
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { NavLink, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useClubForm } from "../../hooks/useClubForm";
 
 type FormMode = "create" | "update";
 
 export default function ClubForm() {
-  const { mode, clubId } = useParams<{ mode?: string; clubId?: string}>();
+  const { mode, clubId } = useParams<{ mode?: string; clubId?: string }>();
 
   const {
     clubName,
@@ -32,8 +32,8 @@ export default function ClubForm() {
     handleClubImageChange,
   } = useClubForm();
 
-  const componentMode: FormMode = mode === "update" || clubId ? "update" : "create";
-
+  const componentMode: FormMode =
+    mode === "update" || clubId ? "update" : "create";
 
   return (
     <>
@@ -165,12 +165,16 @@ export default function ClubForm() {
 
             <div className="col-6">
               <div>
-                  {clubImage && (
+                {clubImage && (
                   <img
                     src={clubImage}
                     alt="Club Image"
                     className="img-fluid rounded-3"
-                    style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                    }}
                   />
                 )}
               </div>
@@ -183,6 +187,7 @@ export default function ClubForm() {
                 className="form-control"
                 id="imageUrl"
                 name="imageUrl"
+                accept="image/*"
                 placeholder="Select image"
                 onChange={handleClubImageChange}
               />
@@ -190,11 +195,14 @@ export default function ClubForm() {
 
             <div className="col-12 text-center">
               <button type="submit" className="btn btn-dark px-4">
-                Create Club
+                {componentMode === "create" ? "Create Club" : "Update Club"}
               </button>
-              <NavLink to="/discover" className="btn btn-outline-success ms-2">
+              <button
+                className="btn btn-outline-success ms-2"
+                onClick={() => window.history.back()}
+              >
                 Cancel
-              </NavLink>
+              </button>
             </div>
           </form>
         </div>

@@ -33,10 +33,11 @@ export const useClubForm = () => {
 
   useEffect(() => {
     let revokeUrl: string | null = null;
+    const club = clubs.find(c => c.id === clubId);
 
     const loadImage = async () => {
-      if (!clubId) return;
-      const blob = await getImage(clubId);
+      if (!club?.imageUrl) return;
+      const blob = await getImage(club.imageUrl);
       if (blob) {
         const url = URL.createObjectURL(blob);
         revokeUrl = url;
@@ -49,7 +50,7 @@ export const useClubForm = () => {
     return () => {
       if (revokeUrl) URL.revokeObjectURL(revokeUrl);
     }
-  }, [clubId])
+  }, [clubId]);
 
   useEffect(() => {
     if (selectedFile) {
@@ -146,6 +147,7 @@ export const useClubForm = () => {
             } catch (error) {
                 setErrMsg("Failed to update club");
                 setLoading(false);
+                return error;
             }
         } else {
           try {
