@@ -8,8 +8,6 @@ import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import placeholderAvatar from "../../assets/placeholder.png";
 
-const  placeholder = placeholderAvatar;
-
 type UpdatedUser = User & {
     avatar?: string;
     bio?: string;
@@ -31,16 +29,22 @@ export default function EditProfile() {
     useEffect(() => {
         setName(currentUser?.name || "");
         setEmail(currentUser?.email || "");
-        setAvatar(currentUser?.avatar ? currentUser.avatar : placeholder);
         setBio(currentUser?.bio || "");
+        if (currentUser?.avatar) {
+            setAvatar(currentUser.avatar);
+        }
     }, [currentUser]);
 
     useEffect(() => {
         let revokeUrl: string | null = null;
 
         const loadAvatar = async () => {
-            if (!currentUser?.id) return;
-            const blob = await getImage(currentUser.id);
+            if (!currentUser?.avatar) {
+                setAvatarUrl(placeholderAvatar);
+                return;
+            }
+            
+            const blob = await getImage(currentUser.avatar);
             if (blob) {
                 const url = URL.createObjectURL(blob);
                 revokeUrl = url;
@@ -75,7 +79,7 @@ export default function EditProfile() {
         let imageId: string | undefined = avatar;
 
         if (selectedFile) {
-            const uploadedId = await uploadImage(selectedFile, "avatar", { userId: currentUser.id });
+            const uploadedId = await uploadImage(selectedFile);
             imageId = uploadedId || undefined;
             if (!imageId) {
                 return;
@@ -119,7 +123,7 @@ export default function EditProfile() {
                             {(avatarUrl || avatar) && (
                                 <img
                                     className="rounded shadow mb-3"
-                                    src={avatarUrl || avatar}
+                                    src={avatarUrl || placeholderAvatar}
                                     alt="Profile Avatar"
                                     style={{ width: "200px", height: "200px", objectFit: "cover" }}
                                 />
