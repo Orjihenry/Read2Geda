@@ -20,23 +20,36 @@ export default function ClubDetails() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const { getImage } = useImageStorage();
+  const { getImage, loading } = useImageStorage();
 
   useEffect(() => {
-    const loadAvatar = async () => {
-      if (!club?.imageUrl) {
+    if (!club) return;
+    let revokeUrl: string | null = null;
+
+    const loadImage = async () => {
+      if (!club.imageUrl) {
         setImageUrl(placeholderClubImage);
         return;
       }
-
-      const blob = await getImage(club?.imageUrl);
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        setImageUrl(url);
+      if (club.imageUrl.length === 36 && !club.imageUrl.includes("/")) {
+        const blob = await getImage(club.imageUrl);
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          revokeUrl = url;
+          setImageUrl(url);
+        } else {
+          setImageUrl(placeholderClubImage);
+        }
+      } else {
+        setImageUrl(club.imageUrl);
       }
     };
-    loadAvatar();
-  }, [club?.imageUrl, getImage]);
+    loadImage();
+
+    return () => {
+      if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+    };
+  }, [getImage, club]);
 
   const handleDeleteClub = () => {
     if (clubId) {
@@ -83,9 +96,11 @@ export default function ClubDetails() {
           <div className="d-flex justify-content-between align-items-start mb-3">
             <div className="flex-grow-1">
               <div className="d-flex align-items-center">
-                {imageUrl && (
+                {loading ? (
+                  <div className="spinner-border text-success" />
+                ) : (
                   <img
-                    src={imageUrl}
+                    src={imageUrl || placeholderClubImage}
                     alt={`${club.name} club image`}
                     className="rounded shadow img-fluid"
                     style={{
