@@ -7,37 +7,37 @@ import { v4 as uuidv4 } from "uuid";
 import { useImageStorage } from "./useImageStorage";
 
 export const useClubForm = () => {
-    const { clubs, createClub, updateClub, clubNameExists } = useClub();
-    const { uploadImage, getImage } = useImageStorage();
-    const { clubId } = useParams();
-    const navigate = useNavigate();
-    const clubNameRef = useRef<HTMLInputElement>(null);
-    
-    const { currentUser } = useAuthContext();
+  const { clubs, createClub, updateClub, clubNameExists } = useClub();
+  const { uploadImage, getImage } = useImageStorage();
+  const { clubId } = useParams();
+  const navigate = useNavigate();
+  const clubNameRef = useRef<HTMLInputElement>(null);
+  
+  const { currentUser } = useAuthContext();
 
-    const [clubName, setClubName] = useState("");
-    const [location, setLocation] = useState("");
-    const [description, setDescription] = useState("");
-    const [tags, setTags] = useState("");
-    const [meetingFrequency, setMeetingFrequency] = useState("");
-    const [meetingPlatform, setMeetingPlatform] = useState("");
-    const [isPublic, setIsPublic] = useState(true);
-    const [imageUrl, setImageUrl] = useState<File | null>(null);
+  const [clubName, setClubName] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
+  const [tags, setTags] = useState("");
+  const [meetingFrequency, setMeetingFrequency] = useState("");
+  const [meetingPlatform, setMeetingPlatform] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [clubImage, setClubImage] = useState<string | null>(null);
-    
-    const [errMsg, setErrMsg] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
-    const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [clubImage, setClubImage] = useState<string | null>(null);
+  
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const currentClub = clubs.find(c => c.id === clubId);
 
   useEffect(() => {
     let revokeUrl: string | null = null;
-    const club = clubs.find(c => c.id === clubId);
 
     const loadImage = async () => {
-      if (!club?.imageUrl) return;
-      const blob = await getImage(club.imageUrl);
+      if (!currentClub?.imageUrl) return;
+      const blob = await getImage(currentClub.imageUrl);
       if (blob) {
         const url = URL.createObjectURL(blob);
         revokeUrl = url;
@@ -50,18 +50,14 @@ export const useClubForm = () => {
     return () => {
       if (revokeUrl) URL.revokeObjectURL(revokeUrl);
     }
-  }, [clubId]);
+  }, [currentClub?.imageUrl, getImage]);
 
   useEffect(() => {
-    if (selectedFile) {
-        const url = URL.createObjectURL(selectedFile);
-        setClubImage(url);
-        
-        return () => {
-            URL.revokeObjectURL(url);
-        };
-    }
-}, [selectedFile]);
+    if (!selectedFile) return;
+    const url = URL.createObjectURL(selectedFile);
+    setClubImage(url);
+    return () => URL.revokeObjectURL(url);
+  }, [selectedFile]);
 
   const handleClubImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -72,23 +68,24 @@ export const useClubForm = () => {
     setSelectedFile(file);
   }
 
-    const currentClub = clubs.find(c => c.id === clubId);
-
     useEffect(() => {
         clubNameRef?.current?.focus();
     }, []);
 
     useEffect(() => {
         if (currentClub) {
-            setClubName(currentClub.name || "");
-            setLocation(currentClub.location || "");
-            setDescription(currentClub.description || "");
-            setTags(currentClub.tags?.join(", ") || "");
-            setMeetingFrequency(currentClub.meetingFrequency || "");
-            setMeetingPlatform(currentClub.meetingPlatform || "");
-            setIsPublic(currentClub.isPublic || true);
+          setClubName(currentClub.name || "");
+          setLocation(currentClub.location || "");
+          setDescription(currentClub.description || "");
+          setTags(currentClub.tags?.join(", ") || "");
+          setMeetingFrequency(currentClub.meetingFrequency || "");
+          setMeetingPlatform(currentClub.meetingPlatform || "");
+          setIsPublic(currentClub.isPublic || true);
+          if (currentClub.imageUrl) {
+            setImageUrl(currentClub.imageUrl);
+          }
         }
-    }, [currentClub, clubs]);
+    }, [currentClub]);
 
     const handleSubmitEvent = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -110,7 +107,7 @@ export const useClubForm = () => {
         setSuccess(false);
 
         const newClubId = clubId || uuidv4();
-        let imageId: string | undefined = clubImage || undefined;
+        let imageId: string | undefined = imageUrl || undefined;
 
         if (selectedFile) {
             const uploadedId = await uploadImage(selectedFile);
@@ -118,38 +115,41 @@ export const useClubForm = () => {
             if (!imageId) return;
         }
 
+        // Update existing club
         if (currentClub) {
-            try {
+          try {
+            const updatedClub = {
+              ...currentClub,
+              name: clubName,
+              location: location,
+              description: description,
+              tags: processedTags,
+              meetingFrequency: meetingFrequency,
+              meetingPlatform: meetingPlatform,
+              isPublic: isPublic,
+              updatedAt: new Date().toISOString(),
+              imageUrl: imageId,
+            };
+          
+            updateClub(updatedClub);
               
-        
-              const updatedClub = {
-                ...currentClub,
-                name: clubName,
-                location: location,
-                description: description,
-                tags: processedTags,
-                meetingFrequency: meetingFrequency,
-                meetingPlatform: meetingPlatform,
-                isPublic: isPublic,
-                updatedAt: new Date().toISOString(),
-                imageUrl: imageId,
-              };
-            
-              updateClub(updatedClub);
-                
-              setSuccess(true);
+            setSuccess(true);
+            setLoading(false);
+              
+            setTimeout(() => {
+              navigate(`/club/${clubId}`);
+            }, 1500);
+          
+          } catch (error) {
+              setErrMsg("Failed to update club");
               setLoading(false);
-                
-              setTimeout(() => {
-                navigate(`/club/${clubId}`);
-              }, 1500);
-            
-            } catch (error) {
-                setErrMsg("Failed to update club");
-                setLoading(false);
-                return error;
-            }
+              return error;
+          }
+          console.log("Image ID:", imageId);
+          console.log("Updated Club:", currentClub)
+          console.log("clubImage:", clubImage);
         } else {
+          // Create new club
           try {
             if (clubNameExists(clubName.trim())) {
               setErrMsg("A club with this name already exists!");
@@ -203,6 +203,12 @@ export const useClubForm = () => {
         };
     }
 
+    const handleCancelEvent = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setImageUrl(imageUrl);
+        navigate(-1);
+    }
+
     const resetForm = () => {
         setClubName("");
         setLocation("");
@@ -239,6 +245,7 @@ export const useClubForm = () => {
         clubNameRef,
         currentClub,
         handleSubmitEvent,
+        handleCancelEvent,
 
         clubImage,
         handleClubImageChange,
