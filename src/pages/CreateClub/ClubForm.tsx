@@ -28,6 +28,7 @@ export default function ClubForm() {
     loading,
     clubNameRef,
     handleSubmitEvent,
+    handleCancelEvent,
     clubImage,
     handleClubImageChange,
   } = useClubForm();
@@ -199,7 +200,7 @@ export default function ClubForm() {
               </button>
               <button
                 className="btn btn-outline-success ms-2"
-                onClick={() => window.history.back()}
+                onClick={handleCancelEvent}
               >
                 Cancel
               </button>
