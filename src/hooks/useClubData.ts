@@ -24,7 +24,7 @@ export default function useClubData() {
     }
   }, [clubs]);
 
-  function handleCreateClub(club: bookClub) {
+  function handleSubmitEvent(club: bookClub) {
     const newClub = {
         id: String(clubs.length + 1),
         name: club.name,
@@ -57,5 +57,5 @@ export default function useClubData() {
     setClubs(clubs.filter(item => item.id !== clubId));
   }
 
-  return { clubs, setClubs, loading, handleCreateClub, handleUpdateClub, handleDeleteClub };
+  return { clubs, setClubs, loading, handleSubmitEvent, handleUpdateClub, handleDeleteClub };
 }

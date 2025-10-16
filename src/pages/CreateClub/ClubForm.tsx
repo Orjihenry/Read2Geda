@@ -27,7 +27,7 @@ export default function ClubForm() {
     success,
     loading,
     clubNameRef,
-    handleCreateClub,
+    handleSubmitEvent,
     clubImage,
     handleClubImageChange,
   } = useClubForm();
@@ -39,12 +39,18 @@ export default function ClubForm() {
     <>
       <Header />
       <div className="container my-5">
-          <h1 className="display-6 mb-4">{componentMode === "create" ? "Create a New Book Club" : "Update Book Club"}</h1>
-          <div className="card p-5">
-          <form className="row g-3" onSubmit={handleCreateClub}>
-            { errMsg && <p className="text-danger">{errMsg}</p> }
-            { success && <p className="text-success">Club created successfully! 🎉</p> }
-            { loading && <p className="text-warning">Creating club... 🎉</p> }
+        <h1 className="display-6 mb-4">
+          {componentMode === "create"
+            ? "Create a New Book Club"
+            : "Update Book Club"}
+        </h1>
+        <div className="card p-5">
+          <form className="row g-3" onSubmit={handleSubmitEvent}>
+            {errMsg && <p className="text-danger">{errMsg}</p>}
+            {success && (
+              <p className="text-success">Club created successfully! 🎉</p>
+            )}
+            {loading && <p className="text-warning">Creating club... 🎉</p>}
             <div className="col-md-6">
               <label htmlFor="name" className="form-label fw-bold">
                 Club Name
