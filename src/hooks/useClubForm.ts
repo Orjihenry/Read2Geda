@@ -89,7 +89,7 @@ export const useClubForm = () => {
         }
     }, [currentClub, clubs]);
 
-    const handleCreateClub = async (e: React.FormEvent) => {
+    const handleSubmitEvent = async (e: React.FormEvent) => {
         e.preventDefault();
         
         if (!clubName.trim() || !description.trim()) {
@@ -236,7 +236,7 @@ export const useClubForm = () => {
         loading,
         clubNameRef,
         currentClub,
-        handleCreateClub,
+        handleSubmitEvent,
 
         clubImage,
         handleClubImageChange,
