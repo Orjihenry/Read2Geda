@@ -5,11 +5,9 @@ import NavButton from "../../components/NavButton";
 import { useAuthContext } from "../../context/AuthContext";
 import { useClub } from "../../context/ClubContext";
 import { useEffect, useState } from "react";
+import { useImageStorage } from "../../hooks/useImageStorage";
 import "./Profile.css";
 import placeholderAvatar from "../../assets/placeholder.png";
-import { useImageStorage } from "../../hooks/useImageStorage";
-
-const placeholder = placeholderAvatar;
 
 export default function Profile() {
   const { currentUser } = useAuthContext();
@@ -34,10 +32,15 @@ export default function Profile() {
 
   useEffect(() => {
     const loadAvatar = async () => {
-      if (!currentUser?.avatar) return;
-      const avatar = await getImage(currentUser?.avatar);
-      if (avatar) {
-        setAvatar(URL.createObjectURL(avatar));
+      if (!currentUser?.avatar) {
+        setAvatar(placeholderAvatar);
+        return;
+      }
+
+      const blob = await getImage(currentUser?.avatar);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        setAvatar(url);
       }
     };
     loadAvatar();
@@ -129,7 +132,7 @@ export default function Profile() {
               <div className="d-flex justify-content-center">
                 <img
                   className="rounded shadow mb-3"
-                  src={avatar || placeholder}
+                  src={avatar}
                   title=""
                   alt="User Avatar"
                   style={{
