@@ -6,9 +6,11 @@ import {
   MdStar,
 } from "react-icons/md";
 import { IoMdPricetag } from "react-icons/io";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import type { bookClub } from "../../utils/bookClub";
+import { useImageStorage } from "../../hooks/useImageStorage";
+import placeholderClubImage from "../../assets/bookClub.jpg";
 
 type clubCardProps = {
   index: number
@@ -16,18 +18,51 @@ type clubCardProps = {
 }
 
 export default function ClubCard({ index, item}: clubCardProps ) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const { getImage } = useImageStorage();
+
   useEffect(() => {
-    const cards = document.querySelectorAll(".card-custom-wrapper");
-    let maxHeight = 0;
+      let revokeUrl: string | null = null;
 
-    cards.forEach((card) => {
-      const h = card.getBoundingClientRect().height;
-      if (h > maxHeight) maxHeight = h;
-    });
+      const loadImage = async () => {
+        if (!item.imageUrl) {
+          setImageUrl(placeholderClubImage);
+          return;
+        }
 
-    cards.forEach((card) => {
-      (card as HTMLElement).style.height = `${maxHeight}px`;
-    });
+        if (item.imageUrl.length === 36 && !item.imageUrl.includes('/')) {
+          const blob = await getImage(item.imageUrl);
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            revokeUrl = url;
+            setImageUrl(url);
+          } else {
+            setImageUrl(placeholderClubImage);
+          }
+        } else {
+          setImageUrl(item.imageUrl);
+        }
+      };
+
+      loadImage();
+
+      return () => {
+        if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+      };
+  }, [item.imageUrl, getImage]);
+
+  useEffect(() => {
+      const cards = document.querySelectorAll(".card-custom-wrapper");
+      let maxHeight = 0;
+
+      cards.forEach((card) => {
+          const h = card.getBoundingClientRect().height;
+          if (h > maxHeight) maxHeight = h;
+      });
+
+      cards.forEach((card) => {
+          (card as HTMLElement).style.height = `${maxHeight}px`;
+      });
   }, []);
 
   return (
@@ -38,10 +73,10 @@ export default function ClubCard({ index, item}: clubCardProps ) {
             <div className="d-flex text-start align-items-center">
               <div className="flex-shrink-0 me-3">
                 <img
-                  src={item.imageUrl?.toString()}
+                  src={imageUrl || placeholderClubImage}
                   alt={item.name}
                   className="rounded-circle me-3"
-                  style={{ width: "70px", height: "70px", maxWidth: "70px" }}
+                  style={{ width: "70px", height: "70px", maxWidth: "70px", objectFit: "cover" }}
                 />
               </div>
 
