@@ -5,18 +5,20 @@ import NavButton from "../../components/NavButton";
 import { useAuthContext } from "../../context/AuthContext";
 import { useClub } from "../../context/ClubContext";
 import { useEffect, useState } from "react";
-import { db } from "../../utils/db";
 import "./Profile.css";
 import placeholderAvatar from "../../assets/placeholder.png";
+import { useImageStorage } from "../../hooks/useImageStorage";
 
 const placeholder = placeholderAvatar;
 
 export default function Profile() {
-
   const { currentUser } = useAuthContext();
+  const { getImage } = useImageStorage();
   const { clubs } = useClub();
 
-  const currentClub = clubs.find(club => club.isActive && club.members.length > 0);
+  const currentClub = clubs.find(
+    (club) => club.isActive && club.members.length > 0
+  );
 
   const [books, setBooks] = useState<any[]>([]);
   const [currentBook, setCurrentBook] = useState<{
@@ -32,14 +34,14 @@ export default function Profile() {
 
   useEffect(() => {
     const loadAvatar = async () => {
-      const avatar = await db.avatars
-        .where("userId").equals(currentUser?.id || "").toArray();
+      if (!currentUser?.avatar) return;
+      const avatar = await getImage(currentUser?.avatar);
       if (avatar) {
-        setAvatar(URL.createObjectURL(avatar[0].blob));
+        setAvatar(URL.createObjectURL(avatar));
       }
-    }
-      loadAvatar();
-  }, [currentUser?.id])
+    };
+    loadAvatar();
+  }, [currentUser, getImage]);
 
   useEffect(() => {
     try {
@@ -50,7 +52,8 @@ export default function Profile() {
       const storedCurrentId = localStorage.getItem("currentBookId");
       const selected = storedCurrentId
         ? localBooks.find((b: any) => b.id === storedCurrentId)
-        : localBooks.find((b: any) => (b.readingProgress ?? 0) > 0) || localBooks[0];
+        : localBooks.find((b: any) => (b.readingProgress ?? 0) > 0) ||
+          localBooks[0];
 
       if (selected) {
         setCurrentBook({
@@ -58,7 +61,7 @@ export default function Profile() {
           title: selected.title,
           author: selected.author,
           coverImage: selected.coverImage,
-          readingProgress: selected.readingProgress ?? 0
+          readingProgress: selected.readingProgress ?? 0,
         });
         setProgress(selected.readingProgress ?? 0);
       }
@@ -97,7 +100,7 @@ export default function Profile() {
       title: next.title,
       author: next.author,
       coverImage: next.coverImage,
-      readingProgress: next.readingProgress ?? 0
+      readingProgress: next.readingProgress ?? 0,
     });
     setProgress(next.readingProgress ?? 0);
     localStorage.setItem("currentBookId", next.id);
@@ -113,189 +116,234 @@ export default function Profile() {
   return (
     <>
       <Header />
-        <section className=" py-5 about-section gray-bg" id="about">
-          <div className="container">
-            <div className="row align-items-center">
-              <div className="col-lg-6">
-                <div className="d-flex justify-content-center">
-                  <img
-                    className="rounded shadow mb-3"
-                      src={avatar || placeholder}
-                    title=""
-                    alt="User Avatar"
-                    style={{ width: "200px", height: "200px", objectFit: "cover" }}
+      <section className=" py-5 about-section gray-bg" id="about">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-6">
+              <div className="d-flex justify-content-center">
+                <img
+                  className="rounded shadow mb-3"
+                  src={avatar || placeholder}
+                  title=""
+                  alt="User Avatar"
+                  style={{
+                    width: "200px",
+                    height: "200px",
+                    objectFit: "cover",
+                  }}
+                />
+              </div>
+            </div>
+            <div className="col-lg-6 py-4 py-md-0">
+              <div className="about-text">
+                <h3 className="display-6 dark-color">{currentUser?.name}</h3>
+                <p className="lead">
+                  {currentUser?.bio ||
+                    "You can edit your profile to add a bio."}
+                </p>
+
+                <div className="pb-3">
+                  <NavButton
+                    href="#"
+                    className="btn-dark text-light"
+                    label="My Clubs"
+                  />
+                  <NavButton
+                    href="edit_profile"
+                    className="mx-2"
+                    label="Edit Profile"
                   />
                 </div>
               </div>
-              <div className="col-lg-6 py-4 py-md-0">
-                <div className="about-text">
-                  <h3 className="display-6 dark-color">{currentUser?.name}</h3>
-                  <p className="lead">
-                    {currentUser?.bio || "You can edit your profile to add a bio."}
-                  </p>
-
-                  <div className="pb-3">
-                    <NavButton
-                      href="#"
-                      className="btn-dark text-light"
-                      label="My Clubs"
-                    />
-                    <NavButton href="edit_profile" className="mx-2" label="Edit Profile" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="counter">
-              <div className="row">
-                {stats.map(({ count, label }, index) => (
-                  <div key={index} className="col-6 col-lg-3">
-                    <div className="count-data text-center">
-                      <h6 className="count h2">{count}</h6>
-                      <p className="m-0px font-w-600">{label}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
-        </section>
-        
-        <section className="py-5">
-          <div className="container">
-            <h2 className="display-6 text-center mb-5">On My Bookshelf Today</h2>
-            
-            <div className="row justify-content-center">
-              <div className="col-lg-8">
-                <div className="card shadow-sm border-0">
-                  <div className="card-body p-4">
-                    {currentBook ? (
-                      <div className="text-center mb-4">
-                        <img
-                          src={currentBook.coverImage}
-                          alt={currentBook.title}
-                          className="img-fluid rounded shadow-sm mb-3"
-                          style={{ maxHeight: "200px", objectFit: "cover" }}
-                        />
-                        <h4 className="mb-1">{currentBook.title}</h4>
-                        <p className="text-muted mb-3">by {currentBook.author}</p>
-                        {books && books.length > 0 && (
-                          <div className="d-flex justify-content-center mb-2">
-                            <div className="input-group" style={{ maxWidth: 360 }}>
-                              <label className="input-group-text" htmlFor="currentBookSelect">Current</label>
-                              <select
-                                id="currentBookSelect"
-                                className="form-select"
-                                value={currentBook?.id}
-                                onChange={(e) => changeCurrentBook(e.target.value)}
-                              >
-                                {books.map((b: any) => (
-                                  <option key={b.id} value={b.id}>{b.title}</option>
-                                ))}
-                              </select>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center mb-4">
-                        <h5 className="mb-1">No current book yet</h5>
-                        <p className="text-muted">Add a book to your shelf to track progress.</p>
-                      </div>
-                    )}
-                    
-                    {currentBook && (
-                      <div className="mb-3">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
-                          <span className="small text-muted">Reading Progress</span>
-                          <span className="small text-muted">{currentBook.readingProgress}%</span>
-                        </div>
-                        <div className="progress" style={{ height: "8px" }}>
-                          <div 
-                            className="progress-bar bg-success" 
-                            style={{ width: `${currentBook.readingProgress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {currentClub && (
-                      <div className="mb-3 p-3 bg-light rounded">
-                        <div className="d-flex align-items-center">
-                          <div className="me-3">
-                            <div className="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
-                                 style={{ width: "40px", height: "40px" }}>
-                              <span className="text-white fw-bold">{currentClub.name.charAt(0)}</span>
-                            </div>
-                          </div>
-                          <div className="flex-grow-1">
-                            <h6 className="mb-1">{currentClub.name}</h6>
-                            <small className="text-muted">
-                              {currentClub.meetingFrequency} • {currentClub.members.length} members
-                            </small>
+          <div className="counter">
+            <div className="row">
+              {stats.map(({ count, label }, index) => (
+                <div key={index} className="col-6 col-lg-3">
+                  <div className="count-data text-center">
+                    <h6 className="count h2">{count}</h6>
+                    <p className="m-0px font-w-600">{label}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-5">
+        <div className="container">
+          <h2 className="display-6 text-center mb-5">On My Bookshelf Today</h2>
+
+          <div className="row justify-content-center">
+            <div className="col-lg-8">
+              <div className="card shadow-sm border-0">
+                <div className="card-body p-4">
+                  {currentBook ? (
+                    <div className="text-center mb-4">
+                      <img
+                        src={currentBook.coverImage}
+                        alt={currentBook.title}
+                        className="img-fluid rounded shadow-sm mb-3"
+                        style={{ maxHeight: "200px", objectFit: "cover" }}
+                      />
+                      <h4 className="mb-1">{currentBook.title}</h4>
+                      <p className="text-muted mb-3">by {currentBook.author}</p>
+                      {books && books.length > 0 && (
+                        <div className="d-flex justify-content-center mb-2">
+                          <div
+                            className="input-group"
+                            style={{ maxWidth: 360 }}
+                          >
+                            <label
+                              className="input-group-text"
+                              htmlFor="currentBookSelect"
+                            >
+                              Current
+                            </label>
+                            <select
+                              id="currentBookSelect"
+                              className="form-select"
+                              value={currentBook?.id}
+                              onChange={(e) =>
+                                changeCurrentBook(e.target.value)
+                              }
+                            >
+                              {books.map((b: any) => (
+                                <option key={b.id} value={b.id}>
+                                  {b.title}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </div>
-                      </div>
-                    )}
-                    
-                    <div className="text-center">
-                      {currentBook && (
-                        <>
-                          <button className="btn btn-outline-success btn-sm me-2">
-                            Continue Reading
-                          </button>
-                          <button className="btn btn-dark btn-sm" onClick={openModal}>
-                            Update Progress
-                          </button>
-                        </>
                       )}
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+                  ) : (
+                    <div className="text-center mb-4">
+                      <h5 className="mb-1">No current book yet</h5>
+                      <p className="text-muted">
+                        Add a book to your shelf to track progress.
+                      </p>
+                    </div>
+                  )}
 
-        {showModal && (
-          <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: "rgba(0,0,0,0.5)", zIndex: 1050 }}>
-            <div className="card shadow" style={{ maxWidth: 420, width: "90%" }}>
-              <div className="card-body">
-                <h5 className="card-title mb-3">Update Reading Progress</h5>
-                <div className="mb-3">
-                  <div className="d-flex justify-content-between">
-                    <small className="text-muted">0%</small>
-                    <small className="text-muted">{Number(progress) || 0}%</small>
-                    <small className="text-muted">100%</small>
+                  {currentBook && (
+                    <div className="mb-3">
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span className="small text-muted">
+                          Reading Progress
+                        </span>
+                        <span className="small text-muted">
+                          {currentBook.readingProgress}%
+                        </span>
+                      </div>
+                      <div className="progress" style={{ height: "8px" }}>
+                        <div
+                          className="progress-bar bg-success"
+                          style={{ width: `${currentBook.readingProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentClub && (
+                    <div className="mb-3 p-3 bg-light rounded">
+                      <div className="d-flex align-items-center">
+                        <div className="me-3">
+                          <div
+                            className="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                            style={{ width: "40px", height: "40px" }}
+                          >
+                            <span className="text-white fw-bold">
+                              {currentClub.name.charAt(0)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex-grow-1">
+                          <h6 className="mb-1">{currentClub.name}</h6>
+                          <small className="text-muted">
+                            {currentClub.meetingFrequency} •{" "}
+                            {currentClub.members.length} members
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="text-center">
+                    {currentBook && (
+                      <>
+                        <button className="btn btn-outline-success btn-sm me-2">
+                          Continue Reading
+                        </button>
+                        <button
+                          className="btn btn-dark btn-sm"
+                          onClick={openModal}
+                        >
+                          Update Progress
+                        </button>
+                      </>
+                    )}
                   </div>
-                  <input
-                    type="range"
-                    className="form-range"
-                    min={0}
-                    max={100}
-                    step={1}
-                    value={progress}
-                    onChange={(e) => setProgress(Number(e.target.value))}
-                  />
-                </div>
-                <div className="input-group mb-3">
-                  <span className="input-group-text">%</span>
-                  <input
-                    type="number"
-                    className="form-control"
-                    min={0}
-                    max={100}
-                    value={progress}
-                    onChange={(e) => setProgress(Number(e.target.value) || 0)}
-                  />
-                </div>
-                <div className="d-flex justify-content-end gap-2">
-                  <button className="btn btn-outline-secondary" onClick={closeModal}>Cancel</button>
-                  <button className="btn btn-success" onClick={saveProgress}>Save</button>
                 </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      </section>
+
+      {showModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ background: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+        >
+          <div className="card shadow" style={{ maxWidth: 420, width: "90%" }}>
+            <div className="card-body">
+              <h5 className="card-title mb-3">Update Reading Progress</h5>
+              <div className="mb-3">
+                <div className="d-flex justify-content-between">
+                  <small className="text-muted">0%</small>
+                  <small className="text-muted">{Number(progress) || 0}%</small>
+                  <small className="text-muted">100%</small>
+                </div>
+                <input
+                  type="range"
+                  className="form-range"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={progress}
+                  onChange={(e) => setProgress(Number(e.target.value))}
+                />
+              </div>
+              <div className="input-group mb-3">
+                <span className="input-group-text">%</span>
+                <input
+                  type="number"
+                  className="form-control"
+                  min={0}
+                  max={100}
+                  value={progress}
+                  onChange={(e) => setProgress(Number(e.target.value) || 0)}
+                />
+              </div>
+              <div className="d-flex justify-content-end gap-2">
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+                <button className="btn btn-success" onClick={saveProgress}>
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container">
         <div className="section text-center py-5 my-5">
