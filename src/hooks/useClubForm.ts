@@ -112,7 +112,7 @@ export const useClubForm = () => {
         let imageId: string | undefined = clubImage || undefined;
 
         if (selectedFile) {
-            const uploadedId = await uploadImage(selectedFile, "clubImage", { clubId: newClubId });
+            const uploadedId = await uploadImage(selectedFile);
             imageId = uploadedId || undefined;
             if (!imageId) return;
         }

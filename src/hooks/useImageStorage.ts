@@ -8,8 +8,6 @@ export function useImageStorage() {
 
   const uploadImage = async (
     file: File,
-    type: "avatar" | "clubImage",
-    options?: { userId?: string; clubId?: string }
   ) => {
     try {
       setLoading(true);
@@ -20,9 +18,6 @@ export function useImageStorage() {
       const uploadData = {
         id,
         name: file.name,
-        userId: options?.userId ?? "",
-        clubId: options?.clubId ?? "",
-        type,
         blob: file,
         createdAt: new Date().toISOString(),
       };
@@ -41,25 +36,24 @@ export function useImageStorage() {
 
   const getImage = async (id: string): Promise<Blob | null> => {
     try {
-      const images = await db.avatars
-        .toArray()
-        .then((all) => all.filter((img) => img.userId === id || img.clubId === id));
-
-      if (images.length === 0) return null;
-      return images[0].blob as Blob;
-    } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        setError(message);
-        return null;
+      const image = await db.avatars.get(id);
+      if (!image) return null;
+      return image.blob as Blob;
+    }
+    catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
+      return null;
     }
   };
 
   const deleteImage = async (id: string) => {
     try {
       await db.avatars.delete(id);
-    } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        setError(message);
+    }
+    catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
     }
   };
 
