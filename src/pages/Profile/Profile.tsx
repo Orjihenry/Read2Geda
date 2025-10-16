@@ -51,9 +51,10 @@ export default function Profile() {
 
       const storedCurrentId = localStorage.getItem("currentBookId");
       const selected = storedCurrentId
-        ? localBooks.find((b: any) => b.id === storedCurrentId)
-        : localBooks.find((b: any) => (b.readingProgress ?? 0) > 0) ||
-          localBooks[0];
+        ? localBooks.find((b: { id: string }) => b.id === storedCurrentId)
+        : localBooks.find(
+            (b: { readingProgress?: number }) => (b.readingProgress ?? 0) > 0
+          ) || localBooks[0];
 
       if (selected) {
         setCurrentBook({
@@ -65,7 +66,9 @@ export default function Profile() {
         });
         setProgress(selected.readingProgress ?? 0);
       }
-    } catch {}
+    } catch {
+      console.error("Failed to load books from localStorage");
+    }
   }, []);
 
   const openModal = () => {
@@ -82,18 +85,21 @@ export default function Profile() {
     try {
       const stored = localStorage.getItem("bookData");
       const localBooks = stored ? JSON.parse(stored) : [];
-      const updated = localBooks.map((b: any) =>
-        b.id === currentBook.id ? { ...b, readingProgress: pct } : b
+      const updated = localBooks.map(
+        (b: { id?: string; readingProgress?: number }) =>
+          b.id === currentBook.id ? { ...b, readingProgress: pct } : b
       );
       localStorage.setItem("bookData", JSON.stringify(updated));
       setBooks(updated);
       setCurrentBook({ ...currentBook, readingProgress: pct });
       setShowModal(false);
-    } catch {}
+    } catch {
+      return;
+    }
   };
 
   const changeCurrentBook = (bookId: string) => {
-    const next = books.find((b: any) => b.id === bookId);
+    const next = books.find((b: { id?: string }) => b.id === bookId);
     if (!next) return;
     setCurrentBook({
       id: next.id,
@@ -210,7 +216,7 @@ export default function Profile() {
                                 changeCurrentBook(e.target.value)
                               }
                             >
-                              {books.map((b: any) => (
+                              {books.map((b: { id: string; title: string }) => (
                                 <option key={b.id} value={b.id}>
                                   {b.title}
                                 </option>
