@@ -9,16 +9,15 @@ export type bookClub = {
   members: [
     {
       id: string;
-      name: string;
-      role: "member" | "moderator" | "owner";
+      role?: "member" | "moderator" | "owner";
+      joinedAt: string;
+      isSuspended: boolean;
     }
   ];
   createdAt: string;
   updatedAt: string;
   imageUrl?: string;
   ownerId: string;
-  ownerName: string;
-  ownerImageUrl?: string;
   isPublic: boolean;
   isActive: boolean;
   rating: number;
@@ -38,16 +37,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user1",
-        name: "User One",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
     ownerId: "user1",
-    ownerName: "User One",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.5,
@@ -65,16 +62,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user3",
-        name: "User Three",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
     ownerId: "user3",
-    ownerName: "User Three",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.0,
@@ -92,16 +87,15 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user5",
-        name: "User Five",
-        role: "owner",
+        role: "member",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
     ownerId: "user5",
-    ownerName: "User Five",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.8,
@@ -119,16 +113,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user7",
-        name: "User Seven",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
     ownerId: "user7",
-    ownerName: "User Seven",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 3.5,
@@ -146,16 +138,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user9",
-        name: "User Nine",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
     ownerId: "user9",
-    ownerName: "User Nine",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.2,
@@ -173,16 +163,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user11",
-        name: "User Eleven",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
     ownerId: "user11",
-    ownerName: "User Eleven",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.5,
@@ -200,16 +188,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user13",
-        name: "User Thirteen",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
     ownerId: "user13",
-    ownerName: "User Thirteen",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.1,
@@ -227,16 +213,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user15",
-        name: "User Fifteen",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
     ownerId: "user15",
-    ownerName: "User Fifteen",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.3,
@@ -254,16 +238,15 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user17",
-        name: "User Seventeen",
-        role: "owner",
+        role: "member",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: trackYourProgress,
     ownerId: "user17",
-    ownerName: "User Seventeen",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.6,
@@ -281,16 +264,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user19",
-        name: "User Nineteen",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
     ownerId: "user19",
-    ownerName: "User Nineteen",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.4,
@@ -308,16 +289,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user21",
-        name: "User Twenty-One",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: trackYourProgress,
     ownerId: "user21",
-    ownerName: "User Twenty-One",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.7,
@@ -335,16 +314,15 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user23",
-        name: "User Twenty-Three",
-        role: "owner",
+        role: "moderator",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: trackYourProgress,
     ownerId: "user23",
-    ownerName: "User Twenty-Three",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.0,
@@ -362,16 +340,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user25",
-        name: "User Twenty-Five",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: keepingInTouch,
     ownerId: "user25",
-    ownerName: "User Twenty-Five",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.9,
@@ -389,16 +365,14 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user27",
-        name: "User Twenty-Seven",
-        role: "owner",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: trackYourProgress,
     ownerId: "user27",
-    ownerName: "User Twenty-Seven",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.8,
@@ -416,16 +390,15 @@ export const defaultBookClubs: bookClub[] = [
     members: [
       {
         id: "user29",
-        name: "User Twenty-Nine",
-        role: "owner",
+        role: "member",
+        joinedAt: new Date().toISOString(),
+        isSuspended: false,
       },
     ],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     imageUrl: discoverNewReads,
     ownerId: "user29",
-    ownerName: "User Twenty-Nine",
-    ownerImageUrl: "",
     isPublic: true,
     isActive: true,
     rating: 4.6,
