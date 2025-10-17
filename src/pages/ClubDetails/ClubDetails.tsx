@@ -3,6 +3,8 @@ import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import BookCarousel from "../../components/BookCarousel";
+import JoinClubButton from "../../components/JoinClubButton";
+import { FaArrowLeftLong } from "react-icons/fa6";
 import { MdArrowForward } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../../utils/bookData";
@@ -14,7 +16,6 @@ import placeholderClubImage from "../../assets/bookClub.jpg";
 export default function ClubDetails() {
   const { clubId } = useParams();
   const { clubs } = useClubData();
-  const club = clubs.find((c) => c.id === clubId);
   const { deleteClub } = useClub();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -56,10 +57,6 @@ export default function ClubDetails() {
       deleteClub(clubId);
       navigate("/discover");
     }
-  };
-
-  const handleJoinClub = () => {
-    console.log("Joining club:", clubId);
   };
 
   const handleUpdateClub = () => {
@@ -137,9 +134,7 @@ export default function ClubDetails() {
           </div>
 
           <div className="d-flex gap-2 pt-2 justify-content-start">
-            <button onClick={handleJoinClub} className="btn btn-dark btn-sm">
-              Join Club
-            </button>
+            <JoinClubButton clubId={clubId} />
             <NavLink
               to="/discussions"
               className="btn btn-outline-success btn-sm"
