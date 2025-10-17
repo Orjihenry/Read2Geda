@@ -38,7 +38,6 @@ export default function useClubData() {
         rating: club.rating,
         tags: club.tags,
         ownerId: club.ownerId,
-        ownerName: club.ownerName,
     }
 
     setClubs([...clubs, newClub]);
