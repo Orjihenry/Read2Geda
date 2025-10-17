@@ -6,14 +6,12 @@ export type bookClub = {
   id: string;
   name: string;
   description: string;
-  members: [
-    {
-      id: string;
-      role?: "member" | "moderator" | "owner";
-      joinedAt: string;
-      isSuspended: boolean;
-    }
-  ];
+  members: {
+    id: string;
+    role?: "member" | "moderator" | "owner";
+    joinedAt: string;
+    isSuspended: boolean;
+  }[];
   createdAt: string;
   updatedAt: string;
   imageUrl?: string;
