@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { defaultBookClubs, type bookClub } from "./../utils/bookClub";
+import dayjs from "dayjs";
 
 export default function useClubData() {
   const [clubs, setClubs] = useState<bookClub[]>([]);
   const [loading, setLoading] = useState(true);
+  const today = dayjs();
+  const currentDate = today.format("YYYY-MM-DD HH:mm:ss");
 
   useEffect(() => {
     const savedClubs = localStorage.getItem("bookClubs");
@@ -30,8 +33,8 @@ export default function useClubData() {
         name: club.name,
         description: club.description,
         members: club.members,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: currentDate,
+        updatedAt: currentDate,
         imageUrl: club.imageUrl,
         isPublic: club.isPublic,
         isActive: club.isActive,
@@ -46,7 +49,7 @@ export default function useClubData() {
   function handleUpdateClub(club: bookClub) {
     const updateClub = {
         ...club,
-        updatedAt: new Date().toISOString(),
+        updatedAt: currentDate,
     }
 
     setClubs(clubs.map(c => c.id === club.id ? updateClub : c));
