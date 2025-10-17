@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { type bookClub, defaultBookClubs } from "../utils/bookClub";
+import { type bookClub, type clubMember, defaultBookClubs } from "../utils/bookClub";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 
@@ -11,6 +11,7 @@ type ClubContextType = {
   deleteClub: (clubId: string) => void;
   clubNameExists: (clubName: string) => boolean;
   joinClub: (club: bookClub, userId: string) => void;
+  isClubMember: (clubId: string, userId: string) => boolean;
   leaveClub: (clubId: string, userId: string) => void;
 };
 
@@ -77,31 +78,37 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
 
   const joinClub = (club: bookClub, userId: string) => {
     if (!club) return;
-    if (club.members.some((m) => m.id === userId)) return;
-    const newMember = {
+    if (isClubMember(club.id, userId)) return;
+    const newMember: clubMember = {
+      id: userId,
+      role: "member",
+      joinedAt: currentDate,
+      isSuspended: false,
+    }
+    const updatedClub = {
       ...club,
-      members: [
-        ...club.members,
-        {
-          id: userId,
-          role: "member" as const,
-          joinedAt: currentDate,
-          isSuspended: false,
-        },
-      ],
+      members: [...club.members, newMember],
     };
-    const updatedClubs = clubs.map((c) => (c.id === club.id ? newMember : c));
+    const updatedClubs = clubs.map((c) => (c.id === club.id ? updatedClub : c));
     setClubs(updatedClubs);
     localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
   };
 
+  const isClubMember = (clubId: string, userId: string) => {
+    const club = clubs.find((c) => c.id === clubId);
+    if (!club) return false;
+    return club.members.some((m) => m.id === userId);
+  };
+
   const leaveClub = (clubId: string, userId: string) => {
     const club = clubs.find((c) => c.id === clubId);
+    
     if (!club) return;
-
+    if (!isClubMember(club.id, userId)) return;
     const updatedMembers = club.members.filter((m) => m.id !== userId);
     const updatedClub = { ...club, members: updatedMembers };
-    const updatedClubs = clubs.map((c) => (c.id === clubId ? updatedClub : c));
+    const updatedClubs = clubs.map((c) => (c.id === club.id ? updatedClub : c));
+    
     setClubs(updatedClubs);
     localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
   };
@@ -116,6 +123,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         deleteClub,
         clubNameExists,
         joinClub,
+        isClubMember,
         leaveClub,
       }}
     >
@@ -140,6 +148,7 @@ export function useClubData() {
     clubNameExists,
     joinClub,
     leaveClub,
+    isClubMember,
   } = useClub();
   return {
     clubs,
@@ -150,5 +159,6 @@ export function useClubData() {
     clubNameExists,
     joinClub,
     leaveClub,
+    isClubMember,
   };
 }
