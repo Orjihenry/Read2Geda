@@ -2,16 +2,18 @@ import trackYourProgress from "../assets/track_your_progress.png";
 import keepingInTouch from "../assets/keeping_in_touch.png";
 import discoverNewReads from "../assets/discover_new_reads.png"
 
+export type clubMember = {
+  id: string;
+  role?: "member" | "moderator" | "owner";
+  joinedAt: string;
+  isSuspended: boolean;
+}
+
 export type bookClub = {
   id: string;
   name: string;
   description: string;
-  members: {
-    id: string;
-    role?: "member" | "moderator" | "owner";
-    joinedAt: string;
-    isSuspended: boolean;
-  }[];
+  members: clubMember[];
   createdAt: string;
   updatedAt: string;
   imageUrl?: string;
