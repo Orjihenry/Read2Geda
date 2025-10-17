@@ -5,6 +5,7 @@ import type { bookClub } from "../utils/bookClub";
 import { useAuthContext } from "../context/AuthContext";
 import { v4 as uuidv4 } from "uuid";
 import { useImageStorage } from "./useImageStorage";
+import dayjs from "dayjs";
 
 export const useClubForm = () => {
   const { clubs, createClub, updateClub, clubNameExists } = useClub();
@@ -12,6 +13,9 @@ export const useClubForm = () => {
   const { clubId } = useParams();
   const navigate = useNavigate();
   const clubNameRef = useRef<HTMLInputElement>(null);
+
+  const today = dayjs();
+  const currentDate = today.format("YYYY-MM-DD HH:mm:ss");
   
   const { currentUser } = useAuthContext();
 
@@ -127,7 +131,7 @@ export const useClubForm = () => {
               meetingFrequency: meetingFrequency,
               meetingPlatform: meetingPlatform,
               isPublic: isPublic,
-              updatedAt: new Date().toISOString(),
+              updatedAt: currentDate,
               imageUrl: imageId,
             };
           
@@ -169,8 +173,8 @@ export const useClubForm = () => {
                   isSuspended: false,
                 },
             ],
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
+              createdAt: currentDate,
+              updatedAt: currentDate,
               imageUrl: imageId, 
               ownerId: currentUser.id,
               isPublic: isPublic,
