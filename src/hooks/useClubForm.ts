@@ -164,16 +164,15 @@ export const useClubForm = () => {
               members: [
                 {
                   id: currentUser.id,
-                  name: currentUser.name,
                   role: "owner",
+                  joinedAt: currentDate,
+                  isSuspended: false,
                 },
             ],
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
               imageUrl: imageId, 
               ownerId: currentUser.id,
-              ownerName: currentUser.name,
-              ownerImageUrl: undefined,
               isPublic: isPublic,
               isActive: true,
               rating: 0,
