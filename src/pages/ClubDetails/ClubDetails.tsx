@@ -1,7 +1,6 @@
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
-import { FaArrowLeftLong } from "react-icons/fa6";
 import BookCarousel from "../../components/BookCarousel";
 import JoinClubButton from "../../components/JoinClubButton";
 import { FaArrowLeftLong } from "react-icons/fa6";
@@ -22,6 +21,8 @@ export default function ClubDetails() {
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { getImage, loading } = useImageStorage();
+
+  const club = clubs.find((c) => c.id === clubId);
 
   useEffect(() => {
     if (!club) return;
@@ -50,7 +51,7 @@ export default function ClubDetails() {
     return () => {
       if (revokeUrl) URL.revokeObjectURL(revokeUrl);
     };
-  }, [getImage, club]);
+  }, [getImage, club?.imageUrl, club]);
 
   const handleDeleteClub = () => {
     if (clubId) {
