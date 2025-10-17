@@ -1,4 +1,3 @@
-
 import {
   MdAddLocationAlt,
   MdCalendarMonth,
@@ -10,59 +9,60 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import type { bookClub } from "../../utils/bookClub";
 import { useImageStorage } from "../../hooks/useImageStorage";
+import JoinClubButton from "../JoinClubButton";
 import placeholderClubImage from "../../assets/bookClub.jpg";
 
 type clubCardProps = {
-  index: number
-  item: bookClub
-}
+  index: number;
+  item: bookClub;
+};
 
-export default function ClubCard({ index, item}: clubCardProps ) {
+export default function ClubCard({ index, item }: clubCardProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { getImage } = useImageStorage();
 
   useEffect(() => {
-      let revokeUrl: string | null = null;
+    let revokeUrl: string | null = null;
 
-      const loadImage = async () => {
-        if (!item.imageUrl) {
-          setImageUrl(placeholderClubImage);
-          return;
-        }
+    const loadImage = async () => {
+      if (!item.imageUrl) {
+        setImageUrl(placeholderClubImage);
+        return;
+      }
 
-        if (item.imageUrl.length === 36 && !item.imageUrl.includes('/')) {
-          const blob = await getImage(item.imageUrl);
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            revokeUrl = url;
-            setImageUrl(url);
-          } else {
-            setImageUrl(placeholderClubImage);
-          }
+      if (item.imageUrl.length === 36 && !item.imageUrl.includes("/")) {
+        const blob = await getImage(item.imageUrl);
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          revokeUrl = url;
+          setImageUrl(url);
         } else {
-          setImageUrl(item.imageUrl);
+          setImageUrl(placeholderClubImage);
         }
-      };
+      } else {
+        setImageUrl(item.imageUrl);
+      }
+    };
 
-      loadImage();
+    loadImage();
 
-      return () => {
-        if (revokeUrl) URL.revokeObjectURL(revokeUrl);
-      };
+    return () => {
+      if (revokeUrl) URL.revokeObjectURL(revokeUrl);
+    };
   }, [item.imageUrl, getImage]);
 
   useEffect(() => {
-      const cards = document.querySelectorAll(".card-custom-wrapper");
-      let maxHeight = 0;
+    const cards = document.querySelectorAll(".card-custom-wrapper");
+    let maxHeight = 0;
 
-      cards.forEach((card) => {
-          const h = card.getBoundingClientRect().height;
-          if (h > maxHeight) maxHeight = h;
-      });
+    cards.forEach((card) => {
+      const h = card.getBoundingClientRect().height;
+      if (h > maxHeight) maxHeight = h;
+    });
 
-      cards.forEach((card) => {
-          (card as HTMLElement).style.height = `${maxHeight}px`;
-      });
+    cards.forEach((card) => {
+      (card as HTMLElement).style.height = `${maxHeight}px`;
+    });
   }, []);
 
   return (
@@ -76,7 +76,12 @@ export default function ClubCard({ index, item}: clubCardProps ) {
                   src={imageUrl || placeholderClubImage}
                   alt={item.name}
                   className="rounded-circle me-3"
-                  style={{ width: "70px", height: "70px", maxWidth: "70px", objectFit: "cover" }}
+                  style={{
+                    width: "70px",
+                    height: "70px",
+                    maxWidth: "70px",
+                    objectFit: "cover",
+                  }}
                 />
               </div>
 
@@ -126,9 +131,7 @@ export default function ClubCard({ index, item}: clubCardProps ) {
                   <IoMdPricetag />
                 </span>
                 Tags:{" "}
-                <span className="ms-1">
-                  {item.tags?.join(", ") || "None"}
-                </span>
+                <span className="ms-1">{item.tags?.join(", ") || "None"}</span>
               </p>
               <p className="mb-2 small d-flex align-items-center justify-content-start">
                 <span className="me-2 text-muted">
@@ -143,14 +146,11 @@ export default function ClubCard({ index, item}: clubCardProps ) {
               </p>
             </div>
             <div className="d-flex gap-2 pt-2 justify-content-center">
-              <NavLink
-                to={`/book_club/${item.id}`}
-                className="btn btn-dark btn-sm">
-                Join Club
-              </NavLink>
+              <JoinClubButton clubId={item.id} />
               <NavLink
                 to={`/club/${item.id}`}
-                className="btn btn-outline-success btn-sm">
+                className="btn btn-outline-success btn-sm"
+              >
                 View Details
               </NavLink>
             </div>
