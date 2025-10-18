@@ -54,7 +54,7 @@ export default function Discover() {
               <span className="badge bg-success fs-6 me-2">
                 {getMyClubs(userId || "").length} Active
               </span>
-              <NavLink to="/create-club" className="btn btn-outline-success btn-sm">
+              <NavLink to="/create_club" className="btn btn-outline-success btn-sm">
                 <i className="fas fa-plus me-1"></i>
                 Create New
               </NavLink>
@@ -178,7 +178,7 @@ export default function Discover() {
                   <i className="fas fa-search me-2"></i>
                   Discover Clubs
                 </NavLink>
-                <NavLink to="/create-club" className="btn btn-outline-success">
+                <NavLink to="/create_club" className="btn btn-outline-success">
                   <i className="fas fa-plus me-2"></i>
                   Create Club
                 </NavLink>
