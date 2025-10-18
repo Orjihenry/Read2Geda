@@ -44,148 +44,150 @@ export default function Discover() {
           Create New Group
         </NavLink>
 
-        <div className="section my-2">
-          <div className="d-flex align-items-center justify-content-between mb-4">
-            <div>
-              <h1 className="display-6 mb-2">My Clubs</h1>
-              <p className="text-muted mb-0">Clubs you're actively participating in</p>
+        {currentUser && (
+          <div className="section my-2">
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              <div>
+                <h1 className="display-6 mb-2">My Clubs</h1>
+                <p className="text-muted mb-0">Clubs you're actively participating in</p>
+              </div>
+              <div className="d-flex align-items-center">
+                <span className="badge bg-success fs-6 me-2">
+                  {getMyClubs(userId || "").length} Active
+                </span>
+                <NavLink to="/create_club" className="btn btn-outline-success btn-sm">
+                  <i className="fas fa-plus me-1"></i>
+                  Create New
+                </NavLink>
+              </div>
             </div>
-            <div className="d-flex align-items-center">
-              <span className="badge bg-success fs-6 me-2">
-                {getMyClubs(userId || "").length} Active
-              </span>
-              <NavLink to="/create_club" className="btn btn-outline-success btn-sm">
-                <i className="fas fa-plus me-1"></i>
-                Create New
-              </NavLink>
-            </div>
-          </div>
 
-          {getMyClubs(userId || "").length > 0 ? (
-            <div className="row g-4">
-              {getMyClubs(userId || "")
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                .map((item, index) => (
-                  <div key={item.id || index} className="col-lg-4 col-md-6">
-                    <div className="card h-100 border-0 shadow-sm hover-lift">
-                      <div className="card-body p-4">
-                        <div className="d-flex align-items-start mb-3">
-                          <div className="flex-shrink-0 me-3">
-                            <img
-                              src={item.imageUrl}
-                              alt={item.name}
-                              className="rounded-circle"
-                              style={{
-                                width: "60px",
-                                height: "60px",
-                                objectFit: "cover",
-                              }}
-                            />
-                          </div>
-                          <div className="flex-grow-1">
-                            <h5 className="card-title mb-1 fw-bold">{item.name}</h5>
-                            <p className="text-muted small mb-2">{item.description}</p>
-                            <div className="d-flex align-items-center">
-                              <span className="badge bg-light text-dark me-2">
-                                <i className="fas fa-users me-1"></i>
-                                {item.members.length}
-                              </span>
-                              <span className="badge bg-warning text-dark">
-                                <i className="fas fa-star me-1"></i>
-                                {item.rating}
-                              </span>
+            {getMyClubs(userId || "").length > 0 ? (
+              <div className="row g-4">
+                {getMyClubs(userId || "")
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .map((item, index) => (
+                    <div key={item.id || index} className="col-lg-4 col-md-6">
+                      <div className="card h-100 border-0 shadow-sm hover-lift">
+                        <div className="card-body p-4">
+                          <div className="d-flex align-items-start mb-3">
+                            <div className="flex-shrink-0 me-3">
+                              <img
+                                src={item.imageUrl}
+                                alt={item.name}
+                                className="rounded-circle"
+                                style={{
+                                  width: "60px",
+                                  height: "60px",
+                                  objectFit: "cover",
+                                }}
+                              />
                             </div>
+                            <div className="flex-grow-1">
+                              <h5 className="card-title mb-1 fw-bold">{item.name}</h5>
+                              <p className="text-muted small mb-2">{item.description}</p>
+                              <div className="d-flex align-items-center">
+                                <span className="badge bg-light text-dark me-2">
+                                  <i className="fas fa-users me-1"></i>
+                                  {item.members.length}
+                                </span>
+                                <span className="badge bg-warning text-dark">
+                                  <i className="fas fa-star me-1"></i>
+                                  {item.rating}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="mb-3">
+                            <div className="row g-2 text-center">
+                              <div className="col-4">
+                                <div className="border-end">
+                                  <div className="text-dark fw-bold">{item.location || "Online"}</div>
+                                  <small className="text-muted">Location</small>
+                                </div>
+                              </div>
+                              <div className="col-4">
+                                <div className="border-end">
+                                  <div className="text-success fw-bold">{item.meetingFrequency || "N/A"}</div>
+                                  <small className="text-muted">Frequency</small>
+                                </div>
+                              </div>
+                              <div className="col-4">
+                                <div className="text-info fw-bold">
+                                  {item.nextMeeting 
+                                    ? new Date(item.nextMeeting).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                                    : "TBD"
+                                  }
+                                </div>
+                                <small className="text-muted">Next Meeting</small>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="d-flex gap-2">
+                            <NavLink
+                              to={`/club/${item.id}`}
+                              className="btn btn-outline-success btn-sm flex-fill"
+                            >
+                              <i className="fas fa-eye me-1"></i>
+                              View Details
+                            </NavLink>
+                            <NavLink
+                              to="/discussions"
+                              className="btn btn-success btn-sm flex-fill"
+                            >
+                              <i className="fas fa-comments me-1"></i>
+                              Discussions
+                            </NavLink>
                           </div>
                         </div>
                         
-                        <div className="mb-3">
-                          <div className="row g-2 text-center">
-                            <div className="col-4">
-                              <div className="border-end">
-                                <div className="text-dark fw-bold">{item.location || "Online"}</div>
-                                <small className="text-muted">Location</small>
-                              </div>
+                        <div className="card-footer bg-light border-0 px-4 py-3">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <small className="text-muted">
+                              Joined {new Date(item.createdAt).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </small>
+                            <div className="d-flex gap-1">
+                              {item.tags?.slice(0, 2).map((tag, tagIndex) => (
+                                <span key={tagIndex} className="badge bg-secondary small">
+                                  {tag}
+                                </span>
+                              ))}
                             </div>
-                            <div className="col-4">
-                              <div className="border-end">
-                                <div className="text-success fw-bold">{item.meetingFrequency || "N/A"}</div>
-                                <small className="text-muted">Frequency</small>
-                              </div>
-                            </div>
-                            <div className="col-4">
-                              <div className="text-info fw-bold">
-                                {item.nextMeeting 
-                                  ? new Date(item.nextMeeting).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                                  : "TBD"
-                                }
-                              </div>
-                              <small className="text-muted">Next Meeting</small>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="d-flex gap-2">
-                          <NavLink
-                            to={`/club/${item.id}`}
-                            className="btn btn-outline-success btn-sm flex-fill"
-                          >
-                            <i className="fas fa-eye me-1"></i>
-                            View Details
-                          </NavLink>
-                          <NavLink
-                            to="/discussions"
-                            className="btn btn-success btn-sm flex-fill"
-                          >
-                            <i className="fas fa-comments me-1"></i>
-                            Discussions
-                          </NavLink>
-                        </div>
-                      </div>
-                      
-                      <div className="card-footer bg-light border-0 px-4 py-3">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <small className="text-muted">
-                            Joined {new Date(item.createdAt).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </small>
-                          <div className="d-flex gap-1">
-                            {item.tags?.slice(0, 2).map((tag, tagIndex) => (
-                              <span key={tagIndex} className="badge bg-secondary small">
-                                {tag}
-                              </span>
-                            ))}
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-            </div>
-          ) : (
-            <div className="text-center py-5">
-              <div className="mb-4">
-                <i className="fas fa-users fa-3x text-muted mb-3"></i>
-                <h4 className="text-muted">No Clubs Yet</h4>
-                <p className="text-muted mb-4">
-                  Join your first book club to start connecting with fellow readers!
-                </p>
+                  ))}
               </div>
-              <div className="d-flex gap-2 justify-content-center">
-                <NavLink to="/discover" className="btn btn-dark">
-                  <i className="fas fa-search me-2"></i>
-                  Discover Clubs
-                </NavLink>
-                <NavLink to="/create_club" className="btn btn-outline-success">
-                  <i className="fas fa-plus me-2"></i>
-                  Create Club
-                </NavLink>
+            ) : (
+              <div className="text-center py-5">
+                <div className="mb-4">
+                  <i className="fas fa-users fa-3x text-muted mb-3"></i>
+                  <h4 className="text-muted">No Clubs Yet</h4>
+                  <p className="text-muted mb-4">
+                    Join your first book club to start connecting with fellow readers!
+                  </p>
+                </div>
+                <div className="d-flex gap-2 justify-content-center">
+                  <NavLink to="/discover" className="btn btn-dark">
+                    <i className="fas fa-search me-2"></i>
+                    Discover Clubs
+                  </NavLink>
+                  <NavLink to="/create_club" className="btn btn-outline-success">
+                    <i className="fas fa-plus me-2"></i>
+                    Create Club
+                  </NavLink>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         <div className="section my-2">
           <h1 className="display-6 py-3">Popular Clubs</h1>
