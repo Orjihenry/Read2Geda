@@ -13,6 +13,7 @@ type ClubContextType = {
   joinClub: (club: bookClub, userId: string) => void;
   isClubMember: (clubId: string, userId: string) => boolean;
   leaveClub: (clubId: string, userId: string) => void;
+  getMyClubs: (userId: string) => bookClub[];
 };
 
 const ClubContext = createContext<ClubContextType | undefined>(undefined);
@@ -113,6 +114,12 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
   };
 
+  const getMyClubs = (userId: string) => {
+    return clubs.filter((club) =>
+      club.members.some((member) => member.id === userId)
+    );
+  }
+
   return (
     <ClubContext.Provider
       value={{
@@ -125,6 +132,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         joinClub,
         isClubMember,
         leaveClub,
+        getMyClubs,
       }}
     >
       {children}
@@ -149,6 +157,7 @@ export function useClubData() {
     joinClub,
     leaveClub,
     isClubMember,
+    getMyClubs,
   } = useClub();
   return {
     clubs,
@@ -160,5 +169,6 @@ export function useClubData() {
     joinClub,
     leaveClub,
     isClubMember,
+    getMyClubs,
   };
 }
