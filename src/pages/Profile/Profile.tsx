@@ -6,6 +6,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import { useClub } from "../../context/ClubContext";
 import { useEffect, useState } from "react";
 import { useImageStorage } from "../../hooks/useImageStorage";
+import { useSavedBooks } from "../../context/SavedBooksContext";
 import "./Profile.css";
 import placeholderAvatar from "../../assets/placeholder.png";
 
@@ -13,6 +14,7 @@ export default function Profile() {
   const { currentUser } = useAuthContext();
   const { getImage } = useImageStorage();
   const { clubs } = useClub();
+  const { getReadingProgress, updateProgress, getUserBookProgress } = useSavedBooks();
 
   const currentClub = clubs.find(
     (club) => club.isActive && club.members.length > 0
@@ -29,6 +31,7 @@ export default function Profile() {
   const [showModal, setShowModal] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const [avatar, setAvatar] = useState<string>("");
+  const [progressList, setProgressList] = useState<any[]>([]);
 
   useEffect(() => {
     const loadAvatar = async () => {
@@ -47,32 +50,45 @@ export default function Profile() {
   }, [currentUser, getImage]);
 
   useEffect(() => {
+    if (!currentUser) return;
+
+    const list = getReadingProgress(currentUser.id);
+    setProgressList(list);
+  }, [currentUser, getReadingProgress]);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem("bookData");
       const localBooks = stored ? JSON.parse(stored) : [];
       setBooks(localBooks);
 
       const storedCurrentId = localStorage.getItem("currentBookId");
-      const selected = storedCurrentId
-        ? localBooks.find((b: { id: string }) => b.id === storedCurrentId)
-        : localBooks.find(
-            (b: { readingProgress?: number }) => (b.readingProgress ?? 0) > 0
-          ) || localBooks[0];
+      let selected;
+      
+      if (storedCurrentId) {
+        selected = localBooks.find((b: { id: string }) => b.id === storedCurrentId);
+      } else {
+        const currentProgress = progressList.find((p) => p.status === "reading") || progressList[0];
+        selected = currentProgress
+          ? localBooks.find((b: { id: string }) => b.id === currentProgress.bookId)
+          : localBooks[0];
+      }
 
       if (selected) {
+        const userProgress = progressList.find((p) => p.bookId === selected.id);
         setCurrentBook({
           id: selected.id,
           title: selected.title,
           author: selected.author,
           coverImage: selected.coverImage,
-          readingProgress: selected.readingProgress ?? 0,
+          readingProgress: userProgress?.progress ?? 0,
         });
-        setProgress(selected.readingProgress ?? 0);
+        setProgress(userProgress?.progress ?? 0);
       }
     } catch {
       console.error("Failed to load books from localStorage");
     }
-  }, []);
+  }, [progressList]);
 
   const openModal = () => {
     if (!currentBook) return;
@@ -83,35 +99,29 @@ export default function Profile() {
   const closeModal = () => setShowModal(false);
 
   const saveProgress = () => {
-    if (!currentBook) return;
+    if (!currentBook || !currentUser) return;
     const pct = Math.max(0, Math.min(100, Number(progress) || 0));
-    try {
-      const stored = localStorage.getItem("bookData");
-      const localBooks = stored ? JSON.parse(stored) : [];
-      const updated = localBooks.map(
-        (b: { id?: string; readingProgress?: number }) =>
-          b.id === currentBook.id ? { ...b, readingProgress: pct } : b
-      );
-      localStorage.setItem("bookData", JSON.stringify(updated));
-      setBooks(updated);
-      setCurrentBook({ ...currentBook, readingProgress: pct });
-      setShowModal(false);
-    } catch {
-      return;
-    }
+
+    updateProgress(currentUser.id, currentBook.id, pct);
+
+    setCurrentBook({ ...currentBook, readingProgress: pct });
+    setShowModal(false);
   };
 
   const changeCurrentBook = (bookId: string) => {
     const next = books.find((b: { id?: string }) => b.id === bookId);
     if (!next) return;
+
+    const userProgress = getUserBookProgress(currentUser?.id || "", bookId);
+
     setCurrentBook({
       id: next.id,
       title: next.title,
       author: next.author,
       coverImage: next.coverImage,
-      readingProgress: next.readingProgress ?? 0,
+      readingProgress: userProgress ?? 0,
     });
-    setProgress(next.readingProgress ?? 0);
+    setProgress(userProgress ?? 0);
     localStorage.setItem("currentBookId", next.id);
   };
 

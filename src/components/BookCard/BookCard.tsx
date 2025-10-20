@@ -3,6 +3,7 @@ import { MdAddLocationAlt, MdOutlineFavorite, MdPeopleAlt, MdStar } from "react-
 import { IoMdClose, IoMdPricetag } from "react-icons/io";
 import { MdPlayArrow } from "react-icons/md";
 import { useSavedBooks } from "../../context/SavedBooksContext";
+import { useAuthContext } from "../../context/AuthContext";
 
 type bookCardProps = {
     index: number
@@ -11,11 +12,12 @@ type bookCardProps = {
 
 export default function BookCard({ index, item }: bookCardProps) {
 
-  const { addBook, removeBook, isInShelf } = useSavedBooks();
-
+  const { addBook, removeBook, isInShelf, getUserBookProgress } = useSavedBooks();
+  const { currentUser } = useAuthContext();
   const inShelf = isInShelf(item.id);
   
-  const hasStartedReading = item.readingProgress?.toString() === "0" || item.readingProgress === undefined ? false : true;
+  const userBookProgress = getUserBookProgress(currentUser?.id || "", item.id);
+  const hasStartedReading = userBookProgress === 0 || userBookProgress === undefined ? false : true;
   
   const handleReadClick = () => {
     console.log(`Opening book: ${item.title}`);
@@ -110,12 +112,12 @@ export default function BookCard({ index, item }: bookCardProps) {
                 <div className="mb-2">
                   <div className="d-flex justify-content-between align-items-center mb-1">
                     <small className="text-muted">Progress</small>
-                    <small className="text-muted">{item.readingProgress}%</small>
+                    <small className="text-muted">{userBookProgress || 0}%</small>
                   </div>
                   <div className="progress" style={{ height: "4px" }}>
                     <div 
                       className="progress-bar bg-success" 
-                      style={{ width: `${item.readingProgress}%` }}
+                      style={{ width: `${userBookProgress || 0}%` }}
                     ></div>
                   </div>
                 </div>
