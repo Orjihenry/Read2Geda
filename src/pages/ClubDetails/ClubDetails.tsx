@@ -10,7 +10,9 @@ import type { BookData } from "../../utils/bookData";
 import { useClub, useClubData } from "../../context/ClubContext";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { useImageStorage } from "../../hooks/useImageStorage";
+import { useSavedBooks } from "../../context/SavedBooksContext";
 import placeholderClubImage from "../../assets/bookClub.jpg";
+import { useAuthContext } from "../../context/AuthContext";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -238,8 +240,22 @@ function BackButton() {
 }
 
 function CurrentBookSection() {
+  const { currentUser } = useAuthContext();
+  const { getUserBookProgress } = useSavedBooks();
+
+  // const [progressList, setProgressList] = useState([]);
   const [books, setBooks] = useState<BookData[]>([]);
-  const [currentBook, setCurrentBook] = useState<BookData | null>(null);
+  const [currentBook, setCurrentBook] = useState<{
+    id: string;
+    title: string;
+    author: string;
+    coverImage: string;
+    publishedYear: number;
+    tags?: string[];
+    genre: string;
+    summary: string;
+    readingProgress: number;
+  } | null>(null);
 
   useEffect(() => {
     try {
@@ -248,9 +264,15 @@ function CurrentBookSection() {
       setBooks(localBooks);
 
       const currentBookId = localStorage.getItem("currentBookId");
+      let selected;
+
+      if (currentBookId) {
+        selected = localBooks.find((b: BookData) => b.id === currentBookId);
+      }
+
       const currentClubBook = currentBookId
         ? localBooks.find((b: BookData) => b.id === currentBookId)
-        : localBooks.find((b: BookData) => (b.readingProgress ?? 0) > 0) ||
+        : localBooks.find((b: BookData) => (b.readingProgress?.find((p) => p.userId === currentUser?.id)?.progress ?? 0) > 0) ||
           localBooks[0];
 
       if (currentClubBook) {
@@ -274,12 +296,14 @@ function CurrentBookSection() {
   const changeCurrentBook = (bookId: string) => {
     const next = books.find((b: BookData) => b.id === bookId);
     if (!next) return;
+    const userProgress = getUserBookProgress(currentUser?.id || "", bookId);
+
     setCurrentBook({
       id: next.id,
       title: next.title,
       author: next.author,
       coverImage: next.coverImage,
-      readingProgress: next.readingProgress ?? 0,
+      readingProgress: userProgress ?? 0,
       publishedYear: next.publishedYear,
       tags: next.tags,
       genre: next.genre,
