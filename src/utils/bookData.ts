@@ -1,3 +1,14 @@
+export type BookProgress = {
+  bookId: string;
+  userId: string;
+  progress: number;
+  status: 'not_started' | 'reading' | 'completed' | 'paused';
+  startedAt?: string;
+  completedAt?: string;
+  rating?: number;
+  review?: string;
+};
+
 export type BookData = {
   id: string;
   title: string;
@@ -8,7 +19,7 @@ export type BookData = {
   coverImage: string;
   tags?: string[];
   rating?: number;
-  readingProgress?: number;
+  readingProgress?: BookProgress[];
 };
 
 export const bookData: BookData[] = [
@@ -22,7 +33,18 @@ export const bookData: BookData[] = [
     coverImage: "https://m.media-amazon.com/images/I/81O7u0dGaWL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "literature"],
     rating: 4.8,
-    readingProgress: 100
+    readingProgress: [
+      {
+        bookId: "1",
+        userId: "user1",
+        progress: 100,
+        status: "completed",
+        startedAt: "2023-01-01",
+        completedAt: "2023-01-10",
+        rating: 5,
+        review: "A masterpiece of modern literature."
+      }
+    ]
   },
   {
     id: "2",
@@ -34,7 +56,18 @@ export const bookData: BookData[] = [
     coverImage: "https://m.media-amazon.com/images/I/910cf05vZmL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["dystopian", "political"],
     rating: 4.7,
-    readingProgress: 80
+    readingProgress: [
+      {
+        bookId: "2",
+        userId: "user1",
+        progress: 80,
+        status: "reading",
+        startedAt: "2023-01-11",
+        completedAt: undefined,
+        rating: undefined,
+        review: undefined
+      }
+    ]
   },
   {
     id: "3",
@@ -46,7 +79,14 @@ export const bookData: BookData[] = [
     coverImage: "https://m.media-amazon.com/images/I/81XS2mY6qfL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "adventure"],
     rating: 4.5,
-    readingProgress: 0
+    readingProgress: [
+      {
+        bookId: "3",
+        userId: "user1",
+        progress: 0,
+        status: "not_started"
+      }
+    ]
   },
   {
     id: "4",
@@ -58,7 +98,18 @@ export const bookData: BookData[] = [
     coverImage: "https://m.media-amazon.com/images/I/91fDvMK+aEL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "romance"],
     rating: 4.6,
-    readingProgress: 10
+    readingProgress: [
+      {
+        bookId: "4",
+        userId: "user1",
+        progress: 10,
+        status: "reading",
+        startedAt: "2023-01-15",
+        completedAt: undefined,
+        rating: undefined,
+        review: undefined
+      }
+    ]
   },
   {
     id: "5",
@@ -70,6 +121,13 @@ export const bookData: BookData[] = [
     coverImage: "https://m.media-amazon.com/images/I/6150zvwveOL._AC_UL640_FMwebp_QL65_.jpg",
     tags: ["classic", "fiction"],
     rating: 4.4,
-    readingProgress: 0
+    readingProgress: [
+      {
+        bookId: "5",
+        userId: "user1",
+        progress: 0,
+        status: "not_started"
+      }
+    ]
   }
 ];
