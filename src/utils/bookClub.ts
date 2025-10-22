@@ -1,13 +1,23 @@
 import trackYourProgress from "../assets/track_your_progress.png";
 import keepingInTouch from "../assets/keeping_in_touch.png";
-import discoverNewReads from "../assets/discover_new_reads.png"
+import discoverNewReads from "../assets/discover_new_reads.png";
 
 export type clubMember = {
   id: string;
   role?: "member" | "moderator" | "owner";
   joinedAt: string;
   isSuspended: boolean;
-}
+};
+
+export type ClubBook = {
+  bookId: string;
+  status: "upcoming" | "current" | "completed";
+  startDate?: string;
+  endDate?: string;
+  addedBy: string;
+  addedAt: string;
+  isWishList?: boolean;
+};
 
 export type bookClub = {
   id: string;
@@ -27,7 +37,9 @@ export type bookClub = {
   nextMeeting?: string;
   lastMeeting?: string;
   meetingPlatform?: string;
-}
+  currentBook?: ClubBook;
+  books?: ClubBook[];
+};
 
 export const defaultBookClubs: bookClub[] = [
   {
@@ -409,4 +421,4 @@ export const defaultBookClubs: bookClub[] = [
     lastMeeting: new Date().toISOString(),
     meetingPlatform: "Teams",
   },
-]
+];
