@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { type bookClub, type clubMember, defaultBookClubs } from "../utils/bookClub";
+import { type bookClub, type ClubBook, type clubMember, defaultBookClubs } from "../utils/bookClub";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
+import { useSavedBooks } from "./SavedBooksContext";
 
 type ClubContextType = {
   clubs: bookClub[];
@@ -14,6 +15,10 @@ type ClubContextType = {
   isClubMember: (clubId: string, userId: string) => boolean;
   leaveClub: (clubId: string, userId: string) => void;
   getMyClubs: (userId: string) => bookClub[];
+  addBookToClub: (clubId: string, bookId: string, userId: string) => void;
+  removeBookFromClub: (clubId: string, bookId: string) => void;
+  getBookClubProgress: (clubId: string) => number;
+  isWishListBook: (bookId: string) => boolean;
 };
 
 const ClubContext = createContext<ClubContextType | undefined>(undefined);
@@ -21,7 +26,7 @@ const ClubContext = createContext<ClubContextType | undefined>(undefined);
 export function ClubProvider({ children }: { children: React.ReactNode }) {
   const [clubs, setClubs] = useState<bookClub[]>([]);
   const [loading, setLoading] = useState(false);
-
+  const { getReadingProgress } = useSavedBooks();
   const today = dayjs();
   const currentDate = today.format("YYYY-MM-DD HH:mm:ss");
 
@@ -120,6 +125,38 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const addBookToClub = (clubId: string, bookId: string, userId: string) => {
+    const club = clubs.find((club) => club.id === clubId);
+    if (!club) return;
+    const newBook: ClubBook = { bookId, status: 'upcoming', addedBy: userId, addedAt: currentDate };
+    const updatedClub = { ...club, newBook };
+    const updatedClubs = clubs.map((c) => (c.id === club.id ? updatedClub : c));
+    setClubs(updatedClubs);
+    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+  };
+
+  const removeBookFromClub = (clubId: string, bookId: string) => {
+    const club = clubs.find((club) => club.id === clubId);
+    if (!club) return;
+    const updatedBooks = club.books?.filter((book) => book.bookId !== bookId);
+
+    const updatedClub = { ...club, books: updatedBooks };
+    const updatedClubs = clubs.map((c) => (c.id === club.id ? updatedClub : c));
+    setClubs(updatedClubs);
+    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+  };
+
+  const getBookClubProgress = (clubId: string) => {
+    const club = clubs.find((club) => club.id === clubId);
+    if (!club) return 0;
+    const totalProgress = club.members.reduce((sum, member) => sum + (getReadingProgress(member.id).reduce((sum, progress) => sum + progress.progress, 0) ?? 0), 0);
+    return Math.round(totalProgress / club.members.length);
+  }
+
+  const isWishListBook = (bookId: string) => {
+    return clubs.some((club) => club.books?.some((book) => book.bookId === bookId && book.status === 'upcoming' && book.isWishList));
+  };
+
   return (
     <ClubContext.Provider
       value={{
@@ -133,6 +170,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         isClubMember,
         leaveClub,
         getMyClubs,
+        addBookToClub,
+        removeBookFromClub,
+        getBookClubProgress,
+        isWishListBook,
       }}
     >
       {children}
@@ -158,6 +199,10 @@ export function useClubData() {
     leaveClub,
     isClubMember,
     getMyClubs,
+    addBookToClub,
+    removeBookFromClub,
+    getBookClubProgress,
+    isWishListBook,
   } = useClub();
   return {
     clubs,
@@ -170,5 +215,9 @@ export function useClubData() {
     leaveClub,
     isClubMember,
     getMyClubs,
+    addBookToClub,
+    removeBookFromClub,
+    getBookClubProgress,
+    isWishListBook,
   };
 }
