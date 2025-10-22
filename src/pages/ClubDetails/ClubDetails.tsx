@@ -12,7 +12,6 @@ import { FaTrash, FaEdit } from "react-icons/fa";
 import { useImageStorage } from "../../hooks/useImageStorage";
 import { useSavedBooks } from "../../context/SavedBooksContext";
 import placeholderClubImage from "../../assets/bookClub.jpg";
-import { useAuthContext } from "../../context/AuthContext";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -240,10 +239,11 @@ function BackButton() {
 }
 
 function CurrentBookSection() {
-  const { currentUser } = useAuthContext();
-  const { getUserBookProgress } = useSavedBooks();
+  const { getBookClubProgress } = useSavedBooks();
+  const { clubId } = useParams();
+  const { clubs } = useClubData();
+  const club = clubs.find((c) => c.id === clubId);
 
-  // const [progressList, setProgressList] = useState([]);
   const [books, setBooks] = useState<BookData[]>([]);
   const [currentBook, setCurrentBook] = useState<{
     id: string;
@@ -263,52 +263,47 @@ function CurrentBookSection() {
       const localBooks = stored ? JSON.parse(stored) : [];
       setBooks(localBooks);
 
-      const currentBookId = localStorage.getItem("currentBookId");
-      let selected;
-
-      if (currentBookId) {
-        selected = localBooks.find((b: BookData) => b.id === currentBookId);
-      }
-
-      const currentClubBook = currentBookId
-        ? localBooks.find((b: BookData) => b.id === currentBookId)
-        : localBooks.find((b: BookData) => (b.readingProgress?.find((p) => p.userId === currentUser?.id)?.progress ?? 0) > 0) ||
-          localBooks[0];
-
-      if (currentClubBook) {
+      const clubCurrentBook = club?.currentBook;
+      
+      const selected = localBooks.find((b: BookData) => b.id === clubCurrentBook?.bookId);
+      if (selected) {
+        const clubProgress = getBookClubProgress(selected.id);
         setCurrentBook({
-          id: currentClubBook.id,
-          title: currentClubBook.title,
-          author: currentClubBook.author,
-          coverImage: currentClubBook.coverImage,
-          readingProgress: currentClubBook.readingProgress ?? 0,
-          publishedYear: currentClubBook.publishedYear,
-          tags: currentClubBook.tags,
-          genre: currentClubBook.genre,
-          summary: currentClubBook.summary,
+          id: selected.id,
+          title: selected.title,
+          author: selected.author,
+          coverImage: selected.coverImage,
+          readingProgress: clubProgress,
+          publishedYear: selected.publishedYear,
+          tags: selected.tags,
+          genre: selected.genre,
+          summary: selected.summary,
         });
       }
     } catch {
       return;
     }
-  }, []);
+  }, [club, getBookClubProgress]);
 
   const changeCurrentBook = (bookId: string) => {
     const next = books.find((b: BookData) => b.id === bookId);
     if (!next) return;
-    const userProgress = getUserBookProgress(currentUser?.id || "", bookId);
+    
+    const clubProgress = getBookClubProgress(bookId); // Get club's average progress for this book
 
     setCurrentBook({
       id: next.id,
       title: next.title,
       author: next.author,
       coverImage: next.coverImage,
-      readingProgress: userProgress ?? 0,
+      readingProgress: clubProgress,
       publishedYear: next.publishedYear,
       tags: next.tags,
       genre: next.genre,
       summary: next.summary,
     });
+    
+    // Update club's current book (you might need to add this functionality)
     localStorage.setItem("currentBookId", next.id);
   };
 
