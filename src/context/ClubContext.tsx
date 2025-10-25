@@ -47,6 +47,23 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   }, []);
 
+  // Helper functions
+  const saveClubs = (updatedClubs: bookClub[]) => {
+    setClubs(updatedClubs);
+    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+  };
+
+  const findClub = useCallback(
+    (clubId: string): bookClub | undefined =>
+      clubs.find((c) => c.id === clubId),
+    [clubs]
+  );
+
+  const updateClubList = (clubId: string, updatedClub: bookClub) =>
+    clubs.map((c) => (c.id === clubId ? updatedClub : c));
+  
+  // End of Helper functions
+
   const createClub = (club: bookClub) => {
     const newClub = {
       ...club,
@@ -59,8 +76,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       location: club.location,
       meetingFrequency: club.meetingFrequency,
     };
-    setClubs([...clubs, newClub]);
-    localStorage.setItem("bookClubs", JSON.stringify([...clubs, newClub]));
+    saveClubs([...clubs, newClub]);
   };
 
   const updateClub = (club: bookClub) => {
@@ -68,19 +84,11 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       ...club,
       updatedAt: currentDate,
     };
-    setClubs(clubs.map((c) => (c.id === club.id ? updateClub : c)));
-    localStorage.setItem(
-      "bookClubs",
-      JSON.stringify(clubs.map((c) => (c.id === club.id ? updateClub : c)))
-    );
+    saveClubs(updateClubList(club.id, updateClub));
   };
 
   const deleteClub = (clubId: string) => {
-    setClubs(clubs.filter((c) => c.id !== clubId));
-    localStorage.setItem(
-      "bookClubs",
-      JSON.stringify(clubs.filter((c) => c.id !== clubId))
-    );
+    saveClubs(clubs.filter((c) => c.id !== clubId));
   };
 
   const clubNameExists = (clubName: string) => {
@@ -100,28 +108,26 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       ...club,
       members: [...club.members, newMember],
     };
-    const updatedClubs = clubs.map((c) => (c.id === club.id ? updatedClub : c));
-    setClubs(updatedClubs);
-    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+    const updatedClubs = updateClubList(club.id, updatedClub);
+    saveClubs(updatedClubs);
   };
 
   const isClubMember = (clubId: string, userId: string) => {
-    const club = clubs.find((c) => c.id === clubId);
+    const club = findClub(clubId);
     if (!club) return false;
     return club.members.some((m) => m.id === userId);
   };
 
   const leaveClub = (clubId: string, userId: string) => {
-    const club = clubs.find((c) => c.id === clubId);
+    const club = findClub(clubId);
     
     if (!club) return;
     if (!isClubMember(club.id, userId)) return;
     const updatedMembers = club.members.filter((m) => m.id !== userId);
     const updatedClub = { ...club, members: updatedMembers };
-    const updatedClubs = clubs.map((c) => (c.id === club.id ? updatedClub : c));
+    const updatedClubs = updateClubList(club.id, updatedClub);
     
-    setClubs(updatedClubs);
-    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+    saveClubs(updatedClubs);
   };
 
   const getMyClubs = (userId: string) => {
@@ -131,29 +137,27 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   }
 
   const addBookToClub = (clubId: string, bookId: string, userId: string) => {
-    const club = clubs.find((club) => club.id === clubId);
+    const club = findClub(clubId);
     if (!club) return;
     const newBook: ClubBook = { bookId, status: 'upcoming', addedBy: userId, addedAt: currentDate };
-    const updatedClub = { ...club, newBook };
-    const updatedClubs = clubs.map((c) => (c.id === club.id ? updatedClub : c));
-    setClubs(updatedClubs);
-    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+    const updatedClub = { ...club, books: [...(club.books || []), newBook]};
+    const updatedClubs = updateClubList(clubId, updatedClub);
+    saveClubs(updatedClubs);
   };
 
   const removeBookFromClub = (clubId: string, bookId: string) => {
-    const club = clubs.find((club) => club.id === clubId);
+    const club = findClub(clubId);
     if (!club) return;
     const updatedBooks = club.books?.filter((book) => book.bookId !== bookId);
 
     const updatedClub = { ...club, books: updatedBooks };
-    const updatedClubs = clubs.map((c) => (c.id === club.id ? updatedClub : c));
-    setClubs(updatedClubs);
-    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+    const updatedClubs = updateClubList(clubId, updatedClub);
+    saveClubs(updatedClubs);
   };
 
   const updateClubBookStatus = (clubId: string, userId: string, bookId: string, status: ClubBookStatus) => {
-    const club = clubs.find((club) => club.id === clubId);
-    if (!club) return;
+    const club = findClub(clubId);
+    if (!club || !isClubMember(clubId, userId)) return;
 
     const updatedBooks = (club.books || []).map((book) => {
       if (book.bookId === bookId) {
@@ -176,9 +180,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         status === "current" ? { bookId, status, startDate: currentDate } : club.currentBook,
     };
 
-    const updatedClubs = clubs.map((c) => (c.id === clubId ? updatedClub : c));
-    setClubs(updatedClubs);
-    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+    const updatedClubs = updateClubList(clubId, updatedClub as bookClub);
+    saveClubs(updatedClubs);
+
+    return updatedClub;
   };
 
   const getBookClubProgress = (clubId: string) => {
@@ -206,7 +211,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   };
 
   const isModerator = (clubId: string, userId: string): boolean => {
-    const club = clubs.find((c) => c.id === clubId);
+    const club = findClub(clubId);
     if (!club) return false;
     
     const member = club.members.find((m) => m.id === userId);
