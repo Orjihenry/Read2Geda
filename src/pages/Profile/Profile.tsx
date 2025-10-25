@@ -2,14 +2,14 @@ import BookCarousel from "../../components/BookCarousel";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import NavButton from "../../components/NavButton";
-import { useAuthContext } from "../../context/AuthContext";
-import { useClub } from "../../context/ClubContext";
 import { useEffect, useState } from "react";
+import { useClub } from "../../context/ClubContext";
+import { useAuthContext } from "../../context/AuthContext";
 import { useImageStorage } from "../../hooks/useImageStorage";
 import { useSavedBooks } from "../../context/SavedBooksContext";
+import type { BookData, BookProgress } from "../../utils/bookData";
 import "./Profile.css";
 import placeholderAvatar from "../../assets/placeholder.png";
-import type { BookData, BookProgress } from "../../utils/bookData";
 
 export default function Profile() {
   const { currentUser } = useAuthContext();
