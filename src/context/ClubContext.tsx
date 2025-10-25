@@ -4,6 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 import { useSavedBooks } from "./SavedBooksContext";
 
+type ClubBookStatus = 'upcoming' | 'current' | 'completed';
+
 type ClubContextType = {
   clubs: bookClub[];
   loading: boolean;
@@ -18,7 +20,10 @@ type ClubContextType = {
   addBookToClub: (clubId: string, bookId: string, userId: string) => void;
   removeBookFromClub: (clubId: string, bookId: string) => void;
   getBookClubProgress: (clubId: string) => number;
+  getClubBooks: (clubId: string, status?: ClubBookStatus) => ClubBook[];
   isWishListBook: (bookId: string) => boolean;
+  updateClubBookStatus: (clubId: string, userId: string, bookId: string, status: ClubBookStatus) => void;
+  isModerator: (clubId: string, userId: string) => boolean;
 };
 
 const ClubContext = createContext<ClubContextType | undefined>(undefined);
@@ -146,6 +151,36 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
   };
 
+  const updateClubBookStatus = (clubId: string, userId: string, bookId: string, status: ClubBookStatus) => {
+    const club = clubs.find((club) => club.id === clubId);
+    if (!club) return;
+
+    const updatedBooks = (club.books || []).map((book) => {
+      if (book.bookId === bookId) {
+        return {
+          ...book,
+          status,
+          startDate: status === "current" ? currentDate : book.startDate,
+          endDate: status === "completed" ? currentDate : book.endDate,
+          lastUpdatedBy: userId,
+          lastUpdatedAt: currentDate,
+        };
+      }
+      return book;
+    });
+
+    const updatedClub = {
+      ...club,
+      books: updatedBooks,
+      currentBook:
+        status === "current" ? { bookId, status, startDate: currentDate } : club.currentBook,
+    };
+
+    const updatedClubs = clubs.map((c) => (c.id === clubId ? updatedClub : c));
+    setClubs(updatedClubs);
+    localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
+  };
+
   const getBookClubProgress = (clubId: string) => {
     const club = clubs.find((club) => club.id === clubId);
     if (!club) return 0;
@@ -153,8 +188,29 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return Math.round(totalProgress / club.members.length);
   }
 
+  const getClubBooks = (clubId: string, status?: ClubBookStatus) => {
+    const club = clubs.find((c) => c.id === clubId);
+    if (!club || !club.books) return [];
+  
+    if (!status) return club.books;
+  
+    if (status === "upcoming") {
+      return club.books.filter((b) => b.isWishList);
+    }
+  
+    return club.books.filter((b) => b.status === status);
+  };
+
   const isWishListBook = (bookId: string) => {
     return clubs.some((club) => club.books?.some((book) => book.bookId === bookId && book.status === 'upcoming' && book.isWishList));
+  };
+
+  const isModerator = (clubId: string, userId: string): boolean => {
+    const club = clubs.find((c) => c.id === clubId);
+    if (!club) return false;
+    
+    const member = club.members.find((m) => m.id === userId);
+    return member?.role === 'owner' || member?.role === 'moderator';
   };
 
   return (
@@ -173,7 +229,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         addBookToClub,
         removeBookFromClub,
         getBookClubProgress,
+        getClubBooks,
         isWishListBook,
+        updateClubBookStatus,
+        isModerator,
       }}
     >
       {children}
@@ -202,7 +261,10 @@ export function useClubData() {
     addBookToClub,
     removeBookFromClub,
     getBookClubProgress,
+    getClubBooks,
     isWishListBook,
+    updateClubBookStatus,
+    isModerator,
   } = useClub();
   return {
     clubs,
@@ -218,6 +280,9 @@ export function useClubData() {
     addBookToClub,
     removeBookFromClub,
     getBookClubProgress,
+    getClubBooks,
     isWishListBook,
+    updateClubBookStatus,
+    isModerator,
   };
 }
