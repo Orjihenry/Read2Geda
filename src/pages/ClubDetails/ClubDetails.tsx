@@ -10,8 +10,8 @@ import type { BookData } from "../../utils/bookData";
 import { useClub } from "../../context/ClubContext";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { useImageStorage } from "../../hooks/useImageStorage";
-import { useSavedBooks } from "../../context/SavedBooksContext";
 import placeholderClubImage from "../../assets/bookClub.jpg";
+import { useAuthContext } from "../../context/AuthContext";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -238,105 +238,74 @@ function BackButton() {
 }
 
 function CurrentBookSection() {
-  const { getBookClubProgress } = useSavedBooks();
+  const { currentUser } = useAuthContext();
   const { clubId } = useParams();
-  const { clubs } = useClubData();
+  const { clubs, isModerator, updateClubBookStatus, getBookClubProgress } = useClub();
+
+  const clubProgress = getBookClubProgress(clubId!);
   const club = clubs.find((c) => c.id === clubId);
+  const userId = currentUser?.id;
 
   const [books, setBooks] = useState<BookData[]>([]);
-  const [currentBook, setCurrentBook] = useState<{
-    id: string;
-    title: string;
-    author: string;
-    coverImage: string;
-    publishedYear: number;
-    tags?: string[];
-    genre: string;
-    summary: string;
-    readingProgress: number;
-  } | null>(null);
+  const [currentBook, setCurrentBook] = useState<BookData | null>(null);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("bookData");
-      const localBooks = stored ? JSON.parse(stored) : [];
-      setBooks(localBooks);
+    const stored = localStorage.getItem("bookData");
+    if (!stored || !club) return;
 
-      const clubCurrentBook = club?.currentBook;
-      
-      const selected = localBooks.find((b: BookData) => b.id === clubCurrentBook?.bookId);
-      if (selected) {
-        const clubProgress = getBookClubProgress(selected.id);
-        setCurrentBook({
-          id: selected.id,
-          title: selected.title,
-          author: selected.author,
-          coverImage: selected.coverImage,
-          readingProgress: clubProgress,
-          publishedYear: selected.publishedYear,
-          tags: selected.tags,
-          genre: selected.genre,
-          summary: selected.summary,
-        });
-      }
-    } catch {
-      return;
+    const localBooks = JSON.parse(stored);
+    setBooks(localBooks);
+
+    const clubCurrent = club.currentBook?.bookId;
+    const selected = localBooks.find((b: BookData) => b.id === clubCurrent);
+
+    if (selected) {
+      const clubProgress = getBookClubProgress(clubId!);
+      setCurrentBook({ ...selected, readingProgress: clubProgress });
     }
-  }, [club, getBookClubProgress]);
+  }, [club, clubId, getBookClubProgress]);
 
   const changeCurrentBook = (bookId: string) => {
-    const next = books.find((b: BookData) => b.id === bookId);
-    if (!next) return;
-    
-    const clubProgress = getBookClubProgress(bookId); // Get club's average progress for this book
+    if (!clubId || !userId) return;
+    updateClubBookStatus(clubId, userId, bookId, "current");
 
-    setCurrentBook({
-      id: next.id,
-      title: next.title,
-      author: next.author,
-      coverImage: next.coverImage,
-      readingProgress: clubProgress,
-      publishedYear: next.publishedYear,
-      tags: next.tags,
-      genre: next.genre,
-      summary: next.summary,
-    });
-    
-    // Update club's current book (you might need to add this functionality)
-    localStorage.setItem("currentBookId", next.id);
+    const next = books.find((b) => b.id === bookId);
+    if (!next) return;
+
+    setCurrentBook({ ...next });
   };
+
+  if (!books.length) {
+    return <p className="text-muted">Current book has not yet been set for this club yet.</p>;
+  }
 
   return (
     <div className="py-5 bg-light">
       <div className="row mb-5">
         <div className="col-12">
-          <div className="row">
-            <h2 className="display-6 mb-4 col-md-8">Current Book</h2>
-            <div className="col-md-4">
-              <div className="d-flex justify-content-start mb-2">
-                <div className="input-group" style={{ maxWidth: 360 }}>
-                  <label
-                    className="input-group-text"
-                    htmlFor="currentBookSelect"
-                  >
-                    Select Book
-                  </label>
-                  <select
-                    id="currentBookSelect"
-                    className="form-select"
-                    value={currentBook?.id}
-                    onChange={(e) => changeCurrentBook(e.target.value)}
-                  >
-                    {books.map((b: BookData) => (
-                      <option key={b.id} value={b.id}>
-                        {b.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h2 className="display-6 mb-0">Current Book</h2>
+            {isModerator(clubId!, userId!) && (
+              <div className="input-group" style={{ maxWidth: 360 }}>
+                <label className="input-group-text" htmlFor="currentBookSelect">
+                  Select Book
+                </label>
+                <select
+                  id="currentBookSelect"
+                  className="form-select"
+                  value={currentBook?.id || ""}
+                  onChange={(e) => changeCurrentBook(e.target.value)}
+                >
+                  {books.map((b: BookData) => (
+                    <option key={b.id} value={b.id}>
+                      {b.title}
+                    </option>
+                  ))}
+                </select>
               </div>
-            </div>
+            )}
           </div>
+
           {currentBook ? (
             <div className="card p-4">
               <div className="row align-items-center">
@@ -362,13 +331,15 @@ function CurrentBookSection() {
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <span className="small text-muted">Reading Progress</span>
                       <span className="small text-muted">
-                        {currentBook.readingProgress}%
+                        {clubProgress}%
                       </span>
                     </div>
                     <div className="progress" style={{ height: "8px" }}>
                       <div
                         className="progress-bar bg-success"
-                        style={{ width: `${currentBook.readingProgress}%` }}
+                        style={{
+                          width: `${clubProgress ?? 0}%`,
+                        }}
                       ></div>
                     </div>
                   </div>
@@ -378,15 +349,14 @@ function CurrentBookSection() {
                     to="/discussions"
                     className="btn btn-outline-success mb-2 d-block"
                   >
-                    {/* {isMember ? "Join Discussions" : "Join Club"} */}
                     Join Discussions
                   </NavLink>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="col-12">
-              <h3 className="h4 mb-2">No current book selected yet</h3>
+            <div className="alert alert-light text-center mt-3">
+              No current book selected yet.
             </div>
           )}
         </div>
