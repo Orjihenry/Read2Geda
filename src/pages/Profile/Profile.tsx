@@ -9,6 +9,7 @@ import { useImageStorage } from "../../hooks/useImageStorage";
 import { useSavedBooks } from "../../context/SavedBooksContext";
 import "./Profile.css";
 import placeholderAvatar from "../../assets/placeholder.png";
+import type { BookData, BookProgress } from "../../utils/bookData";
 
 export default function Profile() {
   const { currentUser } = useAuthContext();
@@ -20,7 +21,7 @@ export default function Profile() {
     (club) => club.isActive && club.members.length > 0
   );
 
-  const [books, setBooks] = useState<any[]>([]);
+  const [books, setBooks] = useState<BookData[]>([]);
   const [currentBook, setCurrentBook] = useState<{
     id: string;
     title: string;
@@ -31,7 +32,7 @@ export default function Profile() {
   const [showModal, setShowModal] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const [avatar, setAvatar] = useState<string>("");
-  const [progressList, setProgressList] = useState<any[]>([]);
+  const [progressList, setProgressList] = useState<BookProgress[]>([]);
 
   useEffect(() => {
     const loadAvatar = async () => {
