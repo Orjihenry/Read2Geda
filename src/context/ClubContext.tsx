@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { type bookClub, type ClubBook, type clubMember, defaultBookClubs } from "../utils/bookClub";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
@@ -170,6 +170,11 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
           lastUpdatedAt: currentDate,
         };
       }
+      
+      if (status === "current" && book.status === "current") {
+        return { ...book, status: "completed", endDate: currentDate };
+      }
+
       return book;
     });
 
@@ -186,26 +191,31 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return updatedClub;
   };
 
-  const getBookClubProgress = (clubId: string) => {
-    const club = clubs.find((club) => club.id === clubId);
-    if (!club) return 0;
-    const totalProgress = club.members.reduce((sum, member) => sum + (getReadingProgress(member.id).reduce((sum, progress) => sum + progress.progress, 0) ?? 0), 0);
-    return Math.round(totalProgress / club.members.length);
-  }
+  const getBookClubProgress = useCallback((clubId: string): number => {
+  const club = findClub(clubId);
+  if (!club || club.members.length === 0 || !club.currentBook) return 0;
 
-  const getClubBooks = (clubId: string, status?: ClubBookStatus) => {
-    const club = clubs.find((c) => c.id === clubId);
-    if (!club || !club.books) return [];
-  
-    if (!status) return club.books;
-  
-    if (status === "upcoming") {
-      return club.books.filter((b) => b.isWishList);
-    }
-  
-    return club.books.filter((b) => b.status === status);
-  };
+  const currentBookId = club.currentBook.bookId;
 
+  const totalProgress = club.members.reduce((sum, member) => {
+    const userProgress = getReadingProgress(member.id).find(
+      (p) => p.bookId === currentBookId
+    );
+    return sum + (userProgress?.progress || 0);
+  }, 0);
+
+  return Math.round(totalProgress / club.members.length);
+}, [findClub, getReadingProgress]);
+
+  const getClubBooks = useCallback( (clubId: string, status?: ClubBookStatus) => {
+    const club = findClub(clubId);
+    if (!club?.books) return [];
+
+    return status
+      ? club.books.filter((b) => b.status === status)
+      : club.books;
+  }, [findClub]);
+  
   const isWishListBook = (bookId: string) => {
     return clubs.some((club) => club.books?.some((book) => book.bookId === bookId && book.status === 'upcoming' && book.isWishList));
   };
