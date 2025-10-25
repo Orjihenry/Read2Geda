@@ -1,7 +1,6 @@
 import { NavLink, useParams, useNavigate } from "react-router-dom";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
-import BookCarousel from "../../components/BookCarousel";
 import JoinClubButton from "../../components/JoinClubButton";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { MdArrowForward } from "react-icons/md";
@@ -12,15 +11,21 @@ import { FaTrash, FaEdit } from "react-icons/fa";
 import { useImageStorage } from "../../hooks/useImageStorage";
 import placeholderClubImage from "../../assets/bookClub.jpg";
 import { useAuthContext } from "../../context/AuthContext";
+import useBookData from "../../hooks/useBookData";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const { clubs, deleteClub } = useClub();
+  const { clubs, deleteClub, getClubBooks } = useClub();
+
+  const wishlist = getClubBooks(clubId!, "upcoming");
+  const completedBooks = getClubBooks(clubId!, "completed");
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { getImage, loading } = useImageStorage();
+  // const [books, setBooks] = useState<BookData[]>([]);
+  const { books } = useBookData();
 
   const club = clubs.find((c) => c.id === clubId);
 
@@ -185,8 +190,75 @@ export default function ClubDetails() {
       <div className="bg-light py-5">
         <div className="container py-4">
           <h3 className="display-6 pb-2">Other Books On Our List</h3>
+          
+          {wishlist.length > 0 ? (
+            <div className="row g-3">
+              {wishlist.map((clubBook) => {
+                const book = books.find(b => b.id === clubBook.bookId);
+                if (!book) return null;
+                
+                return (
+                  <div key={clubBook.bookId} className="col-md-4">
+                    <div className="card h-100">
+                      <img 
+                        src={book.coverImage} 
+                        alt={book.title}
+                        className="card-img-top"
+                        style={{ height: "200px", objectFit: "cover" }}
+                      />
+                      <div className="card-body">
+                        <h5 className="card-title">{book.title}</h5>
+                        <p className="card-text text-muted">{book.author}</p>
+                        <span className="badge bg-warning">{clubBook.status}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-muted">No upcoming books in the club's reading list.</p>
+          )}
+        </div>
+      </div>
 
-          <BookCarousel />
+      <div className="py-5">
+        <div className="container">
+          <h3 className="display-6 pb-2">Completed Books</h3>
+          
+          {completedBooks.length > 0 ? (
+            <div className="row g-3">
+              {completedBooks.map((clubBook) => {
+                const book = books.find(b => b.id === clubBook.bookId);
+                if (!book) return null;
+                
+                return (
+                  <div key={clubBook.bookId} className="col-md-4">
+                    <div className="card h-100">
+                      <img 
+                        src={book.coverImage} 
+                        alt={book.title}
+                        className="card-img-top"
+                        style={{ height: "200px", objectFit: "cover" }}
+                      />
+                      <div className="card-body">
+                        <h5 className="card-title">{book.title}</h5>
+                        <p className="card-text text-muted">{book.author}</p>
+                        <span className="badge bg-success">{clubBook.status}</span>
+                        {clubBook.endDate && (
+                          <small className="text-muted d-block mt-2">
+                            Completed: {new Date(clubBook.endDate).toLocaleDateString()}
+                          </small>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-muted">No completed books yet.</p>
+          )}
         </div>
       </div>
 
