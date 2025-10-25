@@ -7,7 +7,7 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import { MdArrowForward } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../../utils/bookData";
-import { useClub, useClubData } from "../../context/ClubContext";
+import { useClub } from "../../context/ClubContext";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { useImageStorage } from "../../hooks/useImageStorage";
 import { useSavedBooks } from "../../context/SavedBooksContext";
@@ -15,10 +15,9 @@ import placeholderClubImage from "../../assets/bookClub.jpg";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
-  const { clubs } = useClubData();
-  const { deleteClub } = useClub();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { clubs, deleteClub } = useClub();
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { getImage, loading } = useImageStorage();

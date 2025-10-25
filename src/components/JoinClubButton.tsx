@@ -1,10 +1,9 @@
-import { useClub, useClubData } from "../context/ClubContext";
+import { useClub } from "../context/ClubContext";
 import { useAuthContext } from "../context/AuthContext";
 
 export default function JoinClubButton({ clubId }: { clubId?: string }) {
-  const { clubs } = useClubData();
   const { currentUser } = useAuthContext();
-  const { joinClub, leaveClub, isClubMember } = useClub();
+  const { clubs, joinClub, leaveClub, isClubMember } = useClub();
 
   const club = clubs.find((c) => c.id === clubId);
   const userId = currentUser?.id;
