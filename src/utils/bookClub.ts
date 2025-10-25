@@ -14,8 +14,10 @@ export type ClubBook = {
   status: "upcoming" | "current" | "completed";
   startDate?: string;
   endDate?: string;
-  addedBy: string;
-  addedAt: string;
+  addedBy?: string;
+  addedAt?: string;
+  lastUpdatedBy?: string;
+  lastUpdatedAt?: string;
   isWishList?: boolean;
 };
 
