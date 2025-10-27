@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 
 import read2gedaLogo from "../../assets/read2geda.ico"
+import Swal from "sweetalert2";
 
 export default function Login() {
   const { login, currentUser } = useAuthContext();
@@ -40,6 +41,68 @@ export default function Login() {
         setSuccess(true);
         navigate("/highlights");
       }
+  }
+
+  const dummyAccounts = () => {
+    const accounts = [
+      { name: "Alice", email: "alice@example.com" },
+      { name: "Bob", email: "bob@example.com" },
+      { name: "Carol", email: "carol@example.com" },
+      { name: "David", email: "david@example.com" },
+      { name: "Emma", email: "emma@example.com" },
+      { name: "Frank", email: "frank@example.com" },
+      { name: "Grace", email: "grace@example.com" },
+      { name: "Henry", email: "henry@example.com" },
+      { name: "Isabella", email: "isabella@example.com" },
+      { name: "Jack", email: "jack@example.com" },
+      { name: "Kate", email: "kate@example.com" },
+      { name: "Luke", email: "luke@example.com" },
+      { name: "Maya", email: "maya@example.com" },
+      { name: "Nathan", email: "nathan@example.com" },
+      { name: "Olivia", email: "olivia@example.com" },
+    ];
+
+    const accountList = accounts.map(acc => 
+      `<tr class="border-bottom">
+        <td class="fw-bold">${acc.name}</td>
+        <td><code class="text-primary">${acc.email}</code></td>
+        <td><code class="text-muted">password</code></td>
+      </tr>`
+    ).join('');
+
+    Swal.fire({
+      icon: "info",
+      title: "Dummy Accounts Available",
+      html: `
+        <div class="text-start">
+          <p class="mb-3 text-center">Use any of the following dummy accounts:</p>
+          <div style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-sm table-borderless mb-0">
+              <thead class="table-light">
+                <tr class="border-bottom">
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Password</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${accountList}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `,
+      showCloseButton: true,
+      focusConfirm: false,
+      confirmButtonText: "Got it!",
+      confirmButtonAriaLabel: "Understood",
+      width: '800px',
+      customClass: {
+        confirmButton: "btn btn-outline-success",
+        popup: "rounded-3 shadow-lg"
+      },
+      buttonsStyling: false
+    });
   }
 
   return (
@@ -83,13 +146,15 @@ export default function Login() {
                         </button>
                         <div className="text-center">
                           <p>Not a member? <NavLink to="/register">Sign up</NavLink></p>
+                          <p>
+                            Alternatively, you can login with one of the following <a href="#" onClick={dummyAccounts}>dummy accounts</a>: 
+                          </p>
                         </div>
                       </form>
                     </div>
                   </div>
                 </div>
               </div>
-
               <div className="col-md-6 d-none d-md-block p-0">
                   <div className="h-100 w-100 bg-success"></div>
               </div>
