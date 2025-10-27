@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { User } from "../types/user.ts";
+import { UsersData } from "../utils/userData.ts";
 import { v4 as uuidv4 } from "uuid";
 import Swal from "sweetalert2";
 
@@ -27,6 +28,9 @@ export default function AuthProvider({
 
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem("users") || "[]");
+    if (users.length === 0) {
+      localStorage.setItem("users", JSON.stringify(UsersData));
+    }
     setUsers(users);
 
     const userId = localStorage.getItem("currentUser");
