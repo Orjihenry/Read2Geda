@@ -6,13 +6,11 @@ import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import ClubCard from "../../components/ClubCard";
 import ClubCarousel from "../../components/ClubCarousel";
-import useClubData from "../../hooks/useClubData";
 import useSearchFilter from "../../hooks/useSearchFilter";
 import "./discover.css";
 
 export default function Discover() {
-  const { clubs, loading } = useClubData();
-  const { getMyClubs } = useClub();
+  const { clubs, loading, getMyClubs } = useClub();
   const { currentUser } = useAuthContext();
 
   const userId = currentUser?.id;
@@ -55,10 +53,6 @@ export default function Discover() {
                 <span className="badge bg-success fs-6 me-2">
                   {getMyClubs(userId || "").length} Active
                 </span>
-                <NavLink to="/create_club" className="btn btn-outline-success btn-sm">
-                  <i className="fas fa-plus me-1"></i>
-                  Create New
-                </NavLink>
               </div>
             </div>
 

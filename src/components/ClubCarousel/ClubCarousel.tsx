@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import Carousel from "../Carousel";
 import ClubCard from "../ClubCard";
-import useClubData from "../../hooks/useClubData";
+import { useClub } from "../../context/ClubContext";
 import "./ClubCarousel.css";
 
 export default function ClubCarousel() {
-  const { clubs, loading } = useClubData();
+  const { clubs, loading } = useClub();
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [maxHeight, setMaxHeight] = useState<number | null>(null);
 
