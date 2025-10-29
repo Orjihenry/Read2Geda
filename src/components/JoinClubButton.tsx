@@ -1,7 +1,7 @@
 import { useClub } from "../context/ClubContext";
 import { useAuthContext } from "../context/AuthContext";
 
-export default function JoinClubButton({ clubId }: { clubId?: string }) {
+export default function JoinClubButton({ clubId, className }: { clubId?: string, className?: string }) {
   const { currentUser } = useAuthContext();
   const { clubs, joinClub, leaveClub, isClubMember } = useClub();
 
@@ -23,11 +23,11 @@ export default function JoinClubButton({ clubId }: { clubId?: string }) {
   return (
     <>
       {isClubMember(club.id, userId || "") ? (
-        <button onClick={handleLeaveClub} className="btn btn-dark btn-sm">
+        <button onClick={handleLeaveClub} className={`btn btn-dark btn-sm ${className}`}>
           Leave Club
         </button>
       ) : (
-        <button onClick={handleJoinClub} className="btn btn-dark btn-sm">
+        <button onClick={handleJoinClub} className={`btn btn-dark btn-sm ${className}`}>
           Join Club
         </button>
       )}
