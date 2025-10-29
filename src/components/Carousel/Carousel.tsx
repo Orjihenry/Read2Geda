@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -11,19 +10,6 @@ type CarouselProps<T> = {
 };
 
 export default function Carousel<T>({ data, renderItem }: CarouselProps<T>) {
-    useEffect(() => {
-        const cards = document.querySelectorAll('.card-custom-wrapper');
-        let maxHeight = 0;
-
-        cards.forEach((card) => {
-            const h = card.getBoundingClientRect().height;
-            if (h > maxHeight) maxHeight = h;
-        });
-
-        cards.forEach((card) => {
-            (card as HTMLElement).style.height = `${maxHeight}px`;
-        });
-    }, []);
 
     const settings = {
         dots: true,
