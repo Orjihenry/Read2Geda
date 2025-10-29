@@ -45,32 +45,17 @@ export default function ClubCard({ index, item }: clubCardProps) {
     };
   }, [item.imageUrl, getImage]);
 
-  useEffect(() => {
-    const cards = document.querySelectorAll(".card-custom-wrapper");
-    let maxHeight = 0;
-
-    cards.forEach((card) => {
-      const h = card.getBoundingClientRect().height;
-      if (h > maxHeight) maxHeight = h;
-    });
-
-    cards.forEach((card) => {
-      (card as HTMLElement).style.height = `${maxHeight}px`;
-    });
-  }, []);
-
   return (
     <>
-      <div key={index} className="card h-100 border-0 shadow-sm hover-lift border rounded shadow-sm bg-light">
-        <div className="slider-container">
-          <div className="">
-            <div className="card-body p-0 p-sm-4">
+      <div key={index} className="col-lg-12 col-md-12">
+        <div className="card h-100 border-0 shadow-sm hover-lift d-flex flex-column">
+            <div className="card-body p-4">
               <div className="d-flex align-items-start mb-3">
                 <div className="flex-shrink-0 me-3">
                   <img
                     src={imageUrl || placeholderClubImage}
                     alt={item.name}
-                    className="rounded-circle me-3"
+                    className="rounded-3 me-3"
                     style={{
                       width: "60px",
                       height: "60px",
@@ -81,28 +66,31 @@ export default function ClubCard({ index, item }: clubCardProps) {
                 </div>
 
                 <div className="flex-grow-1">
-                  <div className="flex-grow-1">
-                    <h6 className="card-title mb-1 fw-bold">{item.name}</h6>
-                    <p className="text-muted small mb-2">{item.description}</p>
-                    <div className="d-flex align-items-center">
-                      <span>
-                        <MdPeopleAlt className="" />
-                        <span className="badge bg-light text-dark">
-                          {item.members.length}
-                        </span>
+                  <h6 className="card-title mb-1 fw-bold">{item.name}</h6>
+                  <p className="text-muted small mb-2" style={{ 
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden"
+                  }}>{item.description}</p>
+                  <div className="d-flex align-items-center">
+                    <span>
+                      <MdPeopleAlt className="" />
+                      <span className="badge bg-light text-dark">
+                        {item.members.length}
                       </span>
-                      <span>
-                        <MdStar className="" />
-                        <span className="badge bg-warning text-dark">
-                          {item.rating}
-                        </span>
+                    </span>
+                    <span>
+                      <MdStar className="" />
+                      <span className="badge bg-warning text-dark">
+                        {item.rating}
                       </span>
-                    </div>
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="mb-3 small">
+              <div className="mb-3 small flex-grow-1">
                 <div className="row g-2 text-center">
                   <div className="col-4">
                     <div className="border-end">
@@ -128,7 +116,7 @@ export default function ClubCard({ index, item }: clubCardProps) {
                 </div>
               </div>
 
-              <div className="d-flex gap-2">
+              <div className="d-flex gap-2 mt-auto">
                 <JoinClubButton clubId={item.id} className="flex-fill btn-sm" />
                 
                 <NavLink
@@ -141,7 +129,7 @@ export default function ClubCard({ index, item }: clubCardProps) {
               </div>
             </div>
 
-            <div className="card-footer bg-light border-0 px-4">
+            <div className="card-footer bg-light border-0 px-4 py-3 mt-auto">
               <div className="d-flex justify-content-between align-items-center">
                 <small className="text-muted">
                   <strong>Joined:</strong> {new Date(item.createdAt).toLocaleDateString('en-US', { 
@@ -164,9 +152,6 @@ export default function ClubCard({ index, item }: clubCardProps) {
                 </small>
               </div>
             </div>
-
-          </div>
-
         </div>
       </div>
     </>
