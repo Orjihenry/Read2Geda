@@ -1,10 +1,4 @@
-import {
-  MdAddLocationAlt,
-  MdCalendarMonth,
-  MdPeopleAlt,
-  MdStar,
-} from "react-icons/md";
-import { IoMdPricetag } from "react-icons/io";
+import { MdPeopleAlt, MdStar, MdVisibility } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import type { bookClub } from "../../utils/bookClub";
@@ -67,94 +61,112 @@ export default function ClubCard({ index, item }: clubCardProps) {
 
   return (
     <>
-      <div key={index} className="slider-container">
-        <div className="px-2">
-          <div className="p-3 border rounded shadow-sm bg-light card-custom-wrapper">
-            <div className="d-flex text-start align-items-center">
-              <div className="flex-shrink-0 me-3">
-                <img
-                  src={imageUrl || placeholderClubImage}
-                  alt={item.name}
-                  className="rounded-circle me-3"
-                  style={{
-                    width: "70px",
-                    height: "70px",
-                    maxWidth: "70px",
-                    objectFit: "cover",
-                  }}
-                />
-              </div>
+      <div key={index} className="card h-100 border-0 shadow-sm hover-lift border rounded shadow-sm bg-light">
+        <div className="slider-container">
+          <div className="">
+            <div className="card-body p-0 p-sm-4">
+              <div className="d-flex align-items-start mb-3">
+                <div className="flex-shrink-0 me-3">
+                  <img
+                    src={imageUrl || placeholderClubImage}
+                    alt={item.name}
+                    className="rounded-circle me-3"
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      maxWidth: "60px",
+                      objectFit: "cover",
+                    }}
+                  />
+                </div>
 
-              <div className="mb-3">
-                <h5 className="fw-semibold text-dark" title={item.name}>
-                  {item.name}
-                </h5>
-                <p className="text-muted mb-0 small" title={item.description}>
-                  {item.description}
-                </p>
-              </div>
-            </div>
-            <div className="small text-secondary">
-              <p className="d-flex align-items-center mb-2">
-                <span className="me-2 text-muted">
-                  <MdAddLocationAlt />
-                </span>
-                Location:{" "}
-                <span className="ms-1">{item.location || "Online"}</span>
-              </p>
-              <p className="mb-2 small d-flex align-items-center justify-content-start">
-                <span className="pe-2 text-muted">
-                  <MdPeopleAlt />
-                </span>
-                Members: <span className="ms-1">{item.members.length}</span>
-              </p>
-              <div className="mb-2 small d-flex align-items-center justify-content-start">
-                <span className="me-2 text-warning">
-                  <MdStar />
-                </span>
-                <span className="me-1">Rating:</span>
-                <div className="d-flex">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <span
-                      key={i}
-                      className={`star ${
-                        i < item.rating ? "filled text-warning" : "text-muted"
-                      }`}
-                    >
-                      ★
-                    </span>
-                  ))}
+                <div className="flex-grow-1">
+                  <div className="flex-grow-1">
+                    <h6 className="card-title mb-1 fw-bold">{item.name}</h6>
+                    <p className="text-muted small mb-2">{item.description}</p>
+                    <div className="d-flex align-items-center">
+                      <span>
+                        <MdPeopleAlt className="" />
+                        <span className="badge bg-light text-dark">
+                          {item.members.length}
+                        </span>
+                      </span>
+                      <span>
+                        <MdStar className="" />
+                        <span className="badge bg-warning text-dark">
+                          {item.rating}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <p className="mb-2 small d-flex align-items-center justify-content-start">
-                <span className="me-2 text-muted">
-                  <IoMdPricetag />
-                </span>
-                Tags:{" "}
-                <span className="ms-1">{item.tags?.join(", ") || "None"}</span>
-              </p>
-              <p className="mb-2 small d-flex align-items-center justify-content-start">
-                <span className="me-2 text-muted">
-                  <MdCalendarMonth />
-                </span>
-                Next Meeting:{" "}
-                <span className="ms-1">
-                  {item.nextMeeting
-                    ? new Date(item.nextMeeting).toLocaleDateString()
-                    : "N/A"}
-                </span>
-              </p>
+
+              <div className="mb-3 small">
+                <div className="row g-2 text-center">
+                  <div className="col-4">
+                    <div className="border-end">
+                      <div className="text-dark fw-bold">{item.location || "Online"}</div>
+                      <small className="text-muted">Location</small>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="border-end">
+                      <div className="text-success fw-bold">{item.meetingFrequency || "N/A"}</div>
+                      <small className="text-muted">Frequency</small>
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="text-info fw-bold">
+                      {item.nextMeeting 
+                        ? new Date(item.nextMeeting).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        : "TBD"
+                      }
+                    </div>
+                    <small className="text-muted">Next Meeting</small>
+                  </div>
+                </div>
+              </div>
+
+              <div className="d-flex gap-2">
+                <JoinClubButton clubId={item.id} className="flex-fill btn-sm" />
+                
+                <NavLink
+                  to={`/club/${item.id}`}
+                  className="btn btn-outline-success btn-sm flex-fill"
+                >
+                  <MdVisibility className="me-1" />
+                  View Details
+                </NavLink>
+              </div>
             </div>
-            <div className="d-flex gap-2 pt-2 justify-content-center">
-              <JoinClubButton clubId={item.id} />
-              <NavLink
-                to={`/club/${item.id}`}
-                className="btn btn-outline-success btn-sm"
-              >
-                View Details
-              </NavLink>
+
+            <div className="card-footer bg-light border-0 px-4">
+              <div className="d-flex justify-content-between align-items-center">
+                <small className="text-muted">
+                  <strong>Joined:</strong> {new Date(item.createdAt).toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </small>
+              </div>
+              <div className="d-flex justify-content-between align-items-center">
+                <small className="text-muted">
+                  <strong>Tags:</strong>
+                  <div className="d-flex gap-1">
+                    {item.tags?.slice(0, 2).map((tag, tagIndex) => (
+                      <span key={tagIndex} className="badge bg-secondary small">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </small>
+              </div>
             </div>
+
           </div>
+
         </div>
       </div>
     </>
