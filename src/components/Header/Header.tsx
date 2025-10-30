@@ -37,8 +37,8 @@ export default function Header() {
           >
             <ul className="navbar-nav mr-auto">
               <li className="nav-item">
-                <NavLink to="/discover" className={({ isActive }) => isActive ? "nav-link active" : "nav-link" }>
-                  Discover
+                <NavLink to="/clubs" className={({ isActive }) => isActive ? "nav-link active" : "nav-link" }>
+                  Book Clubs
                 </NavLink>
               </li>
               <li className="nav-item">

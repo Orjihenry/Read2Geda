@@ -35,7 +35,7 @@ export default function Footer() {
                 </div>
 
                 <div className="col-md-4 px-0">
-                  <a href="/discover" className="nav-link quick-links">Join A Book Club</a>
+                  <a href="/clubs" className="nav-link quick-links">Join A Book Club</a>
                   <a href="/community-guidelines" className="nav-link quick-links">Community Guidelines</a>
                   <a href="/faqs" className="nav-link quick-links">FAQs</a>
                 </div>
