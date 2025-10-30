@@ -1,6 +1,6 @@
 import { IoLogoFacebook, IoLogoInstagram, IoLogoLinkedin, IoLogoTwitter } from "react-icons/io";
-import Button from "../Button";
-import "./../../index.css"
+import Button from "./Button";
+import "../index.css"
 
 export default function Footer() {
   return (
