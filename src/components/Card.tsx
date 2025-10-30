@@ -1,4 +1,4 @@
-import './Card.css'
+import "../styles/Card.css";
 
 type CardProps = {
   children?: React.ReactNode;
