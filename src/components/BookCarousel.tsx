@@ -1,8 +1,8 @@
-import Carousel from "../Carousel";
-import BookCard from "../BookCard";
+import Carousel from "./Carousel";
+import BookCard from "./BookCard";
+import useRandomBooks from "../hooks/useOpenLibrary";
 
-import "./BookCarousel.css";
-import useRandomBooks from "../../hooks/useOpenLibrary";
+import "../styles/BookCarousel.css";
 
 export default function BookCarouselPage() {
 
