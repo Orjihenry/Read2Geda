@@ -1,15 +1,15 @@
-import BookCarousel from "../../components/BookCarousel";
-import Footer from "../../components/Footer";
-import Header from "../../components/Header";
-import NavButton from "../../components/NavButton";
+import BookCarousel from "../components/BookCarousel";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
+import NavButton from "../components/NavButton";
 import { useEffect, useState } from "react";
-import { useClub } from "../../context/ClubContext";
-import { useAuthContext } from "../../context/AuthContext";
-import { useImageStorage } from "../../hooks/useImageStorage";
-import { useSavedBooks } from "../../context/SavedBooksContext";
-import type { BookData, BookProgress } from "../../utils/bookData";
-import "./Profile.css";
-import placeholderAvatar from "../../assets/placeholder.png";
+import { useClub } from "../context/ClubContext";
+import { useAuthContext } from "../context/AuthContext";
+import { useImageStorage } from "../hooks/useImageStorage";
+import { useSavedBooks } from "../context/SavedBooksContext";
+import type { BookData, BookProgress } from "../utils/bookData";
+import placeholderAvatar from "../assets/placeholder.png";
+import "../styles/Profile.css";
 
 export default function Profile() {
   const { currentUser } = useAuthContext();
