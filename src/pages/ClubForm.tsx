@@ -1,7 +1,7 @@
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import { useParams } from "react-router-dom";
-import { useClubForm } from "../../hooks/useClubForm";
+import { useClubForm } from "../hooks/useClubForm";
 
 type FormMode = "create" | "update";
 
