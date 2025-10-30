@@ -1,0 +1,9 @@
+.card {
+    background: #f8f8f8 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.card-img-top {
+  max-height: 206px;
+  width: 100%;
+}

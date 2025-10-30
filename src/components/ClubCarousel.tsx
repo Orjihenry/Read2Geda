@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import Carousel from "../Carousel";
-import ClubCard from "../ClubCard";
-import { useClub } from "../../context/ClubContext";
-import "./ClubCarousel.css";
+import Carousel from "./Carousel";
+import ClubCard from "./ClubCard";
+import { useClub } from "../context/ClubContext";
+import "../styles/ClubCarousel.css";
 
 export default function ClubCarousel() {
   const { clubs, loading } = useClub();
