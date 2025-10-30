@@ -1,17 +1,17 @@
 import { NavLink, useParams, useNavigate } from "react-router-dom";
-import Footer from "../../components/Footer";
-import Header from "../../components/Header";
-import JoinClubButton from "../../components/JoinClubButton";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
+import JoinClubButton from "../components/JoinClubButton";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { MdArrowForward } from "react-icons/md";
 import { useEffect, useState } from "react";
-import type { BookData } from "../../utils/bookData";
-import { useClub } from "../../context/ClubContext";
+import type { BookData } from "../utils/bookData";
+import { useClub } from "../context/ClubContext";
 import { FaTrash, FaEdit } from "react-icons/fa";
-import { useImageStorage } from "../../hooks/useImageStorage";
-import placeholderClubImage from "../../assets/bookClub.jpg";
-import { useAuthContext } from "../../context/AuthContext";
-import useBookData from "../../hooks/useBookData";
+import { useImageStorage } from "../hooks/useImageStorage";
+import placeholderClubImage from "../assets/bookClub.jpg";
+import { useAuthContext } from "../context/AuthContext";
+import useBookData from "../hooks/useBookData";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -61,7 +61,7 @@ export default function ClubDetails() {
   const handleDeleteClub = () => {
     if (clubId) {
       deleteClub(clubId);
-      navigate("/discover");
+      navigate("/clubs");
     }
   };
 
@@ -190,18 +190,18 @@ export default function ClubDetails() {
       <div className="bg-light py-5">
         <div className="container py-4">
           <h3 className="display-6 pb-2">Other Books On Our List</h3>
-          
+
           {wishlist.length > 0 ? (
             <div className="row g-3">
               {wishlist.map((clubBook) => {
-                const book = books.find(b => b.id === clubBook.bookId);
+                const book = books.find((b) => b.id === clubBook.bookId);
                 if (!book) return null;
-                
+
                 return (
                   <div key={clubBook.bookId} className="col-md-4">
                     <div className="card h-100">
-                      <img 
-                        src={book.coverImage} 
+                      <img
+                        src={book.coverImage}
                         alt={book.title}
                         className="card-img-top"
                         style={{ height: "200px", objectFit: "cover" }}
@@ -209,7 +209,9 @@ export default function ClubDetails() {
                       <div className="card-body">
                         <h5 className="card-title">{book.title}</h5>
                         <p className="card-text text-muted">{book.author}</p>
-                        <span className="badge bg-warning">{clubBook.status}</span>
+                        <span className="badge bg-warning">
+                          {clubBook.status}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -217,7 +219,9 @@ export default function ClubDetails() {
               })}
             </div>
           ) : (
-            <p className="text-muted">No upcoming books in the club's reading list.</p>
+            <p className="text-muted">
+              No upcoming books in the club's reading list.
+            </p>
           )}
         </div>
       </div>
@@ -225,18 +229,18 @@ export default function ClubDetails() {
       <div className="py-5">
         <div className="container">
           <h3 className="display-6 pb-2">Completed Books</h3>
-          
+
           {completedBooks.length > 0 ? (
             <div className="row g-3">
               {completedBooks.map((clubBook) => {
-                const book = books.find(b => b.id === clubBook.bookId);
+                const book = books.find((b) => b.id === clubBook.bookId);
                 if (!book) return null;
-                
+
                 return (
                   <div key={clubBook.bookId} className="col-md-4">
                     <div className="card h-100">
-                      <img 
-                        src={book.coverImage} 
+                      <img
+                        src={book.coverImage}
                         alt={book.title}
                         className="card-img-top"
                         style={{ height: "200px", objectFit: "cover" }}
@@ -244,10 +248,13 @@ export default function ClubDetails() {
                       <div className="card-body">
                         <h5 className="card-title">{book.title}</h5>
                         <p className="card-text text-muted">{book.author}</p>
-                        <span className="badge bg-success">{clubBook.status}</span>
+                        <span className="badge bg-success">
+                          {clubBook.status}
+                        </span>
                         {clubBook.endDate && (
                           <small className="text-muted d-block mt-2">
-                            Completed: {new Date(clubBook.endDate).toLocaleDateString()}
+                            Completed:{" "}
+                            {new Date(clubBook.endDate).toLocaleDateString()}
                           </small>
                         )}
                       </div>
@@ -302,7 +309,7 @@ export default function ClubDetails() {
 
 function BackButton() {
   return (
-    <NavLink to="/discover" className="btn btn-outline-success">
+    <NavLink to="/clubs" className="btn btn-outline-success">
       <FaArrowLeftLong className="me-2" />
       Back to book clubs
     </NavLink>
@@ -312,7 +319,8 @@ function BackButton() {
 function CurrentBookSection() {
   const { currentUser } = useAuthContext();
   const { clubId } = useParams();
-  const { clubs, isModerator, updateClubBookStatus, getBookClubProgress } = useClub();
+  const { clubs, isModerator, updateClubBookStatus, getBookClubProgress } =
+    useClub();
 
   const clubProgress = getBookClubProgress(clubId!);
   const club = clubs.find((c) => c.id === clubId);
@@ -348,7 +356,11 @@ function CurrentBookSection() {
   };
 
   if (!books.length) {
-    return <p className="text-muted">Current book has not yet been set for this club yet.</p>;
+    return (
+      <p className="text-muted">
+        Current book has not yet been set for this club yet.
+      </p>
+    );
   }
 
   return (
@@ -402,9 +414,7 @@ function CurrentBookSection() {
                   <div className="mb-3">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <span className="small text-muted">Reading Progress</span>
-                      <span className="small text-muted">
-                        {clubProgress}%
-                      </span>
+                      <span className="small text-muted">{clubProgress}%</span>
                     </div>
                     <div className="progress" style={{ height: "8px" }}>
                       <div

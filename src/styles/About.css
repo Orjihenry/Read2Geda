@@ -23,16 +23,16 @@
 }
 
 .bg-image {
-  background-image: url("../../assets/about-us-reading.png");
+  background-image: url("../assets/about-us-reading.png");
   min-height: 500px;
 }
 
 .bg-image-section2 {
-  background-image: url("../../assets/about-us.png");
+  background-image: url("../assets/about-us.png");
   min-height: 300px;
 }
 
 .bg-image-section3 {
-  background-image: url("../../assets/about-us-vision.png");
+  background-image: url("../assets/about-us-vision.png");
   min-height: 300px;
 }
