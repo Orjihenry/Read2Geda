@@ -6,16 +6,17 @@ import About from "./pages/About";
 import BookShelf from "./pages/BookShelf";
 import ClubDetails from "./pages/ClubDetails";
 import Contact from "./pages/Contact";
-import ClubForm from "./pages/CreateClub";
-import Discover from "./pages/Discover";
+import ClubForm from "./pages/ClubForm";
+import Clubs from "./pages/Clubs";
 import Discussions from "./pages/Discussions";
 import Home from "./pages/Home";
-import HowItWoks from "./pages/HowItWorks";
+import HowItWorks from "./pages/HowItWorks";
 import Login from "./pages/Auth/Login";
-import PrivacyPolicy from "./pages/Privacy";
-import { Profile, EditProfile } from "./pages/Profile";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 import Register from "./pages/Auth/Register";
-import Terms from "./pages/T&C";
+import Terms from "./pages/TermsConditions";
 
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 
@@ -32,8 +33,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/discover" element={<Discover />} />
-            <Route path="/how_it_works" element={<HowItWoks />} />
+            <Route path="/clubs" element={<Clubs />} />
+            <Route path="/how_it_works" element={<HowItWorks />} />
             <Route path="/club/:clubId" element={<ClubDetails />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
