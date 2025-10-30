@@ -97,7 +97,7 @@ export default function EditProfile() {
     const success = updateProfile(updatedUser);
     if (success) {
       console.log("Profile updated:", updatedUser);
-      navigate("/highlights");
+      navigate("/profile");
     }
   };
 
@@ -204,7 +204,7 @@ export default function EditProfile() {
                 className="btn btn-outline-success ms-2"
                 onClick={() => {
                   setSelectedFile(null);
-                  navigate("/highlights");
+                  navigate("/profile");
                 }}
               >
                 Cancel

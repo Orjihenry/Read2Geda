@@ -37,7 +37,7 @@ export default function Register() {
 
   useEffect(() => {
     if (currentUser) {
-      navigate("/highlights");
+      navigate("/profile");
       return
     }
     
@@ -62,7 +62,7 @@ export default function Register() {
       });
     }
     console.log(isLoggedIn);
-  }, [isLoggedIn, currentUser]);
+  }, [isLoggedIn, currentUser, navigate]);
   
   useEffect(() =>{
     userRef?.current?.focus();
@@ -108,7 +108,7 @@ export default function Register() {
       setPwd('');
       setMatchPwd('');
       setSuccess(true);
-      navigate("/highlights");
+      navigate("/profile");
     }
   }
 

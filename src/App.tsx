@@ -46,7 +46,7 @@ function App() {
             <Route path="/my_shelf" element={<ProtectedRoutes><BookShelf /></ProtectedRoutes>} />
             <Route path="/create_club" element={<ProtectedRoutes><ClubForm /></ProtectedRoutes>} />
             <Route path="/club/:clubId/update" element={<ProtectedRoutes><ClubForm /></ProtectedRoutes>} />
-            <Route path="/highlights" element={<ProtectedRoutes><Profile /></ProtectedRoutes>} />
+            <Route path="/profile" element={<ProtectedRoutes><Profile /></ProtectedRoutes>} />
             <Route path="/edit_profile" element={<ProtectedRoutes><EditProfile /></ProtectedRoutes>} />
           </Routes>
         </ContextProvider>

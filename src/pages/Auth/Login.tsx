@@ -19,7 +19,7 @@ export default function Login() {
 
   useEffect(() => {
     if (currentUser) {
-      navigate("/highlights");
+      navigate("/profile");
       return;
     }
 
@@ -39,7 +39,7 @@ export default function Login() {
         setEmail('');
         setPwd('');
         setSuccess(true);
-        navigate("/highlights");
+        navigate("/profile");
       }
   }
 
