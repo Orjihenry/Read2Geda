@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { User } from "../types/user.ts";
 import { UsersData } from "../utils/userData.ts";
 import { v4 as uuidv4 } from "uuid";
@@ -45,7 +45,7 @@ export default function AuthProvider({
     setIsLoading(false);
   }, []);
 
-  const register = (name: string, email: string, pwd: string) => {
+  const register = useCallback((name: string, email: string, pwd: string) => {
     const newUser: User = {
       id: uuidv4(),
       name,
@@ -73,9 +73,9 @@ export default function AuthProvider({
     setIsLoggedIn(true);
 
     return true;
-  };
+  }, [users]);
 
-  const login = (email: string, pwd: string) => {
+  const login = useCallback((email: string, pwd: string) => {
     const user = users.find(
       (u: { email: string; pwd: string }) => u.email === email && u.pwd === pwd
     );
@@ -99,9 +99,9 @@ export default function AuthProvider({
     localStorage.setItem("currentUser", user.id);
 
     return true;
-  };
+  }, [users]);
 
-  const updateProfile = (user: User) => {
+  const updateProfile = useCallback((user: User) => {
     if (currentUser) {
       const save = (updated: User[]) => {
         setUsers(updated);
@@ -118,13 +118,13 @@ export default function AuthProvider({
       return true;
     }
     return false;
-  };
+  }, [currentUser, users]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem("currentUser");
     setCurrentUser(null);
     setIsLoggedIn(false);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -148,10 +148,4 @@ export function useAuthContext() {
   if (!context)
     throw new Error("useAuthContext must be used within a AuthProvider");
   return context;
-}
-
-export function useAuthContextData() {
-  const { currentUser, register, updateProfile, login, logout } =
-    useAuthContext();
-  return { currentUser, register, updateProfile, login, logout };
 }
