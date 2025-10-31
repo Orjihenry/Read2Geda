@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../utils/db";
 
@@ -6,7 +6,7 @@ export function useImageStorage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const uploadImage = async (
+  const uploadImage = useCallback(async (
     file: File,
   ) => {
     try {
@@ -32,9 +32,9 @@ export function useImageStorage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getImage = async (id: string): Promise<Blob | null> => {
+  const getImage = useCallback(async (id: string): Promise<Blob | null> => {
     try {
       const image = await db.avatars.get(id);
       if (!image) return null;
@@ -45,9 +45,9 @@ export function useImageStorage() {
       setError(message);
       return null;
     }
-  };
+  }, []);
 
-  const deleteImage = async (id: string) => {
+  const deleteImage = useCallback(async (id: string) => {
     try {
       await db.avatars.delete(id);
     }
@@ -55,7 +55,7 @@ export function useImageStorage() {
       const message = err instanceof Error ? err.message : String(err);
       setError(message);
     }
-  };
+  }, []);
 
   return { uploadImage, getImage, deleteImage, loading, error };
 }
