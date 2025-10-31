@@ -1,4 +1,5 @@
 import { MdPeopleAlt, MdStar, MdVisibility } from "react-icons/md";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import type { bookClub } from "../utils/bookClub";
 import { useFetchImage } from "../hooks/useFetchImage";
@@ -47,18 +48,28 @@ export default function ClubCard({ index, item }: clubCardProps) {
                   {item.description}
                 </p>
                 <div className="d-flex align-items-center">
-                  <span>
-                    <MdPeopleAlt className="" />
-                    <span className="badge bg-light text-dark">
-                      {item.members.length}
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-top">Members</Tooltip>}
+                  >
+                    <span>
+                      <MdPeopleAlt />
+                      <span className="badge bg-light text-dark">
+                        {item.members.length}
+                      </span>
                     </span>
-                  </span>
-                  <span>
-                    <MdStar className="" />
-                    <span className="badge bg-warning text-dark">
-                      {item.rating}
+                  </OverlayTrigger>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-top">Rating</Tooltip>}
+                  >
+                    <span className="ms-3">
+                      <MdStar />
+                      <span className="badge bg-warning text-dark">
+                        {item.rating}
+                      </span>
                     </span>
-                  </span>
+                  </OverlayTrigger>
                 </div>
               </div>
             </div>
