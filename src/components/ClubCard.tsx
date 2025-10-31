@@ -1,8 +1,7 @@
 import { MdPeopleAlt, MdStar, MdVisibility } from "react-icons/md";
-import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import type { bookClub } from "../utils/bookClub";
-import { useImageStorage } from "../hooks/useImageStorage";
+import { useFetchImage } from "../hooks/useFetchImage";
 import JoinClubButton from "./JoinClubButton";
 import placeholderClubImage from "../assets/bookClub.jpg";
 
@@ -12,39 +11,8 @@ type clubCardProps = {
 };
 
 export default function ClubCard({ index, item }: clubCardProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const { getImage } = useImageStorage();
-
-  useEffect(() => {
-    let revokeUrl: string | null = null;
-
-    const loadImage = async () => {
-      if (!item.imageUrl) {
-        setImageUrl(placeholderClubImage);
-        return;
-      }
-
-      if (item.imageUrl.length === 36 && !item.imageUrl.includes("/")) {
-        const blob = await getImage(item.imageUrl);
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          revokeUrl = url;
-          setImageUrl(url);
-        } else {
-          setImageUrl(placeholderClubImage);
-        }
-      } else {
-        setImageUrl(item.imageUrl);
-      }
-    };
-
-    loadImage();
-
-    return () => {
-      if (revokeUrl) URL.revokeObjectURL(revokeUrl);
-    };
-  }, [item.imageUrl, getImage]);
-
+  const { imageUrl } = useFetchImage(item.imageUrl, placeholderClubImage);
+  
   return (
     <>
       <div key={index} className="col-lg-12 col-md-12">

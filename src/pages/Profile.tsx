@@ -4,8 +4,8 @@ import Header from "../components/Header";
 import NavButton from "../components/NavButton";
 import { useEffect, useState } from "react";
 import { useClub } from "../context/ClubContext";
+import { useFetchImage } from "../hooks/useFetchImage";
 import { useAuthContext } from "../context/AuthContext";
-import { useImageStorage } from "../hooks/useImageStorage";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import type { BookData, BookProgress } from "../utils/bookData";
 import placeholderAvatar from "../assets/placeholder.png";
@@ -13,7 +13,6 @@ import "../styles/Profile.css";
 
 export default function Profile() {
   const { currentUser } = useAuthContext();
-  const { getImage } = useImageStorage();
   const { clubs } = useClub();
   const { getReadingProgress, updateProgress, getUserBookProgress } = useSavedBooks();
 
@@ -31,24 +30,10 @@ export default function Profile() {
   } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [progress, setProgress] = useState<number>(0);
-  const [avatar, setAvatar] = useState<string>("");
   const [progressList, setProgressList] = useState<BookProgress[]>([]);
+  const { imageUrl: avatar } = useFetchImage(currentUser?.avatar, placeholderAvatar);
 
-  useEffect(() => {
-    const loadAvatar = async () => {
-      if (!currentUser?.avatar) {
-        setAvatar(placeholderAvatar);
-        return;
-      }
-
-      const blob = await getImage(currentUser?.avatar);
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        setAvatar(url);
-      }
-    };
-    loadAvatar();
-  }, [currentUser, getImage]);
+  console.log("Current Book:", currentBook);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -143,7 +128,7 @@ export default function Profile() {
               <div className="d-flex justify-content-center">
                 <img
                   className="rounded shadow mb-3"
-                  src={avatar}
+                  src={avatar || placeholderAvatar}
                   title=""
                   alt="User Avatar"
                   style={{
