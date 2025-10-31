@@ -1,8 +1,10 @@
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { type bookClub, type ClubBook, type clubMember, defaultBookClubs } from "../utils/bookClub";
 import { v4 as uuidv4 } from "uuid";
 import dayjs from "dayjs";
 import { useSavedBooks } from "./SavedBooksContext";
+
+const today = dayjs();
 
 type ClubBookStatus = 'upcoming' | 'current' | 'completed';
 
@@ -32,7 +34,6 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   const [clubs, setClubs] = useState<bookClub[]>([]);
   const [loading, setLoading] = useState(false);
   const { getReadingProgress } = useSavedBooks();
-  const today = dayjs();
   const currentDate = today.format("YYYY-MM-DD HH:mm:ss");
 
   useEffect(() => {
@@ -48,23 +49,24 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Helper functions
-  const saveClubs = (updatedClubs: bookClub[]) => {
+  const saveClubs = useCallback((updatedClubs: bookClub[]) => {
     setClubs(updatedClubs);
     localStorage.setItem("bookClubs", JSON.stringify(updatedClubs));
-  };
+  }, []);
 
-  const findClub = useCallback(
-    (clubId: string): bookClub | undefined =>
+  const findClub = useCallback((clubId: string): bookClub | undefined =>
       clubs.find((c) => c.id === clubId),
     [clubs]
   );
 
-  const updateClubList = (clubId: string, updatedClub: bookClub) =>
-    clubs.map((c) => (c.id === clubId ? updatedClub : c));
-  
+  const updateClubList = useCallback((clubId: string, updatedClub: bookClub) =>
+    clubs.map((c) => (c.id === clubId ? updatedClub : c)),
+    [clubs]
+  );
+
   // End of Helper functions
 
-  const createClub = (club: bookClub) => {
+  const createClub = useCallback((club: bookClub) => {
     const newClub = {
       ...club,
       id: uuidv4(),
@@ -77,25 +79,31 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       meetingFrequency: club.meetingFrequency,
     };
     saveClubs([...clubs, newClub]);
-  };
+  }, [clubs, currentDate, saveClubs]);
 
-  const updateClub = (club: bookClub) => {
+  const updateClub = useCallback((club: bookClub) => {
     const updateClub = {
       ...club,
       updatedAt: currentDate,
     };
     saveClubs(updateClubList(club.id, updateClub));
-  };
+  }, [currentDate, saveClubs, updateClubList]);
 
-  const deleteClub = (clubId: string) => {
+  const deleteClub = useCallback((clubId: string) => {
     saveClubs(clubs.filter((c) => c.id !== clubId));
-  };
+  }, [clubs, saveClubs]);
 
-  const clubNameExists = (clubName: string) => {
+  const clubNameExists = useMemo(() => (clubName: string) => {
     return clubs.some((c) => c.name === clubName);
-  };
+  }, [clubs]);
 
-  const joinClub = (club: bookClub, userId: string) => {
+  const isClubMember = useMemo(() => (clubId: string, userId: string) => {
+    const club = findClub(clubId);
+    if (!club) return false;
+    return club.members.some((m) => m.id === userId);
+  }, [findClub]);
+
+  const joinClub = useCallback((club: bookClub, userId: string) => {
     if (!club) return;
     if (isClubMember(club.id, userId)) return;
     const newMember: clubMember = {
@@ -110,15 +118,9 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     };
     const updatedClubs = updateClubList(club.id, updatedClub);
     saveClubs(updatedClubs);
-  };
+  }, [currentDate, saveClubs, updateClubList, isClubMember]);
 
-  const isClubMember = (clubId: string, userId: string) => {
-    const club = findClub(clubId);
-    if (!club) return false;
-    return club.members.some((m) => m.id === userId);
-  };
-
-  const leaveClub = (clubId: string, userId: string) => {
+  const leaveClub = useCallback((clubId: string, userId: string) => {
     const club = findClub(clubId);
     
     if (!club) return;
@@ -128,24 +130,24 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     const updatedClubs = updateClubList(club.id, updatedClub);
     
     saveClubs(updatedClubs);
-  };
+  }, [findClub, isClubMember, saveClubs, updateClubList]);
 
-  const getMyClubs = (userId: string) => {
+  const getMyClubs = useMemo(() => (userId: string) => {
     return clubs.filter((club) =>
       club.members.some((member) => member.id === userId)
     );
-  }
+  }, [clubs]);
 
-  const addBookToClub = (clubId: string, bookId: string, userId: string) => {
+  const addBookToClub = useCallback((clubId: string, bookId: string, userId: string) => {
     const club = findClub(clubId);
     if (!club) return;
     const newBook: ClubBook = { bookId, status: 'upcoming', addedBy: userId, addedAt: currentDate };
     const updatedClub = { ...club, books: [...(club.books || []), newBook]};
     const updatedClubs = updateClubList(clubId, updatedClub);
     saveClubs(updatedClubs);
-  };
+  }, [currentDate, findClub, saveClubs, updateClubList]);
 
-  const removeBookFromClub = (clubId: string, bookId: string) => {
+  const removeBookFromClub = useCallback((clubId: string, bookId: string) => {
     const club = findClub(clubId);
     if (!club) return;
     const updatedBooks = club.books?.filter((book) => book.bookId !== bookId);
@@ -153,9 +155,9 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     const updatedClub = { ...club, books: updatedBooks };
     const updatedClubs = updateClubList(clubId, updatedClub);
     saveClubs(updatedClubs);
-  };
+  }, [findClub, saveClubs, updateClubList]);
 
-  const updateClubBookStatus = (clubId: string, userId: string, bookId: string, status: ClubBookStatus) => {
+  const updateClubBookStatus = useCallback((clubId: string, userId: string, bookId: string, status: ClubBookStatus) => {
     const club = findClub(clubId);
     if (!club || !isClubMember(clubId, userId)) return;
 
@@ -189,7 +191,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     saveClubs(updatedClubs);
 
     return updatedClub;
-  };
+  }, [currentDate, findClub, isClubMember, saveClubs, updateClubList]);
 
   const getBookClubProgress = useCallback((clubId: string): number => {
   const club = findClub(clubId);
