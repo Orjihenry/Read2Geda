@@ -3,25 +3,15 @@ import { useSavedBooks } from "../context/SavedBooksContext";
 import BookCard from "../components/BookCard";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import useRandomBooks from "../hooks/useOpenLibrary";
-import useSearchBooks from "../hooks/useSearchBooks";
+import BookCard from "../components/BookCard";
+import BookSearchModal from "../components/BookSearchModal";
 
 export default function BookShelf() {
   const { books, loading } = useSavedBooks();
   const { books: randomBooks } = useRandomBooks();
   const { books: searchResults, loading: searchLoading, search } = useSearchBooks();
 
-  const [query, setQuery] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
-
-  const handleSearch = useCallback(() => {
-    if (!query.trim()) {
-      setHasSearched(false);
-      return;
-    }
-    setHasSearched(true);
-    search(query);
-  }, [query, search]);
+  const [showModal, setShowModal] = useState(false);
 
   return (
     <>
@@ -32,7 +22,14 @@ export default function BookShelf() {
             <h1 className="display-6 py-3">
               📚 My Shelf <span className="text-muted">({books?.length || 0})</span>
             </h1>
-            <a href="#explore" className="btn btn-outline-success">Add Book</a>
+            <div className="d-flex gap-2">
+              <button
+                onClick={() => setShowModal(true)}
+                className="btn btn-success"
+              >
+                Add Book
+              </button>
+            </div>
           </div>
 
           {loading ? (
