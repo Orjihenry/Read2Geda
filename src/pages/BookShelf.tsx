@@ -97,6 +97,11 @@ export default function BookShelf() {
         </section>
       </div>
 
+      <BookSearchModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
+
       <Footer />
     </>
   );
