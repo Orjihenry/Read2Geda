@@ -1,6 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useSavedBooks } from "../context/SavedBooksContext";
-import BookCard from "../components/BookCard";
+import { useAuthContext } from "../context/AuthContext";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import BookCard from "../components/BookCard";
@@ -8,10 +8,26 @@ import BookSearchModal from "../components/BookSearchModal";
 
 export default function BookShelf() {
   const { books, loading } = useSavedBooks();
-  const { books: randomBooks } = useRandomBooks();
-  const { books: searchResults, loading: searchLoading, search } = useSearchBooks();
-
+  const { currentUser } = useAuthContext();
   const [showModal, setShowModal] = useState(false);
+
+  const wishListBooks = useMemo(() => {
+    if (!currentUser || !books) return [];
+    return books.filter((book) =>
+      book.readingProgress?.find((progress) => progress.userId === currentUser.id && (progress.status === "not_started" || progress.status === "reading" || progress.status === "paused"))
+    ) || [];
+  }, [books, currentUser]);
+
+  const completedBooks = useMemo(() => {
+    if (!currentUser || !books) return [];
+    return books.filter((book) =>
+      book.readingProgress?.some(
+        (progress) =>
+          progress.userId === currentUser.id &&
+          progress.status === "completed"
+      )
+    );
+  }, [books, currentUser]);
 
   return (
     <>
@@ -37,8 +53,8 @@ export default function BookShelf() {
               <div className="spinner-border text-primary mb-2" role="status" />
               <p>📚 Please wait while we load your favourite reads...</p>
             </div>
-          ) : books && books.length > 0 ? (
-            books.map((item, index) => (
+          ) : wishListBooks && wishListBooks.length > 0 ? (
+            wishListBooks.map((item, index) => (
               <div key={item.id || index} className="col-md-4">
                 <BookCard item={item} index={index} />
               </div>
@@ -51,47 +67,17 @@ export default function BookShelf() {
 
       <div className="my-5 bg-light" id="explore">
         <section className="container py-5">
-          <h2 className="mb-3">🔎 Explore Books</h2>
-          <div className="input-group mb-4">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search for books..."
-              value={query}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {handleSearch()}
-              }}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <button className="btn btn-outline-success" onClick={handleSearch}>
-              Search
-            </button>
-          </div>
+          <h2 className="mb-3"> 📚 Completed Books</h2>
 
           <div className="row g-3">
-            {hasSearched ? (
-              searchLoading ? (
-                <div className="text-center py-5">
-                  <div className="spinner-border text-primary mb-2" role="status" />
-                  <p className="lead text-muted">Searching for books...</p>
-                </div>
-              ) : searchResults && searchResults.length > 0 ? (
-                searchResults.map((item, index) => (
-                  <div key={item.id || index} className="col-md-4">
-                    <BookCard item={item} index={index} />
-                  </div>
-                ))
-              ) : (
-                <p className="lead text-muted">No books found. Try another search.</p>
-              )
-            ) : randomBooks && randomBooks.length > 0 ? (
-              randomBooks.map((item, index) => (
+            {completedBooks && completedBooks.length > 0 ? (
+              completedBooks.map((item, index) => (
                 <div key={item.id || index} className="col-md-4">
                   <BookCard item={item} index={index} />
                 </div>
               ))
             ) : (
-              <p className="lead text-muted">No books to explore right now.</p>
+              <p className="lead text-muted">No completed books yet.</p>
             )}
           </div>
         </section>
