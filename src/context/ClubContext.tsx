@@ -20,6 +20,7 @@ type ClubContextType = {
   leaveClub: (clubId: string, userId: string) => void;
   getMyClubs: (userId: string) => bookClub[];
   addBookToClub: (clubId: string, bookId: string, userId: string) => void;
+  selectCurrentBook: (clubId: string, bookId: string, userId: string) => void;
   removeBookFromClub: (clubId: string, bookId: string) => void;
   getBookClubProgress: (clubId: string) => number;
   getClubBooks: (clubId: string, status?: ClubBookStatus) => ClubBook[];
@@ -80,6 +81,14 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     };
     saveClubs([...clubs, newClub]);
   }, [clubs, currentDate, saveClubs]);
+
+  const isModerator = (clubId: string, userId: string): boolean => {
+    const club = findClub(clubId);
+    if (!club) return false;
+    
+    const member = club.members.find((m) => m.id === userId);
+    return member?.role === 'owner' || member?.role === 'moderator';
+  };
 
   const updateClub = useCallback((club: bookClub) => {
     const updateClub = {
@@ -146,6 +155,35 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     const updatedClubs = updateClubList(clubId, updatedClub);
     saveClubs(updatedClubs);
   }, [currentDate, findClub, saveClubs, updateClubList]);
+
+  const selectCurrentBook = useCallback((clubId: string, bookId: string, userId: string) => {
+    const club = findClub(clubId);
+    if (!club) return;
+    if (!isModerator(clubId, userId)) return;
+
+    const updatedBooks = (club.books || []).map((book) => {
+      if (book.bookId === bookId) {
+        return { ...book, status: "current" as ClubBookStatus, startDate: currentDate };
+      }
+      if (book.status === "current") {
+        return { ...book, status: "completed" as ClubBookStatus, endDate: currentDate };
+      }
+      return book;
+    });
+
+    const updatedClub: bookClub = {
+      ...club,
+      currentBook: { bookId, status: "current", startDate: currentDate },
+      books: updatedBooks,
+    };
+
+    const updatedClubs = updateClubList(clubId, updatedClub);
+    saveClubs(updatedClubs);
+
+    return updatedClub;
+  },
+  [currentDate, findClub, saveClubs, updateClubList, isModerator]
+);
 
   const removeBookFromClub = useCallback((clubId: string, bookId: string) => {
     const club = findClub(clubId);
@@ -222,14 +260,6 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return clubs.some((club) => club.books?.some((book) => book.bookId === bookId && book.status === 'upcoming' && book.isWishList));
   };
 
-  const isModerator = (clubId: string, userId: string): boolean => {
-    const club = findClub(clubId);
-    if (!club) return false;
-    
-    const member = club.members.find((m) => m.id === userId);
-    return member?.role === 'owner' || member?.role === 'moderator';
-  };
-
   return (
     <ClubContext.Provider
       value={{
@@ -244,6 +274,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         leaveClub,
         getMyClubs,
         addBookToClub,
+        selectCurrentBook,
         removeBookFromClub,
         getBookClubProgress,
         getClubBooks,

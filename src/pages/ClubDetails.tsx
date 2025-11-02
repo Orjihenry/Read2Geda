@@ -319,7 +319,7 @@ function BackButton() {
 function CurrentBookSection() {
   const { currentUser } = useAuthContext();
   const { clubId } = useParams();
-  const { clubs, isModerator, updateClubBookStatus, getBookClubProgress } =
+  const { clubs, isModerator, selectCurrentBook, getBookClubProgress } =
     useClub();
 
   const clubProgress = getBookClubProgress(clubId!);
@@ -340,28 +340,19 @@ function CurrentBookSection() {
     const selected = localBooks.find((b: BookData) => b.id === clubCurrent);
 
     if (selected) {
-      const clubProgress = getBookClubProgress(clubId!);
-      setCurrentBook({ ...selected, readingProgress: clubProgress });
+      setCurrentBook(selected);
     }
   }, [club, clubId, getBookClubProgress]);
 
   const changeCurrentBook = (bookId: string) => {
     if (!clubId || !userId) return;
-    updateClubBookStatus(clubId, userId, bookId, "current");
-
-    const next = books.find((b) => b.id === bookId);
-    if (!next) return;
-
-    setCurrentBook({ ...next });
+    selectCurrentBook(clubId, bookId, userId);
+    
+    const selected = books.find((b: BookData) => b.id === bookId);
+    if (selected) {
+      setCurrentBook(selected);
+    }
   };
-
-  if (!books.length) {
-    return (
-      <p className="text-muted">
-        Current book has not yet been set for this club yet.
-      </p>
-    );
-  }
 
   return (
     <div className="py-5 bg-light">
