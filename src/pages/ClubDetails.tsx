@@ -2,7 +2,7 @@ import { NavLink, useParams, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import JoinClubButton from "../components/JoinClubButton";
-import { FaArrowLeftLong } from "react-icons/fa6";
+import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
 import { MdArrowForward } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
@@ -12,6 +12,7 @@ import { useImageStorage } from "../hooks/useImageStorage";
 import placeholderClubImage from "../assets/bookClub.jpg";
 import { useAuthContext } from "../context/AuthContext";
 import useBookData from "../hooks/useBookData";
+import BookSearchModal from "../components/BookSearchModal";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -327,6 +328,7 @@ function CurrentBookSection() {
   const userId = currentUser?.id;
 
   const [books, setBooks] = useState<BookData[]>([]);
+  const [showModal, setShowModal] = useState(false);
   const [currentBook, setCurrentBook] = useState<BookData | null>(null);
 
   useEffect(() => {
@@ -361,22 +363,33 @@ function CurrentBookSection() {
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2 className="display-6 mb-0">Current Book</h2>
             {isModerator(clubId!, userId!) && (
-              <div className="input-group" style={{ maxWidth: 360 }}>
-                <label className="input-group-text" htmlFor="currentBookSelect">
-                  Select Book
-                </label>
-                <select
-                  id="currentBookSelect"
-                  className="form-select"
-                  value={currentBook?.id || ""}
-                  onChange={(e) => changeCurrentBook(e.target.value)}
+              <div className="d-flex gap-2">
+                <div className="input-group" style={{ maxWidth: 360 }}>
+                  <label className="input-group-text" htmlFor="currentBookSelect">
+                    Select Current Book
+                  </label>
+                  <select
+                    id="currentBookSelect"
+                    className="form-select"
+                    value={currentBook?.id || ""}
+                    onChange={(e) => changeCurrentBook(e.target.value)}
+                  >
+                    {books.map((b: BookData) => (
+                      <option key={b.id} value={b.id}>
+                        {b.title}
+                      </option>
+                    ))}
+                  </select>
+
+                </div>
+                  
+                  <button
+                  onClick={() => setShowModal(true)}
+                  className="btn btn-success"
                 >
-                  {books.map((b: BookData) => (
-                    <option key={b.id} value={b.id}>
-                      {b.title}
-                    </option>
-                  ))}
-                </select>
+                  <FaPlus className="me-1" />
+                  Add Book
+                </button>
               </div>
             )}
           </div>
@@ -435,6 +448,11 @@ function CurrentBookSection() {
         </div>
       </div>
       <RecentDiscussions />
+
+      <BookSearchModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </div>
   );
 }
