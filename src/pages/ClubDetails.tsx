@@ -228,7 +228,7 @@ export default function ClubDetails() {
                       item={book}
                       actions={{
                         onAdd: !inPersonalShelf ? () => {
-                          addBook(book, "personal");
+                          addBook(book);
                           Swal.fire({
                             title: "Added!",
                             text: `${book.title} added to your shelf.`,
@@ -292,7 +292,7 @@ export default function ClubDetails() {
                       item={book}
                       actions={{
                         onAdd: !inPersonalShelf ? () => {
-                          addBook(book, "personal");
+                          addBook(book);
                           Swal.fire({
                             title: "Added!",
                             text: `${book.title} added to your shelf.`,
