@@ -82,13 +82,13 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     saveClubs([...clubs, newClub]);
   }, [clubs, saveClubs]);
 
-  const isModerator = (clubId: string, userId: string): boolean => {
+  const isModerator = useCallback(( clubId: string, userId: string): boolean => {
     const club = findClub(clubId);
     if (!club) return false;
     
     const member = club.members.find((m) => m.id === userId);
     return member?.role === 'owner' || member?.role === 'moderator';
-  };
+  }, [findClub]);
 
   const updateClub = useCallback((club: bookClub) => {
     const currentDate = today.format("YYYY-MM-DD HH:mm:ss");
