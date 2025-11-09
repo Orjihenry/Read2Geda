@@ -20,7 +20,13 @@ export default function BookCarouselPage() {
   return (
     <Carousel
       data={randomBooks}
-      renderItem={(item, index) => ( <BookCard key={index} item={item} index={index} />)}
+      renderItem={(item, index) => (
+        <BookCard
+          key={index}
+          item={item}
+          actions={{}}
+        />
+      )}
     />
   );
 }

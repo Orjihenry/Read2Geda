@@ -13,21 +13,43 @@ import placeholderClubImage from "../assets/bookClub.jpg";
 import { useAuthContext } from "../context/AuthContext";
 import useBookData from "../hooks/useBookData";
 import BookSearchModal from "../components/BookSearchModal";
+import { type ClubBook } from "../utils/bookClub";
+import BookCard from "../components/BookCard";
+import { useSavedBooks } from "../context/SavedBooksContext";
+import Swal from "sweetalert2";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const { clubs, deleteClub, getClubBooks } = useClub();
+  const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator } = useClub();
+  const [upcomingBooks, setUpcomingBooks] = useState<ClubBook[]>([]);
+  const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
+  const { books } = useBookData();
+  const { currentUser } = useAuthContext();
+  const { isInShelf, addBook } = useSavedBooks();
+  const userId = currentUser?.id || "";
+  
+  useEffect(() => {
+    if (!clubId || !books) return;
 
-  const wishlist = getClubBooks(clubId!, "upcoming");
-  const completedBooks = getClubBooks(clubId!, "completed");
+    const allClubBooks = getClubBooks(clubId) || [];
+    
+    const completed = allClubBooks.filter((clubBook) => {
+      return clubBook.status === "completed";
+    });
+    
+    const upcoming = allClubBooks.filter((clubBook) => {
+      return clubBook.status !== "completed";
+    });
+
+    setCompletedBooks(completed);
+    setUpcomingBooks(upcoming);
+  }, [clubId, clubs, getClubBooks, books]);
+
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const { getImage, loading } = useImageStorage();
-  // const [books, setBooks] = useState<BookData[]>([]);
-  const { books } = useBookData();
-
   const club = clubs.find((c) => c.id === clubId);
 
   useEffect(() => {
@@ -191,30 +213,55 @@ export default function ClubDetails() {
       <div className="bg-light py-5">
         <div className="container py-4">
           <h3 className="display-6 pb-2">Other Books On Our List</h3>
-
-          {wishlist.length > 0 ? (
+          {upcomingBooks.length > 0 ? (
             <div className="row g-3">
-              {wishlist.map((clubBook) => {
-                const book = books.find((b) => b.id === clubBook.bookId);
+              {upcomingBooks.map((clubBook, index) => {
+                const book = books?.find((b) => b.id === clubBook.bookId);
                 if (!book) return null;
 
+                const inPersonalShelf = isInShelf(book.id);
+                const canModifyClub = clubId ? isModerator(clubId, userId) : false;
+
                 return (
-                  <div key={clubBook.bookId} className="col-md-4">
-                    <div className="card h-100">
-                      <img
-                        src={book.coverImage}
-                        alt={book.title}
-                        className="card-img-top"
-                        style={{ height: "200px", objectFit: "cover" }}
-                      />
-                      <div className="card-body">
-                        <h5 className="card-title">{book.title}</h5>
-                        <p className="card-text text-muted">{book.author}</p>
-                        <span className="badge bg-warning">
-                          {clubBook.status}
-                        </span>
-                      </div>
-                    </div>
+                  <div key={clubBook.bookId || index} className="col-md-4">
+                    <BookCard
+                      item={book}
+                      actions={{
+                        onAdd: !inPersonalShelf ? () => {
+                          addBook(book, "personal");
+                          Swal.fire({
+                            title: "Added!",
+                            text: `${book.title} added to your shelf.`,
+                            icon: "success",
+                            confirmButtonColor: "#198754",
+                          });
+                        } : undefined,
+                        onRemove: canModifyClub ? async () => {
+                          if (!clubId) return;
+                          const { isConfirmed } = await Swal.fire({
+                            title: "Remove from Club?",
+                            text: `Are you sure you want to remove "${book.title}" from ${club?.name || "the club"}?`,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, Remove",
+                            cancelButtonText: "Cancel",
+                            confirmButtonColor: "#dc3545",
+                          });
+                          if (isConfirmed) {
+                            removeBookFromClub(clubId, book.id);
+                            Swal.fire({
+                              title: "Removed",
+                              text: `${book.title} removed from ${club?.name || "club"} shelf.`,
+                              icon: "success",
+                              confirmButtonColor: "#198754",
+                            });
+                          }
+                        } : undefined,
+                        onReadClick: () => {
+                          // TODO: Implement book reading functionality
+                        },
+                      }}
+                    />
                   </div>
                 );
               })}
@@ -230,43 +277,62 @@ export default function ClubDetails() {
       <div className="py-5">
         <div className="container">
           <h3 className="display-6 pb-2">Completed Books</h3>
-
-          {completedBooks.length > 0 ? (
-            <div className="row g-3">
-              {completedBooks.map((clubBook) => {
-                const book = books.find((b) => b.id === clubBook.bookId);
+          <div className="row g-3">
+            {completedBooks && completedBooks.length > 0 ? (
+              completedBooks.map((clubBook, index) => {
+                const book = books?.find((b) => b.id === clubBook.bookId);
                 if (!book) return null;
+                
+                const inPersonalShelf = isInShelf(book.id);
+                const canModifyClub = clubId ? isModerator(clubId, userId) : false;
 
                 return (
-                  <div key={clubBook.bookId} className="col-md-4">
-                    <div className="card h-100">
-                      <img
-                        src={book.coverImage}
-                        alt={book.title}
-                        className="card-img-top"
-                        style={{ height: "200px", objectFit: "cover" }}
-                      />
-                      <div className="card-body">
-                        <h5 className="card-title">{book.title}</h5>
-                        <p className="card-text text-muted">{book.author}</p>
-                        <span className="badge bg-success">
-                          {clubBook.status}
-                        </span>
-                        {clubBook.endDate && (
-                          <small className="text-muted d-block mt-2">
-                            Completed:{" "}
-                            {new Date(clubBook.endDate).toLocaleDateString()}
-                          </small>
-                        )}
-                      </div>
-                    </div>
+                  <div key={clubBook.bookId || index} className="col-md-4">
+                    <BookCard
+                      item={book}
+                      actions={{
+                        onAdd: !inPersonalShelf ? () => {
+                          addBook(book, "personal");
+                          Swal.fire({
+                            title: "Added!",
+                            text: `${book.title} added to your shelf.`,
+                            icon: "success",
+                            confirmButtonColor: "#198754",
+                          });
+                        } : undefined,
+                        onRemove: canModifyClub ? async () => {
+                          if (!clubId) return;
+                          const { isConfirmed } = await Swal.fire({
+                            title: "Remove from Club?",
+                            text: `Are you sure you want to remove "${book.title}" from ${club?.name || "the club"}?`,
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Yes, Remove",
+                            cancelButtonText: "Cancel",
+                            confirmButtonColor: "#dc3545",
+                          });
+                          if (isConfirmed) {
+                            removeBookFromClub(clubId, book.id);
+                            Swal.fire({
+                              title: "Removed",
+                              text: `${book.title} removed from ${club?.name || "club"} shelf.`,
+                              icon: "success",
+                              confirmButtonColor: "#198754",
+                            });
+                          }
+                        } : undefined,
+                        onReadClick: () => {
+                          // TODO: Implement book reading functionality
+                        },
+                      }}
+                    />
                   </div>
                 );
-              })}
-            </div>
-          ) : (
-            <p className="text-muted">No completed books yet.</p>
-          )}
+              })
+            ) : (
+              <p className="text-muted">No completed books yet.</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -320,37 +386,44 @@ function BackButton() {
 function CurrentBookSection() {
   const { currentUser } = useAuthContext();
   const { clubId } = useParams();
-  const { clubs, isModerator, selectCurrentBook, getBookClubProgress } =
+  const { clubs, isModerator, selectCurrentBook, getBookClubProgress, getClubBooks } =
     useClub();
+  const { books: allBooks } = useBookData();
 
   const clubProgress = getBookClubProgress(clubId!);
   const club = clubs.find((c) => c.id === clubId);
   const userId = currentUser?.id;
 
-  const [books, setBooks] = useState<BookData[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [currentBook, setCurrentBook] = useState<BookData | null>(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("bookData");
-    if (!stored || !club) return;
+  const clubBooks = getClubBooks(clubId!) || [];
+  const availableBooks = clubBooks
+    .filter((clubBook) => clubBook.status !== "completed")
+    .map((clubBook) => {
+      const book = allBooks?.find((b) => b.id === clubBook.bookId);
+      return book;
+    })
+    .filter((book): book is BookData => book !== undefined);
 
-    const localBooks = JSON.parse(stored);
-    setBooks(localBooks);
+  useEffect(() => {
+    if (!club || !allBooks) return;
 
     const clubCurrent = club.currentBook?.bookId;
-    const selected = localBooks.find((b: BookData) => b.id === clubCurrent);
+    const selected = allBooks.find((b: BookData) => b.id === clubCurrent);
 
     if (selected) {
       setCurrentBook(selected);
+    } else {
+      setCurrentBook(null);
     }
-  }, [club, clubId, getBookClubProgress]);
+  }, [club?.currentBook?.bookId, allBooks]);
 
   const changeCurrentBook = (bookId: string) => {
     if (!clubId || !userId) return;
     selectCurrentBook(clubId, bookId, userId);
     
-    const selected = books.find((b: BookData) => b.id === bookId);
+    const selected = allBooks?.find((b: BookData) => b.id === bookId);
     if (selected) {
       setCurrentBook(selected);
     }
@@ -362,7 +435,8 @@ function CurrentBookSection() {
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2 className="display-6 mb-0">Current Book</h2>
-            {isModerator(clubId!, userId!) && (
+            {isModerator(clubId!, userId!) && 
+             club?.currentBook?.status !== "completed" && (
               <div className="d-flex gap-2">
                 <div className="input-group" style={{ maxWidth: 360 }}>
                   <label className="input-group-text" htmlFor="currentBookSelect">
@@ -374,7 +448,7 @@ function CurrentBookSection() {
                     value={currentBook?.id || ""}
                     onChange={(e) => changeCurrentBook(e.target.value)}
                   >
-                    {books.map((b: BookData) => (
+                    {availableBooks.map((b: BookData) => (
                       <option key={b.id} value={b.id}>
                         {b.title}
                       </option>
@@ -383,7 +457,7 @@ function CurrentBookSection() {
 
                 </div>
                   
-                  <button
+                <button
                   onClick={() => setShowModal(true)}
                   className="btn btn-success"
                 >
@@ -452,6 +526,7 @@ function CurrentBookSection() {
       <BookSearchModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
+        clubId={clubId}
       />
     </div>
   );
