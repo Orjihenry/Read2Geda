@@ -19,9 +19,10 @@ export type BookCardActions = {
 export type BookCardProps = {
   item: BookData;
   actions?: BookCardActions;
+  hideProgress?: boolean;
 };
 
-export default function BookCard({ item, actions = {} }: BookCardProps) {
+export default function BookCard({ item, actions = {}, hideProgress = false }: BookCardProps) {
   const { onAdd, onRemove, onReadClick } = actions;
   const { getUserBookProgress } = useSavedBooks();
   const { currentUser } = useAuthContext();
@@ -179,10 +180,10 @@ export default function BookCard({ item, actions = {} }: BookCardProps) {
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-top">
-        {renderProgressBar("Progress")}
-        {renderActionButtons()}
-      </div>
+       <div className="mt-3 pt-3 border-top">
+         {!hideProgress && renderProgressBar("Progress")}
+         {renderActionButtons()}
+       </div>
     </div>
   );
 }

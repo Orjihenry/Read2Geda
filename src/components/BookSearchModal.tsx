@@ -201,6 +201,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                     <div key={item.id || index} className="col-md-6">
                       <BookCard
                         item={item}
+                        hideProgress={true}
                         actions={{
                           onAdd: handleAddBook,
                           onRemove: clubId && inClubShelf && canModifyClub ? async () => {
@@ -351,6 +352,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                   <div key={item.id || index} className="col-md-4">
                     <BookCard
                       item={item}
+                      hideProgress={true}
                       actions={{
                         onAdd: handleAddBook,
                         onRemove: clubId && inClubShelf && canModifyClub ? async () => {
