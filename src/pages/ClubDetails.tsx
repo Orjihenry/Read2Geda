@@ -383,6 +383,198 @@ function BackButton() {
   );
 }
 
+function ClubMembersSection() {
+  const { clubId } = useParams();
+  const { clubs } = useClub();
+  const { users } = useAuthContext();
+  const club = clubs.find((c) => c.id === clubId);
+  const [showAll, setShowAll] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const INITIAL_DISPLAY_COUNT = 6;
+
+
+  if (!club || !club.members || club.members.length === 0) {
+    return null;
+  }
+
+  const clubMembers = club.members.map((member) => {
+    const user = users?.find((u) => u.id === member.id);
+    return {
+      ...member,
+      name: user?.name || "Unknown User",
+      email: user?.email || "",
+      avatar: user?.avatar,
+    };
+  });
+
+
+  const filteredMembers = clubMembers.filter((member) =>
+    member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    member.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const owners = filteredMembers.filter((m) => m.role === "owner");
+  const moderators = filteredMembers.filter((m) => m.role === "moderator");
+  const members = filteredMembers.filter((m) => m.role === "member" || !m.role);
+
+  const allMembers = [...owners, ...moderators, ...members];
+  
+  const displayCount = showAll ? allMembers.length : Math.min(INITIAL_DISPLAY_COUNT, allMembers.length);
+  const membersToShow = allMembers.slice(0, displayCount);
+  const hasMore = allMembers.length > INITIAL_DISPLAY_COUNT;
+
+  const getRoleBadge = (role?: string) => {
+    switch (role) {
+      case "owner":
+        return (
+          <span className="badge bg-warning text-dark">
+            <FaCrown className="me-1" />
+            Owner
+          </span>
+        );
+      case "moderator":
+        return (
+          <span className="badge bg-info text-dark">
+            <MdShield className="me-1" />
+            Moderator
+          </span>
+        );
+      default:
+        return <span className="badge bg-secondary">Member</span>;
+    }
+  };
+
+  const getAvatarColor = (role?: string) => {
+    switch (role) {
+      case "owner":
+        return "bg-warning text-dark";
+      case "moderator":
+        return "bg-info text-white";
+      default:
+        return "bg-secondary text-white";
+    }
+  };
+
+  return (
+    <div className="mt-4">
+      <div className="card shadow-sm">
+        <div className="card-header bg-light">
+          <div className="d-flex justify-content-between align-items-center">
+            <h5 className="mb-0 d-flex align-items-center">
+              <MdPeopleAlt className="me-2" />
+              Club Members ({club.members.length})
+            </h5>
+            {club.members.length > INITIAL_DISPLAY_COUNT && (
+              <button
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => setShowAll(!showAll)}
+              >
+                {showAll ? (
+                  <>
+                    <MdExpandLess className="me-1" />
+                    Show Less
+                  </>
+                ) : (
+                  <>
+                    <MdExpandMore className="me-1" />
+                    Show All
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="card-body">
+          {club.members.length > 10 && (
+            <div className="mb-3">
+              <div className="input-group input-group-sm">
+                <span className="input-group-text">
+                  <MdSearch />
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search members..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              {searchQuery && (
+                <small className="text-muted">
+                  {filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""} found
+                </small>
+              )}
+            </div>
+          )}
+
+          {filteredMembers.length === 0 ? (
+            <p className="text-muted text-center py-3">No members found matching your search.</p>
+          ) : (
+            <>
+              <div className="row g-2">
+                {membersToShow.map((member) => (
+                  <div key={member.id} className="col-md-6 col-lg-4">
+                    <div className="d-flex align-items-center p-2 border rounded">
+                      <div
+                        className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
+                        style={{ width: "40px", height: "40px", fontSize: "14px" }}
+                      >
+                        {member.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-grow-1 min-w-0">
+                        <div className="fw-semibold small text-truncate" title={member.name}>
+                          {member.name}
+                        </div>
+                        <div className="small">{getRoleBadge(member.role)}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {hasMore && !showAll && (
+                <div className="text-center mt-3">
+                  <button
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={() => setShowAll(true)}
+                  >
+                    <MdExpandMore className="me-1" />
+                    Show {allMembers.length - INITIAL_DISPLAY_COUNT} More Members
+                  </button>
+                </div>
+              )}
+
+              {showAll && hasMore && (
+                <div className="text-center mt-3">
+                  <button
+                    className="btn btn-outline-secondary btn-sm"
+                    onClick={() => {
+                      setShowAll(false);
+                      setSearchQuery("");
+                    }}
+                  >
+                    <MdExpandLess className="me-1" />
+                    Show Less
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CurrentBookSection() {
   const { currentUser } = useAuthContext();
   const { clubId } = useParams();
