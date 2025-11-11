@@ -172,6 +172,8 @@ export default function ClubDetails() {
             </NavLink>
           </div>
         </div>
+
+        <ClubMembersSection />
       </div>
 
       <div className="py-5 bg-light">
