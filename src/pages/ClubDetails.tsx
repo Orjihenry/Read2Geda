@@ -390,11 +390,13 @@ function ClubMembersSection() {
   const { clubId } = useParams();
   const { clubs } = useClub();
   const { users } = useAuthContext();
+  const { getUserBookProgress } = useSavedBooks();
   const club = clubs.find((c) => c.id === clubId);
   const [showAll, setShowAll] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const INITIAL_DISPLAY_COUNT = 6;
 
+  const currentBookId = club?.currentBook?.bookId;
 
   if (!club || !club.members || club.members.length === 0) {
     return null;
@@ -524,24 +526,50 @@ function ClubMembersSection() {
           ) : (
             <>
               <div className="row g-2">
-                {membersToShow.map((member) => (
-                  <div key={member.id} className="col-md-6 col-lg-4">
-                    <div className="d-flex align-items-center p-2 border rounded">
-                      <div
-                        className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
-                        style={{ width: "40px", height: "40px", fontSize: "14px" }}
-                      >
-                        {member.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="flex-grow-1 min-w-0">
-                        <div className="fw-semibold small text-truncate" title={member.name}>
-                          {member.name}
+                {membersToShow.map((member) => {
+                  const memberProgress = currentBookId 
+                    ? getUserBookProgress(member.id, currentBookId) 
+                    : 0;
+                  
+                  return (
+                    <div key={member.id} className="col-md-6 col-lg-4">
+                      <div className="d-flex flex-column p-2 border rounded">
+                        <div className="d-flex align-items-center mb-2">
+                          <div
+                            className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
+                            style={{ width: "40px", height: "40px", fontSize: "14px" }}
+                          >
+                            {member.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-grow-1 min-w-0">
+                            <div className="fw-semibold small text-truncate" title={member.name}>
+                              {member.name}
+                            </div>
+                            <div className="small">{getRoleBadge(member.role)}</div>
+                          </div>
                         </div>
-                        <div className="small">{getRoleBadge(member.role)}</div>
+                        {currentBookId && (
+                          <div className="mt-2">
+                            <div className="d-flex justify-content-between align-items-center mb-1">
+                              <span className="small text-muted">Current Book Progress</span>
+                              <span className="small text-muted fw-semibold">{memberProgress}%</span>
+                            </div>
+                            <div className="progress" style={{ height: "6px" }}>
+                              <div
+                                className="progress-bar bg-success"
+                                role="progressbar"
+                                style={{ width: `${memberProgress}%` }}
+                                aria-valuenow={memberProgress}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                              ></div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {hasMore && !showAll && (
