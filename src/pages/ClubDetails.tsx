@@ -17,6 +17,7 @@ import BookSearchModal from "../components/BookSearchModal";
 import type { ClubBook } from "../utils/bookClub";
 import BookCard from "../components/BookCard";
 import { useSavedBooks } from "../context/SavedBooksContext";
+import useSearchFilter from "../hooks/useSearchFilter";
 import Swal from "sweetalert2";
 
 export default function ClubDetails() {
@@ -357,7 +358,7 @@ export default function ClubDetails() {
               </p>
               <div className="d-flex justify-content-end gap-2">
                 <button
-                  className="btn btn-outline-secondary"
+                  className="btn btn-outline-success"
                   onClick={() => setShowDeleteConfirm(false)}
                 >
                   Cancel
@@ -393,7 +394,6 @@ function ClubMembersSection() {
   const { getUserBookProgress } = useSavedBooks();
   const club = clubs.find((c) => c.id === clubId);
   const [showAll, setShowAll] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const INITIAL_DISPLAY_COUNT = 6;
 
   const currentBookId = club?.currentBook?.bookId;
@@ -412,11 +412,12 @@ function ClubMembersSection() {
     };
   });
 
+  const { filteredData: filteredMembers, searchInput: searchQuery, setSearchInput: setSearchQuery } = useSearchFilter(clubMembers);
 
-  const filteredMembers = clubMembers.filter((member) =>
-    member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    member.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const showAllButtons = () => {
+    setShowAll(!showAll);
+    setSearchQuery("");
+  }
 
   const owners = filteredMembers.filter((m) => m.role === "owner");
   const moderators = filteredMembers.filter((m) => m.role === "moderator");
@@ -471,8 +472,8 @@ function ClubMembersSection() {
             </h5>
             {club.members.length > INITIAL_DISPLAY_COUNT && (
               <button
-                className="btn btn-sm btn-outline-secondary"
-                onClick={() => setShowAll(!showAll)}
+                className="btn btn-sm btn-outline-success"
+                onClick={showAllButtons}
               >
                 {showAll ? (
                   <>
@@ -490,37 +491,34 @@ function ClubMembersSection() {
           </div>
         </div>
         <div className="card-body">
-          {club.members.length > 10 && (
-            <div className="mb-3">
-              <div className="input-group input-group-sm">
-                <span className="input-group-text">
-                  <MdSearch />
-                </span>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Search members..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <button
-                    className="btn btn-outline-secondary"
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
+          <div className="mb-3">
+            <div className="input-group input-group-sm">
+              <span className="input-group-text">
+                <MdSearch />
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search members..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
               {searchQuery && (
-                <small className="text-muted">
-                  {filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""} found
-                </small>
+                <button
+                  className="btn btn-outline-success"
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                >
+                  Clear
+                </button>
               )}
             </div>
-          )}
-
+            {searchQuery && (
+              <small className="text-muted">
+                {filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""} found
+              </small>
+            )}
+          </div>
           {filteredMembers.length === 0 ? (
             <p className="text-muted text-center py-3">No members found matching your search.</p>
           ) : (
@@ -575,7 +573,7 @@ function ClubMembersSection() {
               {hasMore && !showAll && (
                 <div className="text-center mt-3">
                   <button
-                    className="btn btn-outline-primary btn-sm"
+                    className="btn btn-outline-success btn-sm"
                     onClick={() => setShowAll(true)}
                   >
                     <MdExpandMore className="me-1" />
@@ -587,7 +585,7 @@ function ClubMembersSection() {
               {showAll && hasMore && (
                 <div className="text-center mt-3">
                   <button
-                    className="btn btn-outline-secondary btn-sm"
+                    className="btn btn-outline-success btn-sm"
                     onClick={() => {
                       setShowAll(false);
                       setSearchQuery("");
