@@ -2,7 +2,7 @@ import { NavLink, useParams, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import JoinClubButton from "../components/JoinClubButton";
-import { FaCrown, FaSignOutAlt } from "react-icons/fa";
+import { FaCrown } from "react-icons/fa";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
 import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdChatBubble } from "react-icons/md";
 import { useEffect, useState } from "react";
