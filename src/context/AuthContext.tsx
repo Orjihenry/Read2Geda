@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import Swal from "sweetalert2";
 
 type AuthContextType = {
+  users: User[];
   currentUser: User | null;
   isLoading: boolean;
   isLoggedIn: boolean;
@@ -26,7 +27,7 @@ export default function AuthProvider({
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
+  const loadUsers = useCallback(() => {
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     if (users.length === 0) {
       localStorage.setItem("users", JSON.stringify(UsersData));
@@ -44,6 +45,10 @@ export default function AuthProvider({
     }
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   const register = useCallback((name: string, email: string, pwd: string) => {
     const newUser: User = {
@@ -129,6 +134,7 @@ export default function AuthProvider({
   return (
     <AuthContext.Provider
       value={{
+        users,
         currentUser,
         isLoading,
         isLoggedIn,
