@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import JoinClubButton from "../components/JoinClubButton";
 import { FaCrown } from "react-icons/fa";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
-import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess } from "react-icons/md";
+import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
@@ -144,23 +144,43 @@ export default function ClubDetails() {
                 </div>
               </div>
             </div>
-            <div className="ms-3 d-flex gap-2">
-              <button
-                className="btn btn-outline-success btn-sm"
-                onClick={handleUpdateClub}
-                title="Update Club"
-              >
-                <FaEdit className="me-1" />
-                Update
-              </button>
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={() => setShowDeleteConfirm(true)}
-                title="Delete Club"
-              >
-                <FaTrash className="me-1" />
-                Delete
-              </button>
+            <div className="ms-3">
+              <div className="dropdown">
+                <button
+                  className="btn btn-outline-success btn-sm dropdown-toggle"
+                  type="button"
+                  id="clubSettingsDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  title="Club Settings"
+                >
+                  <MdSettings className="me-1" />
+                  Settings
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="clubSettingsDropdown">
+                  <li>
+                    <button
+                      className="dropdown-item"
+                      onClick={handleUpdateClub}
+                    >
+                      <FaEdit className="me-2" />
+                      Update Club
+                    </button>
+                  </li>
+                  <li>
+                    <hr className="dropdown-divider" />
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item text-danger"
+                      onClick={() => setShowDeleteConfirm(true)}
+                    >
+                      <FaTrash className="me-2" />
+                      Delete Club
+                    </button>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 
