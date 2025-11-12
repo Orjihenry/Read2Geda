@@ -5,3 +5,8 @@
 .logo-glass:hover {
   transform: rotate(-3deg) scale(1.18);
 }
+
+.dropdown-item.active, .dropdown-item:active {
+  background-color: #198754 !important;
+  color: #ffffff !important;
+}

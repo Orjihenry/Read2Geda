@@ -2,9 +2,9 @@ import { NavLink, useParams, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import JoinClubButton from "../components/JoinClubButton";
-import { FaCrown } from "react-icons/fa";
+import { FaCrown, FaSignOutAlt } from "react-icons/fa";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
-import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings } from "react-icons/md";
+import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdChatBubble } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
@@ -158,18 +158,23 @@ export default function ClubDetails() {
                   Settings
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="clubSettingsDropdown">
-                  <li>
-                    <button
-                      className="dropdown-item"
-                      onClick={handleUpdateClub}
-                    >
-                      <FaEdit className="me-2" />
-                      Update Club
-                    </button>
-                  </li>
-                  <li>
-                    <hr className="dropdown-divider" />
-                  </li>
+                {isModerator(clubId!, userId!) && (
+                  <>
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={handleUpdateClub}
+                      >
+                        <FaEdit className="me-2" />
+                        Update Club
+                      </button>
+                    </li>
+                    <li>
+                      <hr className="dropdown-divider" />
+                    </li>
+                  </>
+                )}
+                {isModerator(clubId!, userId!) && (
                   <li>
                     <button
                       className="dropdown-item text-danger"
@@ -179,6 +184,28 @@ export default function ClubDetails() {
                       Delete Club
                     </button>
                   </li>
+                )}
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => console.log("See Members")}
+                  >
+                    <MdPeopleAlt className="me-2" />
+                    See Members
+                  </button>
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => console.log("See Discussions")}
+                  >
+                    <MdChatBubble className="me-2" />
+                    See Discussions
+                  </button>
+                </li>
                 </ul>
               </div>
             </div>
