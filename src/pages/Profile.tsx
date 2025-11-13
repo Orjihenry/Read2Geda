@@ -111,6 +111,13 @@ export default function Profile() {
     localStorage.setItem("currentBookId", next.id);
   };
 
+  const myClubsSection = () => {
+    const element = document.getElementById("my-clubs-section");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const stats = [
     { count: 5, label: "Books Read" },
     { count: 150, label: "Contributions" },
@@ -152,9 +159,10 @@ export default function Profile() {
                     href="#"
                     className="btn-dark text-light"
                     label="My Clubs"
+                    onClick={myClubsSection}
                   />
                   <NavButton
-                    href="edit_profile"
+                    href="/edit_profile"
                     className="mx-2"
                     label="Edit Profile"
                   />
