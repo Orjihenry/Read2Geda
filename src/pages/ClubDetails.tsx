@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
 import { FaTrash, FaEdit } from "react-icons/fa";
-import { useImageStorage } from "../hooks/useImageStorage";
+import { useFetchImage } from "../hooks/useFetchImage";
 import placeholderClubImage from "../assets/bookClub.jpg";
 import { useAuthContext } from "../context/AuthContext";
 import useBookData from "../hooks/useBookData";
@@ -31,6 +31,9 @@ export default function ClubDetails() {
   const { currentUser } = useAuthContext();
   const { isInShelf, addBook } = useSavedBooks();
   const userId = currentUser?.id || "";
+  const club = clubs.find((c) => c.id === clubId);
+  
+  const { imageUrl, loading } = useFetchImage(club?.imageUrl, placeholderClubImage);
   
   useEffect(() => {
     if (!clubId || !books) return;
@@ -48,40 +51,6 @@ export default function ClubDetails() {
     setCompletedBooks(completed);
     setUpcomingBooks(upcoming);
   }, [clubId, clubs, getClubBooks, books]);
-
-
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const { getImage, loading } = useImageStorage();
-  const club = clubs.find((c) => c.id === clubId);
-
-  useEffect(() => {
-    if (!club) return;
-    let revokeUrl: string | null = null;
-
-    const loadImage = async () => {
-      if (!club.imageUrl) {
-        setImageUrl(placeholderClubImage);
-        return;
-      }
-      if (club.imageUrl.length === 36 && !club.imageUrl.includes("/")) {
-        const blob = await getImage(club.imageUrl);
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          revokeUrl = url;
-          setImageUrl(url);
-        } else {
-          setImageUrl(placeholderClubImage);
-        }
-      } else {
-        setImageUrl(club.imageUrl);
-      }
-    };
-    loadImage();
-
-    return () => {
-      if (revokeUrl) URL.revokeObjectURL(revokeUrl);
-    };
-  }, [getImage, club?.imageUrl, club]);
 
   const handleDeleteClub = () => {
     if (clubId) {
