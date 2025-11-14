@@ -13,6 +13,7 @@ import { NavLink } from "react-router-dom";
 import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield } from "react-icons/md";
 import { FaCrown } from "react-icons/fa";
 import "../styles/Profile.css";
+import useSearchFilter from "../hooks/useSearchFilter";
 
 export default function Profile() {
   const { currentUser } = useAuthContext();
@@ -404,21 +405,17 @@ function MyClubsSection() {
   const { currentUser } = useAuthContext();
   const { getMyClubs } = useClub();
   const [showAll, setShowAll] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const INITIAL_DISPLAY_COUNT = 6;
-
+  
   const userId = currentUser?.id || "";
   const myClubs = getMyClubs(userId);
+  
+  const { filteredData: filteredClubs, searchInput: searchQuery, setSearchInput: setSearchQuery } = useSearchFilter(myClubs);
+  const usersClubs = getMyClubs(userId);
 
-
-  if (myClubs.length === 0) {
+  if (usersClubs.length === 0) {
     return null;
   }
-
-  const filteredClubs = myClubs.filter((club) =>
-    club.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    club.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const sortedClubs = filteredClubs.sort((a, b) => {
     const aRole = a.members.find((m) => m.id === userId)?.role || "member";
@@ -488,36 +485,34 @@ function MyClubsSection() {
             </div>
           </div>
           <div className="card-body">
-            {myClubs.length > 10 && (
-              <div className="mb-3">
-                <div className="input-group input-group-sm">
-                  <span className="input-group-text">
-                    <MdSearch />
-                  </span>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Search clubs..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  {searchQuery && (
-                    <button
-                      className="btn btn-outline-secondary"
-                      type="button"
-                      onClick={() => setSearchQuery("")}
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
+            <div className="mb-3">
+              <div className="input-group input-group-sm">
+                <span className="input-group-text">
+                  <MdSearch />
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search clubs..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 {searchQuery && (
-                  <small className="text-muted">
-                    {filteredClubs.length} club{filteredClubs.length !== 1 ? "s" : ""} found
-                  </small>
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    Clear
+                  </button>
                 )}
               </div>
-            )}
+              {searchQuery && (
+                <small className="text-muted">
+                  {filteredClubs.length} club{filteredClubs.length !== 1 ? "s" : ""} found
+                </small>
+              )}
+            </div>
 
             {filteredClubs.length === 0 ? (
               <p className="text-muted text-center py-3">No clubs found matching your search.</p>
