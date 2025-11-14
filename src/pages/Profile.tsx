@@ -9,6 +9,9 @@ import { useAuthContext } from "../context/AuthContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import type { BookData, BookProgress } from "../utils/bookData";
 import placeholderAvatar from "../assets/placeholder.png";
+import { NavLink } from "react-router-dom";
+import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield } from "react-icons/md";
+import { FaCrown } from "react-icons/fa";
 import "../styles/Profile.css";
 
 export default function Profile() {
@@ -358,6 +361,8 @@ export default function Profile() {
         </div>
       )}
 
+      <MyClubsSection />
+
       <div className="container">
         <div className="section text-center py-5 my-5">
           <h2 className="display-6 mb-4">Read Books</h2>
@@ -380,5 +385,219 @@ export default function Profile() {
 
       <Footer />
     </>
+  );
+}
+
+function ClubsImageUrl({ imageId, fallback }: { imageId?: string; fallback?: string }) {
+  const { imageUrl } = useFetchImage(imageId, fallback);
+  return (
+    <img
+      src={imageUrl || fallback}
+      alt="club"
+      className="rounded me-3 flex-shrink-0"
+      style={{ width: 60, height: 60, objectFit: "cover" }}
+    />
+  );
+}
+
+function MyClubsSection() {
+  const { currentUser } = useAuthContext();
+  const { getMyClubs } = useClub();
+  const [showAll, setShowAll] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const INITIAL_DISPLAY_COUNT = 6;
+
+  const userId = currentUser?.id || "";
+  const myClubs = getMyClubs(userId);
+
+
+  if (myClubs.length === 0) {
+    return null;
+  }
+
+  const filteredClubs = myClubs.filter((club) =>
+    club.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    club.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedClubs = filteredClubs.sort((a, b) => {
+    const aRole = a.members.find((m) => m.id === userId)?.role || "member";
+    const bRole = b.members.find((m) => m.id === userId)?.role || "member";
+    const roleOrder: Record<string, number> = { owner: 0, moderator: 1, member: 2 };
+    return roleOrder[aRole] - roleOrder[bRole];
+  });
+
+  const displayCount = showAll ? sortedClubs.length : Math.min(INITIAL_DISPLAY_COUNT, sortedClubs.length);
+  const clubsToShow = sortedClubs.slice(0, displayCount);
+  const hasMore = sortedClubs.length > INITIAL_DISPLAY_COUNT;
+
+  const getUserRole = (clubId: string) => {
+    const club = myClubs.find((c) => c.id === clubId);
+    return club?.members.find((m) => m.id === userId)?.role || "member";
+  };
+
+  const getRoleBadge = (role?: string) => {
+    switch (role) {
+      case "owner":
+        return (
+          <span className="badge bg-warning text-dark">
+            <FaCrown className="me-1" />
+            Owner
+          </span>
+        );
+      case "moderator":
+        return (
+          <span className="badge bg-info text-dark">
+            <MdShield className="me-1" />
+            Moderator
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <section id="my-clubs-section" className="py-5 bg-light">
+      <div className="container">
+        <div className="card shadow-sm border-0">
+          <div className="card-header bg-white">
+            <div className="d-flex justify-content-between align-items-center">
+              <h3 className="mb-0 d-flex align-items-center">
+                <MdGroups className="me-2" />
+                My Clubs ({myClubs.length})
+              </h3>
+              {myClubs.length > INITIAL_DISPLAY_COUNT && (
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => setShowAll(!showAll)}
+                >
+                  {showAll ? (
+                    <>
+                      <MdExpandLess className="me-1" />
+                      Show Less
+                    </>
+                  ) : (
+                    <>
+                      <MdExpandMore className="me-1" />
+                      Show All
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="card-body">
+            {myClubs.length > 10 && (
+              <div className="mb-3">
+                <div className="input-group input-group-sm">
+                  <span className="input-group-text">
+                    <MdSearch />
+                  </span>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Search clubs..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
+                    <button
+                      className="btn btn-outline-secondary"
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                {searchQuery && (
+                  <small className="text-muted">
+                    {filteredClubs.length} club{filteredClubs.length !== 1 ? "s" : ""} found
+                  </small>
+                )}
+              </div>
+            )}
+
+            {filteredClubs.length === 0 ? (
+              <p className="text-muted text-center py-3">No clubs found matching your search.</p>
+            ) : (
+              <>
+                <div className="row g-3">
+                  {clubsToShow.map((club) => {
+                    const userRole = getUserRole(club.id);
+                    return (
+                      <div key={club.id} className="col-md-6 col-lg-4">
+                        <NavLink
+                          to={`/club/${club.id}`}
+                          className="text-decoration-none"
+                        >
+                          <div className="card h-100 border hover-shadow transition-all">
+                            <div className="card-body p-3">
+                              <div className="d-flex align-items-start">
+                                <ClubsImageUrl imageId={club.imageUrl} />
+                                <div className="flex-grow-1 min-w-0">
+                                  <h6 className="card-title mb-1 text-truncate" title={club.name}>
+                                    {club.name}
+                                  </h6>
+                                  <p
+                                    className="text-muted small mb-2"
+                                    style={{
+                                      display: "-webkit-box",
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: "vertical",
+                                      overflow: "hidden",
+                                    }}
+                                  >
+                                    {club.description || "No description"}
+                                  </p>
+                                  <div className="d-flex align-items-center justify-content-between">
+                                    <small className="text-muted">
+                                      {club.members.length} member{club.members.length !== 1 ? "s" : ""}
+                                    </small>
+                                    {getRoleBadge(userRole)}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </NavLink>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {hasMore && !showAll && (
+                  <div className="text-center mt-3">
+                    <button
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={() => setShowAll(true)}
+                    >
+                      <MdExpandMore className="me-1" />
+                      Show {sortedClubs.length - INITIAL_DISPLAY_COUNT} More Clubs
+                    </button>
+                  </div>
+                )}
+
+                {showAll && hasMore && (
+                  <div className="text-center mt-3">
+                    <button
+                      className="btn btn-outline-secondary btn-sm"
+                      onClick={() => {
+                        setShowAll(false);
+                        setSearchQuery("");
+                      }}
+                    >
+                      <MdExpandLess className="me-1" />
+                      Show Less
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
