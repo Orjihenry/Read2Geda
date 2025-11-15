@@ -30,7 +30,40 @@ export const UsersData: User[] = [
     joinedAt: "2023-07-20",
     isActive: true,
     bio: "Sci-fi lover",
-    books: ["2", "5", "6", "7"],
+    books: [
+      {
+        bookId: "2",
+        status: "reading",
+        progress: 80,
+        addedAt: "2024-02-05",
+        startedAt: "2024-02-10",
+      },
+      {
+        bookId: "5",
+        status: "completed",
+        progress: 100,
+        rating: 5,
+        addedAt: "2023-10-25",
+        startedAt: "2023-11-01",
+        completedAt: "2024-01-15",
+      },
+      {
+        bookId: "6",
+        status: "reading",
+        progress: 40,
+        addedAt: "2024-01-30",
+        startedAt: "2024-02-05",
+      },
+      {
+        bookId: "7",
+        status: "completed",
+        progress: 100,
+        rating: 5,
+        addedAt: "2024-01-05",
+        startedAt: "2024-01-10",
+        completedAt: "2024-01-25",
+      },
+    ],
   },
   {
     id: usersIds[2],
@@ -40,7 +73,22 @@ export const UsersData: User[] = [
     joinedAt: "2023-08-10",
     isActive: true,
     bio: "Mystery novel enthusiast",
-    books: ["1", "6"],
+    books: [
+      {
+        bookId: "1",
+        status: "reading",
+        progress: 75,
+        addedAt: "2024-01-25",
+        startedAt: "2024-02-01",
+      },
+      {
+        bookId: "6",
+        status: "reading",
+        progress: 90,
+        addedAt: "2024-01-15",
+        startedAt: "2024-01-20",
+      },
+    ],
   },
   {
     id: usersIds[3],
@@ -50,7 +98,22 @@ export const UsersData: User[] = [
     joinedAt: "2023-09-05",
     isActive: true,
     bio: "Classic literature reader",
-    books: ["3", "7"],
+    books: [
+      {
+        bookId: "3",
+        status: "reading",
+        progress: 20,
+        addedAt: "2024-02-03",
+        startedAt: "2024-02-08",
+      },
+      {
+        bookId: "7",
+        status: "reading",
+        progress: 30,
+        addedAt: "2024-01-26",
+        startedAt: "2024-02-01",
+      },
+    ],
   },
   {
     id: usersIds[4],
@@ -60,7 +123,23 @@ export const UsersData: User[] = [
     joinedAt: "2023-09-15",
     isActive: true,
     bio: "Fantasy fiction fan",
-    books: ["1", "4"],
+    books: [
+      {
+        bookId: "1",
+        status: "completed",
+        progress: 100,
+        rating: 5,
+        addedAt: "2023-11-25",
+        startedAt: "2023-12-01",
+        completedAt: "2024-01-20",
+      },
+      {
+        bookId: "4",
+        status: "to-read",
+        progress: 0,
+        addedAt: "2024-02-10",
+      },
+    ],
   },
   {
     id: usersIds[5],
@@ -70,7 +149,22 @@ export const UsersData: User[] = [
     joinedAt: "2023-10-01",
     isActive: true,
     bio: "Historical fiction reader",
-    books: ["2", "7"],
+    books: [
+      {
+        bookId: "2",
+        status: "reading",
+        progress: 45,
+        addedAt: "2024-02-01",
+        startedAt: "2024-02-05",
+      },
+      {
+        bookId: "7",
+        status: "reading",
+        progress: 75,
+        addedAt: "2024-01-23",
+        startedAt: "2024-01-28",
+      },
+    ],
   },
   {
     id: usersIds[6],
@@ -80,7 +174,20 @@ export const UsersData: User[] = [
     joinedAt: "2023-10-12",
     isActive: true,
     bio: "Book club moderator",
-    books: ["3", "5"],
+    books: [
+      {
+        bookId: "3",
+        status: "to-read",
+        progress: 0,
+        addedAt: "2024-02-05",
+      },
+      {
+        bookId: "5",
+        status: "to-read",
+        progress: 0,
+        addedAt: "2024-01-15",
+      },
+    ],
   },
   {
     id: usersIds[7],
@@ -90,7 +197,17 @@ export const UsersData: User[] = [
     joinedAt: "2023-10-25",
     isActive: true,
     bio: "Thriller enthusiast",
-    books: ["2"],
+    books: [
+      {
+        bookId: "2",
+        status: "completed",
+        progress: 100,
+        rating: 4,
+        addedAt: "2024-01-10",
+        startedAt: "2024-01-15",
+        completedAt: "2024-02-01",
+      },
+    ],
   },
   {
     id: usersIds[8],
@@ -100,7 +217,15 @@ export const UsersData: User[] = [
     joinedAt: "2023-11-05",
     isActive: true,
     bio: "Poetry lover",
-    books: ["4"],
+    books: [
+      {
+        bookId: "4",
+        status: "reading",
+        progress: 35,
+        addedAt: "2024-01-26",
+        startedAt: "2024-02-01",
+      },
+    ],
   },
   {
     id: usersIds[9],
@@ -110,7 +235,22 @@ export const UsersData: User[] = [
     joinedAt: "2023-11-15",
     isActive: true,
     bio: "Non-fiction reader",
-    books: ["3", "6"],
+    books: [
+      {
+        bookId: "3",
+        status: "reading",
+        progress: 60,
+        addedAt: "2024-01-20",
+        startedAt: "2024-01-25",
+      },
+      {
+        bookId: "6",
+        status: "reading",
+        progress: 65,
+        addedAt: "2024-01-26",
+        startedAt: "2024-02-01",
+      },
+    ],
   },
   {
     id: usersIds[10],
@@ -120,7 +260,24 @@ export const UsersData: User[] = [
     joinedAt: "2023-11-25",
     isActive: true,
     bio: "Young adult fiction",
-    books: ["1", "5"],
+    books: [
+      {
+        bookId: "1",
+        status: "completed",
+        progress: 100,
+        rating: 5,
+        addedAt: "2023-12-25",
+        startedAt: "2024-01-01",
+        completedAt: "2024-01-15",
+      },
+      {
+        bookId: "5",
+        status: "reading",
+        progress: 50,
+        addedAt: "2024-01-15",
+        startedAt: "2024-01-20",
+      },
+    ],
   },
   {
     id: usersIds[11],
@@ -130,7 +287,15 @@ export const UsersData: User[] = [
     joinedAt: "2023-12-01",
     isActive: true,
     bio: "Horror genre fan",
-    books: ["4"],
+    books: [
+      {
+        bookId: "4",
+        status: "reading",
+        progress: 10,
+        addedAt: "2024-02-10",
+        startedAt: "2024-02-15",
+      },
+    ],
   },
   {
     id: usersIds[12],
