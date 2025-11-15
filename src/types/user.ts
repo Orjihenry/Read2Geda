@@ -7,4 +7,5 @@ export type User = {
     bio?: string;
     joinedAt: string;
     isActive: boolean;
-} 
+    books?: string[];
+}

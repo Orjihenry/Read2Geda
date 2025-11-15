@@ -20,6 +20,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-06-15",
     isActive: true,
     bio: "Book enthusiast and writer",
+    books: [],
   },
   {
     id: usersIds[1],
@@ -29,6 +30,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-07-20",
     isActive: true,
     bio: "Sci-fi lover",
+    books: ["2", "5", "6", "7"],
   },
   {
     id: usersIds[2],
@@ -38,6 +40,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-08-10",
     isActive: true,
     bio: "Mystery novel enthusiast",
+    books: ["1", "6"],
   },
   {
     id: usersIds[3],
@@ -47,6 +50,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-09-05",
     isActive: true,
     bio: "Classic literature reader",
+    books: ["3", "7"],
   },
   {
     id: usersIds[4],
@@ -56,6 +60,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-09-15",
     isActive: true,
     bio: "Fantasy fiction fan",
+    books: ["1", "4"],
   },
   {
     id: usersIds[5],
@@ -65,6 +70,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-10-01",
     isActive: true,
     bio: "Historical fiction reader",
+    books: ["2", "7"],
   },
   {
     id: usersIds[6],
@@ -74,6 +80,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-10-12",
     isActive: true,
     bio: "Book club moderator",
+    books: ["3", "5"],
   },
   {
     id: usersIds[7],
@@ -83,6 +90,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-10-25",
     isActive: true,
     bio: "Thriller enthusiast",
+    books: ["2"],
   },
   {
     id: usersIds[8],
@@ -92,6 +100,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-11-05",
     isActive: true,
     bio: "Poetry lover",
+    books: ["4"],
   },
   {
     id: usersIds[9],
@@ -101,6 +110,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-11-15",
     isActive: true,
     bio: "Non-fiction reader",
+    books: ["3", "6"],
   },
   {
     id: usersIds[10],
@@ -110,6 +120,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-11-25",
     isActive: true,
     bio: "Young adult fiction",
+    books: ["1", "5"],
   },
   {
     id: usersIds[11],
@@ -119,6 +130,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-12-01",
     isActive: true,
     bio: "Horror genre fan",
+    books: ["4"],
   },
   {
     id: usersIds[12],
@@ -128,6 +140,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-12-10",
     isActive: true,
     bio: "Biography reader",
+    books: [],
   },
   {
     id: usersIds[13],
@@ -137,6 +150,7 @@ export const UsersData: User[] = [
     joinedAt: "2023-12-20",
     isActive: true,
     bio: "Philosophy books",
+    books: [],
   },
   {
     id: usersIds[14],
@@ -146,6 +160,7 @@ export const UsersData: User[] = [
     joinedAt: "2024-01-01",
     isActive: true,
     bio: "Graphic novel enthusiast",
+    books: [],
   },
   {
     id: usersIds[15],
@@ -155,5 +170,6 @@ export const UsersData: User[] = [
     joinedAt: "2024-01-10",
     isActive: true,
     bio: "Literary critic",
+    books: [],
   },
 ];
