@@ -149,6 +149,10 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                         cancelButtonColor: "#6c757d",
                       });
 
+                      if (!choice) {
+                        return;
+                      }
+
                       if (choice) {
                         if (moderatorClubs.length === 1) {
                           addBookToClub(moderatorClubs[0].id, item.id, userId);
