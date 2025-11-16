@@ -1,5 +1,5 @@
 import { createContext, useContext, useCallback } from "react";
-import dayjs from "dayjs";
+import { getCurrentDateTime } from "../utils/dateUtils";
 import { useAuthContext } from "./AuthContext";
 import { useBookCache } from "./BookCacheContext";
 import type { User, UserBooks } from "../types/user";
@@ -20,7 +20,6 @@ const SavedBooksContext = createContext<SavedBooksContextType | undefined>(undef
 export function SavedBooksProvider({ children }: { children: React.ReactNode }) {
   const { currentUser, users, updateProfile } = useAuthContext();
   const { addBook: addBookToCache } = useBookCache();
-  const today = dayjs();
 
   // Helpers
   const updateUser = useCallback((updatedUser: User) => {
@@ -47,6 +46,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
 
     if (userBooks[book.id]) return;
 
+    const currentDate = getCurrentDateTime();
     const updatedUser: User = {
       ...currentUser,
       books: {
@@ -54,13 +54,13 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
         [book.id]: {
           status: "to-read",
           progress: 0,
-          addedAt: today.format("YYYY-MM-DD"),
+          addedAt: currentDate,
         },
       },
     };
 
     updateUser(updatedUser);
-  }, [currentUser, updateUser, today, addBookToCache]);
+  }, [currentUser, updateUser, addBookToCache]);
 
   const removeBook = useCallback((bookId: string) => {
     if (!currentUser) return;
@@ -84,7 +84,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
 
     if (!existing) return;
 
-    const currentDate = today.format("YYYY-MM-DD");
+    const currentDate = getCurrentDateTime();
 
     const updatedEntry = {
       ...existing,
@@ -103,7 +103,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
     };
 
     updateUser(updatedUser);
-  }, [currentUser, updateUser, today]);
+  }, [currentUser, updateUser]);
 
   const getUserBookProgress = useCallback((bookId: string): number => {
     if (!currentUser) return 0;

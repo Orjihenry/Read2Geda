@@ -5,7 +5,7 @@ import type { bookClub } from "../utils/bookClub";
 import { useAuthContext } from "../context/AuthContext";
 import { v4 as uuidv4 } from "uuid";
 import { useImageStorage } from "./useImageStorage";
-import dayjs from "dayjs";
+import { getCurrentDateTime } from "../utils/dateUtils";
 
 export const useClubForm = () => {
   const { clubs, createClub, updateClub, clubNameExists } = useClub();
@@ -14,8 +14,7 @@ export const useClubForm = () => {
   const navigate = useNavigate();
   const clubNameRef = useRef<HTMLInputElement>(null);
 
-  const today = dayjs();
-  const currentDate = today.format("YYYY-MM-DD HH:mm:ss");
+  const currentDate = getCurrentDateTime();
   
   const { currentUser } = useAuthContext();
 

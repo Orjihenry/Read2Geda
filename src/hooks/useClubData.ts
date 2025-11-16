@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { defaultBookClubs, type bookClub } from "./../utils/bookClub";
-import dayjs from "dayjs";
+import { getCurrentDateTime } from "../utils/dateUtils";
 
 export default function useClubData() {
   const [clubs, setClubs] = useState<bookClub[]>([]);
   const [loading, setLoading] = useState(true);
-  const today = dayjs();
-  const currentDate = today.format("YYYY-MM-DD HH:mm:ss");
 
   useEffect(() => {
     const savedClubs = localStorage.getItem("bookClubs");
@@ -28,6 +26,7 @@ export default function useClubData() {
   }, [clubs]);
 
   function handleSubmitEvent(club: bookClub) {
+    const currentDate = getCurrentDateTime();
     const newClub = {
         id: String(clubs.length + 1),
         name: club.name,
@@ -47,6 +46,7 @@ export default function useClubData() {
   }
   
   function handleUpdateClub(club: bookClub) {
+    const currentDate = getCurrentDateTime();
     const updateClub = {
         ...club,
         updatedAt: currentDate,

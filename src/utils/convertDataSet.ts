@@ -1,7 +1,9 @@
 import { type BookData } from "./bookData";
+import { getCurrentDateTime } from "./dateUtils";
 
 export const convertDataSet = (book: any): BookData => {
-    const bookKey = book.key?.replace(/^\/works\//, "") || book.key || `book-${Date.now()}-${Math.random()}`;
+    const currentDate = getCurrentDateTime();
+    const bookKey = book.key?.replace(/^\/works\//, "") || book.key || `book-${currentDate}-${Math.random()}`;
     const authorName = book.authors?.[0]?.name || (typeof book.authors?.[0] === 'string' ? book.authors[0] : null) || "Unknown Author";
     const subjects = book.subject || book.subjects || [];
     const tags = Array.isArray(subjects) ? subjects.slice(0, 5).filter((s: any) => typeof s === 'string') : [];
