@@ -1,4 +1,4 @@
-import BookCarousel from "../components/BookCarousel";
+import BookCard from "../components/BookCard";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import NavButton from "../components/NavButton";
@@ -7,6 +7,7 @@ import { useClub } from "../context/ClubContext";
 import { useFetchImage } from "../hooks/useFetchImage";
 import { useAuthContext } from "../context/AuthContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
+import { useBookCache } from "../context/BookCacheContext";
 import type { BookData, BookProgress } from "../utils/bookData";
 import placeholderAvatar from "../assets/placeholder.png";
 import { NavLink } from "react-router-dom";
@@ -19,6 +20,7 @@ export default function Profile() {
   const { currentUser } = useAuthContext();
   const { clubs } = useClub();
   const { getReadingProgress, updateProgress, getUserBookProgress } = useSavedBooks();
+  const { getBooks } = useBookCache();
 
   const currentClub = clubs.find(
     (club) => club.isActive && club.members.length > 0
@@ -37,8 +39,6 @@ export default function Profile() {
   const [progressList, setProgressList] = useState<BookProgress[]>([]);
   const { imageUrl: avatar } = useFetchImage(currentUser?.avatar, placeholderAvatar);
 
-  console.log("Current Book:", currentBook);
-
   useEffect(() => {
     if (!currentUser) return;
 
@@ -47,38 +47,44 @@ export default function Profile() {
   }, [currentUser, getReadingProgress]);
 
   useEffect(() => {
+    if (!currentUser) return;
+
     try {
-      const stored = localStorage.getItem("bookData");
-      const localBooks = stored ? JSON.parse(stored) : [];
-      setBooks(localBooks);
+      const userBookIds = Object.keys(currentUser.books || {});
+      
+      const userBooks = getBooks(userBookIds);
+      setBooks(userBooks);
 
       const storedCurrentId = localStorage.getItem("currentBookId");
-      let selected;
+      let selected: BookData | undefined;
       
-      if (storedCurrentId) {
-        selected = localBooks.find((b: { id: string }) => b.id === storedCurrentId);
+      if (storedCurrentId && userBooks.find((b) => b.id === storedCurrentId)) {
+        selected = userBooks.find((b) => b.id === storedCurrentId);
       } else {
         const currentProgress = progressList.find((p) => p.status === "reading") || progressList[0];
         selected = currentProgress
-          ? localBooks.find((b: { id: string }) => b.id === currentProgress.bookId)
-          : localBooks[0];
+          ? userBooks.find((b) => b.id === currentProgress.bookId)
+          : userBooks[0];
       }
 
       if (selected) {
-        const userProgress = progressList.find((p) => p.bookId === selected.id);
+        const userProgress = getUserBookProgress(selected.id);
         setCurrentBook({
           id: selected.id,
           title: selected.title,
           author: selected.author,
           coverImage: selected.coverImage,
-          readingProgress: userProgress?.progress ?? 0,
+          readingProgress: userProgress,
         });
-        setProgress(userProgress?.progress ?? 0);
+        setProgress(userProgress);
+      } else {
+        setCurrentBook(null);
+        setProgress(0);
       }
-    } catch {
-      console.error("Failed to load books from localStorage");
+    } catch (error) {
+      console.error("Failed to load books:", error);
     }
-  }, [progressList]);
+  }, [currentUser, progressList, getBooks, getUserBookProgress]);
 
   const openModal = () => {
     if (!currentBook) return;
@@ -92,26 +98,27 @@ export default function Profile() {
     if (!currentBook || !currentUser) return;
     const pct = Math.max(0, Math.min(100, Number(progress) || 0));
 
-    updateProgress(currentUser.id, currentBook.id, pct);
+    updateProgress(currentBook.id, pct);
 
     setCurrentBook({ ...currentBook, readingProgress: pct });
+    setProgress(pct);
     setShowModal(false);
   };
 
   const changeCurrentBook = (bookId: string) => {
-    const next = books.find((b: { id?: string }) => b.id === bookId);
+    const next = books.find((b) => b.id === bookId);
     if (!next) return;
 
-    const userProgress = getUserBookProgress(currentUser?.id || "", bookId);
+    const userProgress = getUserBookProgress(bookId);
 
     setCurrentBook({
       id: next.id,
       title: next.title,
       author: next.author,
       coverImage: next.coverImage,
-      readingProgress: userProgress ?? 0,
+      readingProgress: userProgress,
     });
-    setProgress(userProgress ?? 0);
+    setProgress(userProgress);
     localStorage.setItem("currentBookId", next.id);
   };
 
@@ -122,12 +129,42 @@ export default function Profile() {
     }
   };
 
-  const stats = [
-    { count: 5, label: "Books Read" },
-    { count: 150, label: "Contributions" },
-    { count: 650, label: "Likes / Votes" },
-    { count: 12, label: "Club Calls Attended" },
-  ];
+  const stats = (() => {
+    if (!currentUser?.books) return [];
+
+    const userBooks = currentUser.books;
+    const completedCount = Object.values(userBooks).filter(
+      (book) => book.status === "completed"
+    ).length;
+    const myClubsCount = clubs.filter((c) => 
+      c.members.some((m) => m.id === currentUser.id)
+    ).length;
+
+    return [
+      { count: completedCount, label: "Books Read" },
+      { count: Object.keys(userBooks).length, label: "Books in Shelf" },
+      { count: 0, label: "Likes / Votes" },
+      { count: myClubsCount, label: "Clubs Joined" },
+    ];
+  })();
+
+  const completedBooks = (() => {
+    if (!currentUser?.books) return [];
+    const userBooks = currentUser.books;
+    const completedIds = Object.keys(userBooks).filter(
+      (bookId) => userBooks[bookId].status === "completed"
+    );
+    return getBooks(completedIds);
+  })();
+
+  const toReadBooks = (() => {
+    if (!currentUser?.books) return [];
+    const userBooks = currentUser.books;
+    const toReadIds = Object.keys(userBooks).filter(
+      (bookId) => userBooks[bookId].status !== "completed"
+    );
+    return getBooks(toReadIds);
+  })();
 
   return (
     <>
@@ -364,23 +401,42 @@ export default function Profile() {
 
       <MyClubsSection />
 
-      <div className="container">
-        <div className="section text-center py-5 my-5">
+      <div className="py-5">
+        <div className="container py-4">
           <h2 className="display-6 mb-4">Read Books</h2>
-          <p className="lead mb-5 font-italic">
-            “If you want a picture of the future, imagine a boot stamping
-            forever.”
-            <br />
-            <small className="font-italic">George Orwell - 1984</small>
-          </p>
-
-          <BookCarousel />
+          {completedBooks.length > 0 ? (
+            <>
+              <p className="lead mb-5 font-italic">
+                You've completed {completedBooks.length} book{completedBooks.length !== 1 ? "s" : ""}!
+              </p>
+              <div className="row g-3">
+                {completedBooks.slice(0, 6).map((book) => (
+                  <div key={book.id} className="col-6 col-md-4 col-lg-3">
+                    <BookCard item={book} actions={{}} />
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-muted">No completed books yet.</p>
+          )}
         </div>
+      </div>
 
-        <div className="section text-center py-5 my-5 bg-light">
-          <h2 className="display-6 mb-4">Wishlist</h2>
-
-          <BookCarousel />
+      <div className="bg-light py-5">
+        <div className="container py-4">
+          <h2 className="display-6 pb-4">Books In My Shelf</h2>
+          <div className="row g-3">
+            {toReadBooks.length > 0 ? (
+              toReadBooks.slice(0, 6).map((book) => (
+                  <div key={book.id} className="col-md-4">
+                    <BookCard item={book} actions={{}} />
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted">Add books to your reading list to see them here.</p>
+              )}
+          </div>
         </div>
       </div>
 
@@ -411,11 +467,8 @@ function MyClubsSection() {
   const myClubs = getMyClubs(userId);
   
   const { filteredData: filteredClubs, searchInput: searchQuery, setSearchInput: setSearchQuery } = useSearchFilter(myClubs);
-  const usersClubs = getMyClubs(userId);
 
-  if (usersClubs.length === 0) {
-    return null;
-  }
+  if (myClubs.length === 0) return null;
 
   const sortedClubs = filteredClubs.sort((a, b) => {
     const aRole = a.members.find((m) => m.id === userId)?.role || "member";
