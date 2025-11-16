@@ -1,128 +1,161 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { bookData, type BookData, type BookProgress } from "../utils/bookData";
+import { createContext, useContext, useCallback } from "react";
+import dayjs from "dayjs";
+import { useAuthContext } from "./AuthContext";
+import { useBookCache } from "./BookCacheContext";
+import type { User, UserBooks } from "../types/user";
+import type { BookData, BookProgress } from "../utils/bookData";
 
 type SavedBooksContextType = {
-  books: BookData[];
-  loading: boolean;
+  isInShelf: (bookId: string) => boolean;
   addBook: (book: BookData) => void;
-  removeBook: (id: string) => void;
-  isInShelf: (id: string) => boolean;
+  removeBook: (bookId: string) => void;
+  updateProgress: (bookId: string, progress: number) => void;
+  getUserBookProgress: (bookId: string) => number;
   getReadingProgress: (userId: string) => BookProgress[];
   getBookClubProgress: (bookId: string) => number;
-  updateProgress: (userId: string, bookId: string, progress: number) => void;
-  getUserBookProgress: (userId: string, bookId: string) => number;
 };
 
-const SavedBooksContext = createContext<SavedBooksContextType | undefined>(
-  undefined
-);
+const SavedBooksContext = createContext<SavedBooksContextType | undefined>(undefined);
 
-export function SavedBooksProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [books, setBooks] = useState<BookData[]>([]);
-  const [loading, setLoading] = useState(false);
+export function SavedBooksProvider({ children }: { children: React.ReactNode }) {
+  const { currentUser, users, updateProfile } = useAuthContext();
+  const { addBook: addBookToCache } = useBookCache();
+  const today = dayjs();
 
-  useEffect(() => {
-    setLoading(true);
-    const stored = localStorage.getItem("bookData");
-    if (stored) setBooks(JSON.parse(stored));
-    else {
-      setBooks(bookData);
-      localStorage.setItem("bookData", JSON.stringify(bookData));
-    }
-    setLoading(false);
-  }, []);
-
-  const save = (updated: BookData[]) => {
-    setBooks(updated);
-    localStorage.setItem("bookData", JSON.stringify(updated));
-  };
-
-  const addBook = (book: BookData) => {
-    if (!books.find((b) => b.id === book.id)) {
-      save([...books, book]);
-    }
-  };
-
-  const removeBook = (id: string) => {
-    save(books.filter((b) => b.id !== id));
-  };
-
-  const isInShelf = (id: string) => books.some((b) => b.id === id);
-
-  const getReadingProgress = (userId: string) => {
-    return books.flatMap(
-      (book) =>
-        book.readingProgress?.filter(
-          (progress) => progress.userId === userId
-        ) || []
+  // Helpers
+  const updateUser = useCallback((updatedUser: User) => {
+    const updatedUsers = users.map((u) =>
+      u.id === updatedUser.id ? updatedUser : u
     );
-  };
 
-  const getBookClubProgress = (bookId: string): number => {
-    const book = books.find((b) => b.id === bookId);
-    if (!book?.readingProgress?.length) return 0;
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
+    updateProfile(updatedUser);
+  }, [users, updateProfile]);
 
-    const total = book.readingProgress.reduce((sum, p) => sum + p.progress, 0);
-    return Math.round(total / book.readingProgress.length);
-  };
+  const isInShelf = useCallback((bookId: string) => {
+    if (!currentUser) return false;
+    const userBooks: UserBooks = currentUser.books || {};
+    return !!userBooks[bookId];
+  }, [currentUser]);
 
-  const updateProgress = (userId: string, bookId: string, progress: number) => {
-    const updatedBooks = books.map((book) => {
-      if (book.id !== bookId) return book;
+  const addBook = useCallback((book: BookData) => {
+    if (!currentUser) return;
 
-      const userProgress = book.readingProgress || [];
-      const userEntry = userProgress.find((p) => p.userId === userId);
+    addBookToCache(book);
 
-      let newProgress: BookProgress;
-      if (userEntry) {
-        newProgress = {
-          ...userEntry,
-          progress,
-          status: progress >= 100 ? "completed" : "reading",
-        };
-        return {
-          ...book,
-          readingProgress: userProgress.map((p) =>
-            p.userId === userId ? newProgress : p
-          ),
-        };
-      } else {
-        newProgress = {
-          bookId,
-          userId,
-          progress,
-          status: "reading",
-          startedAt: new Date().toISOString(),
-        };
-        return { ...book, readingProgress: [...userProgress, newProgress] };
-      }
-    });
-    save(updatedBooks);
-  };
+    const userBooks: UserBooks = currentUser.books || {};
 
-  const getUserBookProgress = (userId: string, bookId: string): number => {
-    const book = books.find((b) => b.id === bookId);
-    return (
-      book?.readingProgress?.find((p) => p.userId === userId)?.progress || 0
-    );
-  };
+    if (userBooks[book.id]) return;
+
+    const updatedUser: User = {
+      ...currentUser,
+      books: {
+        ...userBooks,
+        [book.id]: {
+          status: "to-read",
+          progress: 0,
+          addedAt: today.format("YYYY-MM-DD"),
+        },
+      },
+    };
+
+    updateUser(updatedUser);
+  }, [currentUser, updateUser, today, addBookToCache]);
+
+  const removeBook = useCallback((bookId: string) => {
+    if (!currentUser) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { [bookId]: removed, ...remainingBooks } = currentUser.books || {};
+
+    const updatedUser: User = {
+      ...currentUser,
+      books: remainingBooks,
+    };
+
+    updateUser(updatedUser);
+  }, [currentUser, updateUser]);
+
+  const updateProgress = useCallback((bookId: string, progress: number) => {
+    if (!currentUser) return;
+
+    const userBooks: UserBooks = currentUser.books || {};
+    const existing = userBooks[bookId];
+
+    if (!existing) return;
+
+    const currentDate = today.format("YYYY-MM-DD");
+
+    const updatedEntry = {
+      ...existing,
+      progress: Math.max(0, Math.min(progress, 100)),
+      status: (progress >= 100 ? "completed" : "reading") as "reading" | "completed" | "to-read",
+      startedAt: existing.startedAt || (progress > 0 ? currentDate : undefined),
+      completedAt: progress >= 100 ? currentDate : existing.completedAt,
+    };
+
+    const updatedUser: User = {
+      ...currentUser,
+      books: {
+        ...userBooks,
+        [bookId]: updatedEntry,
+      },
+    };
+
+    updateUser(updatedUser);
+  }, [currentUser, updateUser, today]);
+
+  const getUserBookProgress = useCallback((bookId: string): number => {
+    if (!currentUser) return 0;
+
+    const userBooks: UserBooks = currentUser.books || {};
+    return userBooks[bookId]?.progress || 0;
+  }, [currentUser]);
+
+  const getReadingProgress = useCallback((userId: string): BookProgress[] => {
+    const user = users.find((u) => u.id === userId);
+    if (!user || !user.books) return [];
+
+    const userBooks: UserBooks = user.books;
+    return Object.entries(userBooks).map(([bookId, bookData]) => ({
+      bookId,
+      userId,
+      progress: bookData.progress,
+      status: bookData.status === "completed" 
+        ? "completed" 
+        : bookData.status === "reading" 
+        ? "reading" 
+        : "not_started",
+      startedAt: bookData.startedAt,
+      completedAt: bookData.completedAt,
+      rating: bookData.rating,
+    }));
+  }, [users]);
+
+  const getBookClubProgress = useCallback((bookId: string): number => {
+    const allProgress = users
+      .map((user) => {
+        const userBooks: UserBooks = user.books || {};
+        return userBooks[bookId]?.progress || 0;
+      })
+      .filter((progress) => progress > 0);
+
+    if (allProgress.length === 0) return 0;
+
+    const total = allProgress.reduce((sum, p) => sum + p, 0);
+    return Math.round(total / allProgress.length);
+  }, [users]);
 
   return (
     <SavedBooksContext.Provider
       value={{
-        books,
-        loading,
+        isInShelf,
         addBook,
         removeBook,
-        isInShelf,
-        getReadingProgress,
-        getBookClubProgress,
         updateProgress,
         getUserBookProgress,
+        getReadingProgress,
+        getBookClubProgress,
       }}
     >
       {children}
