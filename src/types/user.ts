@@ -1,12 +1,13 @@
-export type UserBook = {
-    bookId: string;
+export type UserBooks = {
+  [bookId: string]: {
     status: "reading" | "completed" | "to-read";
-    progress?: number;
+    progress: number;
     rating?: number;
     addedAt: string;
     startedAt?: string;
     completedAt?: string;
-}
+  };
+};
 
 export type User = {
     id: string;
@@ -17,5 +18,5 @@ export type User = {
     bio?: string;
     joinedAt: string;
     isActive: boolean;
-    books?: UserBook[];
+    books?: UserBooks;
 }
