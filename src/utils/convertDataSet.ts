@@ -19,6 +19,5 @@ export const convertDataSet = (book: any): BookData => {
         summary: description || "No description available.",
         coverImage: coverImage,
         rating: book.ratings_average || book.ratings?.average || 0,
-        readingProgress: []
     };
 };

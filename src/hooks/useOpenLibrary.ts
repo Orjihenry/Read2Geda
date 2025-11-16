@@ -1,16 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { BookData } from "../utils/bookData";
-import { convertDataSet } from "../utils/convertDataSet";
+import { useBookCache } from "../context/BookCacheContext";
 import Swal from "sweetalert2";
 
 export default function useRandomBooks(subject: string = "fiction") {
   const [books, setBooks] = useState<BookData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { addBooks } = useBookCache();
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
+    if (fetchingRef.current) return;
+    
     async function fetchRandomBooks() {
+      fetchingRef.current = true;
       setLoading(true);
+      setError(null);
+      
       try {
         const response = await fetch(
           `https://openlibrary.org/subjects/${subject}.json?limit=50`
@@ -19,28 +26,34 @@ export default function useRandomBooks(subject: string = "fiction") {
 
         const data = await response.json();
 
-        const books = data.works.map(convertDataSet);
+        const fetchedBooks = data.works || [];
 
-        const shuffled = books.sort(() => 0.5 - Math.random());
+        const normalizedBooks = addBooks(fetchedBooks);
 
+        const shuffled = [...normalizedBooks].sort(() => 0.5 - Math.random());
         setBooks(shuffled.slice(0, 10));
       } catch (err: any) {
         setError(err.message);
         Swal.fire({
-            toast: true,
-            position: "top-end",
-            timer: 4000,
-            icon: "error",
-            text: "Couldn't fetch books from API.",
-            showConfirmButton: false,
-        })
+          toast: true,
+          position: "top-end",
+          timer: 4000,
+          icon: "error",
+          text: "Couldn't fetch books from API.",
+          showConfirmButton: false,
+        });
       } finally {
         setLoading(false);
+        fetchingRef.current = false;
       }
     }
 
     fetchRandomBooks();
-  }, [subject]);
+    
+    return () => {
+      fetchingRef.current = false;
+    };
+  }, [subject, addBooks]);
 
   return { books, loading, error };
 }
