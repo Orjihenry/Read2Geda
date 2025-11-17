@@ -19,7 +19,7 @@ import useSearchFilter from "../hooks/useSearchFilter";
 export default function Profile() {
   const { currentUser } = useAuthContext();
   const { clubs } = useClub();
-  const { updateProgress, getUserBookProgress } = useSavedBooks();
+  const { updateProgress, getUserBookProgress, getCompletedBooks, getToReadBooks, loading } = useSavedBooks();
   const { getBooks } = useBookCache();
 
   const currentClub = clubs.find(
@@ -143,23 +143,8 @@ export default function Profile() {
     ];
   })();
 
-  const completedBooks = (() => {
-    if (!currentUser?.books) return [];
-    const userBooks = currentUser.books;
-    const completedIds = Object.keys(userBooks).filter(
-      (bookId) => userBooks[bookId].status === "completed"
-    );
-    return getBooks(completedIds);
-  })();
-
-  const toReadBooks = (() => {
-    if (!currentUser?.books) return [];
-    const userBooks = currentUser.books;
-    const toReadIds = Object.keys(userBooks).filter(
-      (bookId) => userBooks[bookId].status !== "completed"
-    );
-    return getBooks(toReadIds);
-  })();
+  const completedBooks = getCompletedBooks();
+  const toReadBooks = getToReadBooks();
 
   return (
     <>
@@ -399,7 +384,12 @@ export default function Profile() {
       <div className="py-5">
         <div className="container py-4">
           <h2 className="display-6 mb-4">Read Books</h2>
-          {completedBooks.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary mb-2" role="status" />
+              <p className="text-muted">Loading completed books...</p>
+            </div>
+          ) : completedBooks.length > 0 ? (
             <>
               <p className="lead mb-5 font-italic">
                 You've completed {completedBooks.length} book{completedBooks.length !== 1 ? "s" : ""}!
@@ -421,9 +411,15 @@ export default function Profile() {
       <div className="bg-light py-5">
         <div className="container py-4">
           <h2 className="display-6 pb-4">Books In My Shelf</h2>
-          <div className="row g-3">
-            {toReadBooks.length > 0 ? (
-              toReadBooks.slice(0, 6).map((book) => (
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary mb-2" role="status" />
+              <p className="text-muted">Loading your books...</p>
+            </div>
+          ) : (
+            <div className="row g-3">
+              {toReadBooks.length > 0 ? (
+                toReadBooks.slice(0, 6).map((book) => (
                   <div key={book.id} className="col-md-4">
                     <BookCard item={book} actions={{}} />
                   </div>
@@ -431,7 +427,8 @@ export default function Profile() {
               ) : (
                 <p className="text-muted">Add books to your reading list to see them here.</p>
               )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

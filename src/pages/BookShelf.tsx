@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useSavedBooks } from "../context/SavedBooksContext";
-import { useAuthContext } from "../context/AuthContext";
+import { useBookCache } from "../context/BookCacheContext";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import BookCard from "../components/BookCard";
@@ -8,30 +8,12 @@ import BookSearchModal from "../components/BookSearchModal";
 import Swal from "sweetalert2";
 
 export default function BookShelf() {
-  const { books, loading, removeBook } = useSavedBooks();
-  const { currentUser } = useAuthContext();
+  const { removeBook, getCompletedBooks, getToReadBooks } = useSavedBooks();
+  const { loading } = useBookCache();
   const [showModal, setShowModal] = useState(false);
 
-  const bookList = useMemo(() => {
-    if (!currentUser || !books) return [];
-    return books.filter(book => {
-      const userProgress = book.readingProgress?.find(
-        p => p.userId === currentUser.id
-      );
-      return !userProgress || userProgress.status !== "completed";
-    });
-  }, [books, currentUser]);
-
-  const completedBooks = useMemo(() => {
-    if (!currentUser || !books) return [];
-    return books.filter((book) =>
-      book.readingProgress?.some(
-        (progress) =>
-          progress.userId === currentUser.id &&
-          progress.status === "completed"
-      )
-    );
-  }, [books, currentUser]);
+  const completedBooks = getCompletedBooks();
+  const bookList = getToReadBooks();
 
   return (
     <>

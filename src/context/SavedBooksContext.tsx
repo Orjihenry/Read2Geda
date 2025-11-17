@@ -11,13 +11,16 @@ type SavedBooksContextType = {
   removeBook: (bookId: string) => void;
   updateProgress: (bookId: string, progress: number) => void;
   getUserBookProgress: (bookId: string) => number;
+  getCompletedBooks: () => BookData[];
+  getToReadBooks: () => BookData[];
+  loading: boolean;
 };
 
 const SavedBooksContext = createContext<SavedBooksContextType | undefined>(undefined);
 
 export function SavedBooksProvider({ children }: { children: React.ReactNode }) {
   const { currentUser, users, updateProfile } = useAuthContext();
-  const { addBook: addBookToCache } = useBookCache();
+  const { addBook: addBookToCache, getBooks, loading } = useBookCache();
 
   // Helpers
   const updateUser = useCallback((updatedUser: User) => {
@@ -111,6 +114,26 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
     return userBooks[bookId]?.progress || 0;
   }, [currentUser]);
 
+  const getCompletedBooks = useCallback((): BookData[] => {
+    if (!currentUser?.books) return [];
+    
+    const userBooks = currentUser.books;
+    const completedIds = Object.keys(userBooks).filter(
+      (bookId) => userBooks[bookId].status === "completed"
+    );
+    return getBooks(completedIds);
+  }, [currentUser, getBooks]);
+
+  const getToReadBooks = useCallback((): BookData[] => {
+    if (!currentUser?.books) return [];
+    
+    const userBooks = currentUser.books;
+    const toReadIds = Object.keys(userBooks).filter(
+      (bookId) => userBooks[bookId].status !== "completed"
+    );
+    return getBooks(toReadIds);
+  }, [currentUser, getBooks]);
+
   return (
     <SavedBooksContext.Provider
       value={{
@@ -119,6 +142,9 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
         removeBook,
         updateProgress,
         getUserBookProgress,
+        getCompletedBooks,
+        getToReadBooks,
+        loading,
       }}
     >
       {children}
