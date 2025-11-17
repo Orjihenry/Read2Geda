@@ -407,28 +407,30 @@ function ClubMembersSection() {
   const { clubId } = useParams();
   const { clubs } = useClub();
   const { users } = useAuthContext();
-  const { getUserBookProgress } = useSavedBooks();
+  const { getUserBookProgressById } = useClub();
   const club = clubs.find((c) => c.id === clubId);
   const [showAll, setShowAll] = useState(false);
   const INITIAL_DISPLAY_COUNT = 6;
 
   const currentBookId = club?.currentBook?.bookId;
 
+  const clubMembers = club?.members?.length
+    ? club.members.map((member) => {
+        const user = users?.find((u) => u.id === member.id);
+        return {
+          ...member,
+          name: user?.name || "Unknown User",
+          email: user?.email || "",
+          avatar: user?.avatar,
+        };
+      })
+    : [];
+
+  const { filteredData: filteredMembers, searchInput: searchQuery, setSearchInput: setSearchQuery } = useSearchFilter(clubMembers);
+
   if (!club || !club.members || club.members.length === 0) {
     return null;
   }
-
-  const clubMembers = club.members.map((member) => {
-    const user = users?.find((u) => u.id === member.id);
-    return {
-      ...member,
-      name: user?.name || "Unknown User",
-      email: user?.email || "",
-      avatar: user?.avatar,
-    };
-  });
-
-  const { filteredData: filteredMembers, searchInput: searchQuery, setSearchInput: setSearchQuery } = useSearchFilter(clubMembers);
 
   const showAllButtons = () => {
     setShowAll(!showAll);
@@ -542,8 +544,7 @@ function ClubMembersSection() {
               <div className="row g-2">
                 {membersToShow.map((member) => {
                   const memberProgress = currentBookId 
-                    ? getUserBookProgress(member.id, currentBookId) 
-                    : 0;
+                    ? getUserBookProgressById(member.id, currentBookId) : 0;
                   
                   return (
                     <div key={member.id} className="col-md-6 col-lg-4">
@@ -654,7 +655,7 @@ function CurrentBookSection() {
     } else {
       setCurrentBook(null);
     }
-  }, [club?.currentBook?.bookId, allBooks]);
+  }, [club?.currentBook?.bookId, allBooks, club]);
 
   const changeCurrentBook = (bookId: string) => {
     if (!clubId || !userId) return;
