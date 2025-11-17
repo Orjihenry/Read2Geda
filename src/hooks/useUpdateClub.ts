@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useClub } from "../context/ClubContext";
+import { getCurrentDateTime } from "../utils/dateUtils";
 
 export default function useUpdateClub() {
   const { clubId } = useParams();
@@ -47,17 +48,14 @@ export default function useUpdateClub() {
     setLoading(true);
 
     try {
-      // Validate club name (check if it exists and is different from current)
       if (clubName !== currentClub.name && clubNameExists(clubName)) {
         setErrMsg("Club name already exists");
         setLoading(false);
         return;
       }
 
-      // Process tags
       const processedTags = tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
 
-      // Create updated club object
       const updatedClub = {
         ...currentClub,
         name: clubName,
@@ -67,21 +65,20 @@ export default function useUpdateClub() {
         meetingFrequency: meetingFrequency,
         meetingPlatform: meetingPlatform,
         isPublic: isPublic,
-        updatedAt: new Date().toISOString(),
+        updatedAt: getCurrentDateTime(),
       };
 
-      // Update the club
       updateClub(updatedClub);
       
       setSuccess(true);
       setLoading(false);
       
-      // Navigate back to club details after a short delay
       setTimeout(() => {
         navigate(`/club/${clubId}`);
       }, 1500);
 
     } catch (error) {
+      console.error("Error updating club:", error);
       setErrMsg("Failed to update club");
       setLoading(false);
     }
