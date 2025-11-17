@@ -27,7 +27,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
 
     localStorage.setItem("users", JSON.stringify(updatedUsers));
     updateProfile(updatedUser);
-}, [users, updateProfile]);
+  }, [users, updateProfile]);
 
   const isInShelf = useCallback((bookId: string) => {
     if (!currentUser) return false;
