@@ -8,7 +8,7 @@ import { useFetchImage } from "../hooks/useFetchImage";
 import { useAuthContext } from "../context/AuthContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import { useBookCache } from "../context/BookCacheContext";
-import type { BookData, BookProgress } from "../utils/bookData";
+import type { BookData } from "../utils/bookData";
 import placeholderAvatar from "../assets/placeholder.png";
 import { NavLink } from "react-router-dom";
 import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield } from "react-icons/md";
@@ -19,7 +19,7 @@ import useSearchFilter from "../hooks/useSearchFilter";
 export default function Profile() {
   const { currentUser } = useAuthContext();
   const { clubs } = useClub();
-  const { getReadingProgress, updateProgress, getUserBookProgress } = useSavedBooks();
+  const { updateProgress, getUserBookProgress } = useSavedBooks();
   const { getBooks } = useBookCache();
 
   const currentClub = clubs.find(
@@ -36,22 +36,13 @@ export default function Profile() {
   } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [progress, setProgress] = useState<number>(0);
-  const [progressList, setProgressList] = useState<BookProgress[]>([]);
   const { imageUrl: avatar } = useFetchImage(currentUser?.avatar, placeholderAvatar);
-
-  useEffect(() => {
-    if (!currentUser) return;
-
-    const list = getReadingProgress(currentUser.id);
-    setProgressList(list);
-  }, [currentUser, getReadingProgress]);
 
   useEffect(() => {
     if (!currentUser) return;
 
     try {
       const userBookIds = Object.keys(currentUser.books || {});
-      
       const userBooks = getBooks(userBookIds);
       setBooks(userBooks);
 
@@ -61,9 +52,13 @@ export default function Profile() {
       if (storedCurrentId && userBooks.find((b) => b.id === storedCurrentId)) {
         selected = userBooks.find((b) => b.id === storedCurrentId);
       } else {
-        const currentProgress = progressList.find((p) => p.status === "reading") || progressList[0];
-        selected = currentProgress
-          ? userBooks.find((b) => b.id === currentProgress.bookId)
+        const readingBookId = Object.entries(currentUser.books || {}).find(
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          ([_, bookData]) => bookData.status === "reading"
+        )?.[0];
+        
+        selected = readingBookId 
+          ? userBooks.find((b) => b.id === readingBookId)
           : userBooks[0];
       }
 
@@ -84,7 +79,7 @@ export default function Profile() {
     } catch (error) {
       console.error("Failed to load books:", error);
     }
-  }, [currentUser, progressList, getBooks, getUserBookProgress]);
+  }, [currentUser, getBooks, getUserBookProgress]);
 
   const openModal = () => {
     if (!currentBook) return;
