@@ -3,7 +3,7 @@ import { getCurrentDateTime } from "../utils/dateUtils";
 import { useAuthContext } from "./AuthContext";
 import { useBookCache } from "./BookCacheContext";
 import type { User, UserBooks } from "../types/user";
-import type { BookData, BookProgress } from "../utils/bookData";
+import type { BookData } from "../utils/bookData";
 
 type SavedBooksContextType = {
   isInShelf: (bookId: string) => boolean;
@@ -11,8 +11,6 @@ type SavedBooksContextType = {
   removeBook: (bookId: string) => void;
   updateProgress: (bookId: string, progress: number) => void;
   getUserBookProgress: (bookId: string) => number;
-  getReadingProgress: (userId: string) => BookProgress[];
-  getBookClubProgress: (bookId: string) => number;
 };
 
 const SavedBooksContext = createContext<SavedBooksContextType | undefined>(undefined);
@@ -29,7 +27,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
 
     localStorage.setItem("users", JSON.stringify(updatedUsers));
     updateProfile(updatedUser);
-  }, [users, updateProfile]);
+}, [users, updateProfile]);
 
   const isInShelf = useCallback((bookId: string) => {
     if (!currentUser) return false;
@@ -42,7 +40,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
 
     addBookToCache(book);
 
-    const userBooks: UserBooks = currentUser.books || {};
+    const userBooks: UserBooks = currentUser.books ? { ...currentUser.books } : {};
 
     if (userBooks[book.id]) return;
 
@@ -65,8 +63,9 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
   const removeBook = useCallback((bookId: string) => {
     if (!currentUser) return;
 
+    const userBooks: UserBooks = currentUser.books ? { ...currentUser.books } : {};
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { [bookId]: removed, ...remainingBooks } = currentUser.books || {};
+    const { [bookId]: removed, ...remainingBooks } = userBooks;
 
     const updatedUser: User = {
       ...currentUser,
@@ -79,7 +78,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
   const updateProgress = useCallback((bookId: string, progress: number) => {
     if (!currentUser) return;
 
-    const userBooks: UserBooks = currentUser.books || {};
+    const userBooks: UserBooks = currentUser.books ? { ...currentUser.books } : {};
     const existing = userBooks[bookId];
 
     if (!existing) return;
@@ -112,40 +111,6 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
     return userBooks[bookId]?.progress || 0;
   }, [currentUser]);
 
-  const getReadingProgress = useCallback((userId: string): BookProgress[] => {
-    const user = users.find((u) => u.id === userId);
-    if (!user || !user.books) return [];
-
-    const userBooks: UserBooks = user.books;
-    return Object.entries(userBooks).map(([bookId, bookData]) => ({
-      bookId,
-      userId,
-      progress: bookData.progress,
-      status: bookData.status === "completed" 
-        ? "completed" 
-        : bookData.status === "reading" 
-        ? "reading" 
-        : "not_started",
-      startedAt: bookData.startedAt,
-      completedAt: bookData.completedAt,
-      rating: bookData.rating,
-    }));
-  }, [users]);
-
-  const getBookClubProgress = useCallback((bookId: string): number => {
-    const allProgress = users
-      .map((user) => {
-        const userBooks: UserBooks = user.books || {};
-        return userBooks[bookId]?.progress || 0;
-      })
-      .filter((progress) => progress > 0);
-
-    if (allProgress.length === 0) return 0;
-
-    const total = allProgress.reduce((sum, p) => sum + p, 0);
-    return Math.round(total / allProgress.length);
-  }, [users]);
-
   return (
     <SavedBooksContext.Provider
       value={{
@@ -154,8 +119,6 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
         removeBook,
         updateProgress,
         getUserBookProgress,
-        getReadingProgress,
-        getBookClubProgress,
       }}
     >
       {children}
@@ -163,6 +126,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSavedBooks() {
   const context = useContext(SavedBooksContext);
   if (!context)
