@@ -2,10 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { type bookClub, type ClubBook, type clubMember, defaultBookClubs } from "../utils/bookClub";
 import { getCurrentDateTime } from "../utils/dateUtils";
 import { v4 as uuidv4 } from "uuid";
-import dayjs from "dayjs";
-import { useSavedBooks } from "./SavedBooksContext";
-
-const today = dayjs();
+import { useAuthContext } from "./AuthContext";
+import type { UserBooks } from "../types/user";
 
 type ClubBookStatus = 'upcoming' | 'current' | 'completed';
 
@@ -23,6 +21,7 @@ type ClubContextType = {
   addBookToClub: (clubId: string, bookId: string, userId: string) => void;
   selectCurrentBook: (clubId: string, bookId: string, userId: string) => void;
   removeBookFromClub: (clubId: string, bookId: string) => void;
+  getUserBookProgressById: (userId: string, bookId: string) => number;
   getBookClubProgress: (clubId: string) => number;
   getClubBooks: (clubId: string, status?: ClubBookStatus) => ClubBook[];
   isWishListBook: (bookId: string) => boolean;
@@ -35,7 +34,7 @@ const ClubContext = createContext<ClubContextType | undefined>(undefined);
 export function ClubProvider({ children }: { children: React.ReactNode }) {
   const [clubs, setClubs] = useState<bookClub[]>([]);
   const [loading, setLoading] = useState(false);
-  const { getReadingProgress } = useSavedBooks();
+  const { users } = useAuthContext();
 
   useEffect(() => {
     const savedClubs = localStorage.getItem("bookClubs");
@@ -237,21 +236,30 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return updatedClub;
   }, [findClub, isClubMember, saveClubs, updateClubList]);
 
+  const getUserBookProgressById = useCallback((userId: string, bookId: string): number => {
+    const user = users.find((u) => u.id === userId);
+    if (!user || !user.books) return 0;
+
+    const userBooks: UserBooks = user.books;
+    return userBooks[bookId]?.progress || 0;
+  }, [users]);
+
   const getBookClubProgress = useCallback((clubId: string): number => {
-  const club = findClub(clubId);
-  if (!club || club.members.length === 0 || !club.currentBook) return 0;
+    const club = findClub(clubId);
+    if (!club || club.members.length === 0 || !club.currentBook) return 0;
 
-  const currentBookId = club.currentBook.bookId;
+    const currentBookId = club.currentBook.bookId;
 
-  const totalProgress = club.members.reduce((sum, member) => {
-    const userProgress = getReadingProgress(member.id).find(
-      (p) => p.bookId === currentBookId
-    );
-    return sum + (userProgress?.progress || 0);
-  }, 0);
+    const allProgress = club.members.map((member) => {
+      const user = users.find((u) => u.id === member.id);
+      if (!user || !user.books) return 0;
+      const userBooks: UserBooks = user.books;
+      return userBooks[currentBookId]?.progress || 0;
+    });
 
-  return Math.round(totalProgress / club.members.length);
-}, [findClub, getReadingProgress]);
+    const total = allProgress.reduce((sum, p) => sum + p, 0);
+    return Math.round(total / club.members.length);
+  }, [findClub, users]);
 
   const getClubBooks = useCallback( (clubId: string, status?: ClubBookStatus) => {
     const club = findClub(clubId);
@@ -282,6 +290,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         addBookToClub,
         selectCurrentBook,
         removeBookFromClub,
+        getUserBookProgressById,
         getBookClubProgress,
         getClubBooks,
         isWishListBook,
@@ -294,6 +303,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useClub() {
   const context = useContext(ClubContext);
   if (!context) throw new Error("useClub must be used within a ClubProvider");
