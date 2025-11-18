@@ -11,8 +11,8 @@ type SavedBooksContextType = {
   removeBook: (bookId: string) => void;
   updateProgress: (bookId: string, progress: number) => void;
   getUserBookProgress: (bookId: string) => number;
-  getCompletedBooks: () => BookData[];
-  getToReadBooks: () => BookData[];
+  getCompletedBooks: (limit?: number) => BookData[];
+  getToReadBooks: (limit?: number) => BookData[];
   loading: boolean;
 };
 
@@ -114,24 +114,46 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
     return userBooks[bookId]?.progress || 0;
   }, [currentUser]);
 
-  const getCompletedBooks = useCallback((): BookData[] => {
+  const getCompletedBooks = useCallback((limit?: number): BookData[] => {
     if (!currentUser?.books) return [];
     
     const userBooks = currentUser.books;
     const completedIds = Object.keys(userBooks).filter(
       (bookId) => userBooks[bookId].status === "completed"
     );
-    return getBooks(completedIds);
+    
+    const books = getBooks(completedIds);
+    
+    const sortedBooks = books.sort((a, b) => {
+      const aData = userBooks[a.id];
+      const bData = userBooks[b.id];
+      const aDate = aData.completedAt || aData.addedAt || "";
+      const bDate = bData.completedAt || bData.addedAt || "";
+      return bDate.localeCompare(aDate);
+    });
+    
+    return limit ? sortedBooks.slice(0, limit) : sortedBooks;
   }, [currentUser, getBooks]);
 
-  const getToReadBooks = useCallback((): BookData[] => {
+  const getToReadBooks = useCallback((limit?: number): BookData[] => {
     if (!currentUser?.books) return [];
     
     const userBooks = currentUser.books;
     const toReadIds = Object.keys(userBooks).filter(
       (bookId) => userBooks[bookId].status !== "completed"
     );
-    return getBooks(toReadIds);
+    
+    const books = getBooks(toReadIds);
+    
+    const sortedBooks = books.sort((a, b) => {
+      const aData = userBooks[a.id];
+      const bData = userBooks[b.id];
+      const aDate = aData.addedAt || "";
+      const bDate = bData.addedAt || "";
+      return bDate.localeCompare(aDate);
+    });
+    
+    return limit ? sortedBooks.slice(0, limit) : sortedBooks;
   }, [currentUser, getBooks]);
 
   return (

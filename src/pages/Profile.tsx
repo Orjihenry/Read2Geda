@@ -143,8 +143,8 @@ export default function Profile() {
     ];
   })();
 
-  const completedBooks = getCompletedBooks();
-  const toReadBooks = getToReadBooks();
+  const completedBooks = getCompletedBooks(3);
+  const toReadBooks = getToReadBooks(3);
 
   return (
     <>
