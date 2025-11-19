@@ -193,7 +193,7 @@ export const useClubForm = () => {
             resetForm();
 
             setTimeout(() => {
-              navigate('/discover');
+              navigate('/clubs');
             }, 1500);
     
             } catch (error) {

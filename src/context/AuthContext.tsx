@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { User } from "../types/user.ts";
 import { UsersData } from "../utils/userData.ts";
+import { getCurrentDateTime } from "../utils/dateUtils.ts";
 import { v4 as uuidv4 } from "uuid";
 import Swal from "sweetalert2";
 
@@ -56,8 +57,9 @@ export default function AuthProvider({
       name,
       email,
       pwd,
-      joinedAt: new Date().toString(),
+      joinedAt: getCurrentDateTime(),
       isActive: true,
+      books: {},
     };
 
     if (users.some((u: { email: string }) => u.email === email)) {
