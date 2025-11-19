@@ -28,7 +28,7 @@ export default function BookCard({ item, actions = {}, hideProgress = false }: B
   const { currentUser } = useAuthContext();
   
   const userId = currentUser?.id || "";
-  const userBookProgress = getUserBookProgress(userId, item.id);
+  const userBookProgress = getUserBookProgress(userId);
   const hasStartedReading = userBookProgress > 0;
 
   const renderProgressBar = (label: string) => (
