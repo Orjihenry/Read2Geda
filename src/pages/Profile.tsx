@@ -51,6 +51,8 @@ export default function Profile() {
       
       if (storedCurrentId && userBooks.find((b) => b.id === storedCurrentId)) {
         selected = userBooks.find((b) => b.id === storedCurrentId);
+      } else if (storedCurrentId === null) {
+        selected = undefined;
       } else {
         const readingBookId = Object.entries(currentUser.books || {}).find(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -101,6 +103,13 @@ export default function Profile() {
   };
 
   const changeCurrentBook = (bookId: string) => {
+    if (bookId === "" || bookId === "Select Book") {
+      setCurrentBook(null);
+      setProgress(0);
+      localStorage.removeItem("currentBookId");
+      return;
+    }
+
     const next = books.find((b) => b.id === bookId);
     if (!next) return;
 
@@ -239,11 +248,12 @@ export default function Profile() {
                             <select
                               id="currentBookSelect"
                               className="form-select"
-                              value={currentBook?.id}
+                              value={currentBook?.id || ""}
                               onChange={(e) =>
                                 changeCurrentBook(e.target.value)
                               }
                             >
+                              <option value="" disabled>Select Book</option>
                               {books.map((b: { id: string; title: string }) => (
                                 <option key={b.id} value={b.id}>
                                   {b.title}
