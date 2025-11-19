@@ -33,11 +33,11 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
     search(query);
   }, [query, search]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setQuery("");
     setHasSearched(false);
     onClose();
-  };
+  }, [onClose]);
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="🔎 Search for Books" maxWidth="1000px" showFooter={false}
@@ -141,6 +141,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                         title: "Add to where?",
                         text: `${item.title}`,
                         icon: "question",
+                        showCloseButton: true,
                         showCancelButton: true,
                         confirmButtonText: "Club Shelf",
                         cancelButtonText: "My Shelf",
@@ -149,9 +150,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                         cancelButtonColor: "#6c757d",
                       });
 
-                      if (!choice) {
-                        return;
-                      }
+                      if (!choice) return;
 
                       if (choice) {
                         if (moderatorClubs.length === 1) {
@@ -168,6 +167,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                             input: "select",
                             inputOptions: moderatorClubs.reduce((opt, c) => ({ ...opt, [c.id]: c.name }), {}),
                             inputPlaceholder: "Choose a club",
+                            showCloseButton: true,
                             showCancelButton: true,
                             confirmButtonText: "Add",
                             confirmButtonColor: "#198754",
@@ -214,6 +214,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                               title: "Remove from Club?",
                               text: `Are you sure you want to remove "${item.title}" from ${club?.name || "the club"}?`,
                               icon: "warning",
+                              showCloseButton: true,
                               showCancelButton: true,
                               confirmButtonText: "Yes, Remove",
                               cancelButtonText: "Cancel",
@@ -292,6 +293,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                       title: "Add to where?",
                       text: `${item.title}`,
                       icon: "question",
+                      showCloseButton: true,
                       showCancelButton: true,
                       confirmButtonText: "Club Shelf",
                       cancelButtonText: "My Shelf",
@@ -315,6 +317,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                           input: "select",
                           inputOptions: moderatorClubs.reduce((opt, c) => ({ ...opt, [c.id]: c.name }), {}),
                           inputPlaceholder: "Choose a club",
+                          showCloseButton: true,
                           showCancelButton: true,
                           confirmButtonText: "Add",
                           inputValidator: (value) => (!value ? "You must select a club" : undefined),
@@ -365,6 +368,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
                             title: "Remove from Club?",
                             text: `Are you sure you want to remove "${item.title}" from ${club?.name || "the club"}?`,
                             icon: "warning",
+                            showCloseButton: true,
                             showCancelButton: true,
                             confirmButtonText: "Yes, Remove",
                             cancelButtonText: "Cancel",
