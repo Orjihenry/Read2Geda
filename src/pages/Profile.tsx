@@ -15,6 +15,7 @@ import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield } from "react-
 import { FaCrown } from "react-icons/fa";
 import "../styles/Profile.css";
 import useSearchFilter from "../hooks/useSearchFilter";
+import BookSearchModal from "../components/BookSearchModal";
 
 export default function Profile() {
   const { currentUser } = useAuthContext();
@@ -35,6 +36,7 @@ export default function Profile() {
     readingProgress: number;
   } | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showBookSearchModal, setBookSearchModal] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const { imageUrl: avatar } = useFetchImage(currentUser?.avatar, placeholderAvatar);
 
@@ -88,6 +90,13 @@ export default function Profile() {
     setProgress(currentBook.readingProgress ?? 0);
     setShowModal(true);
   };
+
+  const openBookSearchModal = () => {
+    if (!currentUser) return;
+    setBookSearchModal(true);
+  };
+
+  const closeBookSearchModal = () => setBookSearchModal(false);
 
   const closeModal = () => setShowModal(false);
 
@@ -270,6 +279,9 @@ export default function Profile() {
                       <p className="text-muted">
                         Add a book to your shelf to track progress.
                       </p>
+                      <button className="btn btn-outline-success btn-sm me-2" onClick={openBookSearchModal}>
+                        Search for Books
+                      </button>
                     </div>
                   )}
 
@@ -441,6 +453,11 @@ export default function Profile() {
           )}
         </div>
       </div>
+
+      <BookSearchModal
+        isOpen={showBookSearchModal}
+        onClose={closeBookSearchModal}
+      />
 
       <Footer />
     </>
