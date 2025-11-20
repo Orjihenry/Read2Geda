@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 type ModalProps = {
   isOpen?: boolean;
@@ -10,7 +10,7 @@ type ModalProps = {
   showFooter?: boolean;
 };
 
-export default function Modal({
+const Modal = React.memo(function Modal({
   title,
   children,
   isOpen = false,
@@ -26,6 +26,16 @@ export default function Modal({
       onClose();
     }
   };
+  
+  useEffect(() => {
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEscapeKey);
+    return () => window.removeEventListener("keydown", handleEscapeKey);
+  }, [onClose]);
 
   return (
     <div
@@ -42,7 +52,6 @@ export default function Modal({
           width: "90%",
           maxWidth,
           maxHeight: "90vh",
-          animation: "fadeIn 0.3s ease-in-out",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
@@ -77,4 +86,6 @@ export default function Modal({
       </div>
     </div>
   );
-}
+});
+
+export default Modal;
