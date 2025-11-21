@@ -22,6 +22,12 @@ export type ClubBook = {
   isWishList?: boolean;
 };
 
+export type BookSuggestion = {
+  bookId: string;
+  suggestedBy: string;
+  suggestedAt: string;
+};
+
 export type bookClub = {
   id: string;
   name: string;
@@ -42,6 +48,7 @@ export type bookClub = {
   meetingPlatform?: string;
   currentBook?: ClubBook;
   books?: ClubBook[];
+  suggestions?: BookSuggestion[]; // New field for member suggestions
 };
 
 export const defaultBookClubs: bookClub[] = [

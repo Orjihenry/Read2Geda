@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { type bookClub, type ClubBook, type clubMember, defaultBookClubs } from "../utils/bookClub";
+import type { bookClub, ClubBook, BookSuggestion, clubMember } from "../utils/bookClub";
+import { defaultBookClubs } from "../utils/bookClub";
 import { getCurrentDateTime } from "../utils/dateUtils";
 import { v4 as uuidv4 } from "uuid";
 import { useAuthContext } from "./AuthContext";
@@ -27,6 +28,10 @@ type ClubContextType = {
   isWishListBook: (bookId: string) => boolean;
   updateClubBookStatus: (clubId: string, userId: string, bookId: string, status: ClubBookStatus) => void;
   isModerator: (clubId: string, userId: string) => boolean;
+  suggestBook: (clubId: string, bookId: string, userId: string) => boolean;
+  approveSuggestion: (clubId: string, bookId: string, userId: string) => boolean;
+  rejectSuggestion: (clubId: string, bookId: string, userId: string) => boolean;
+  getSuggestions: (clubId: string) => BookSuggestion[];
 };
 
 const ClubContext = createContext<ClubContextType | undefined>(undefined);
@@ -274,6 +279,102 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return clubs.some((club) => club.books?.some((book) => book.bookId === bookId && book.status === 'upcoming' && book.isWishList));
   };
 
+  const suggestBook = useCallback((clubId: string, bookId: string, userId: string): boolean => {
+    const club = findClub(clubId);
+    if (!club) return false;
+
+    if (!isClubMember(clubId, userId)) return false;
+
+    const existingBook = club.books?.find((book) => book.bookId === bookId);
+    if (existingBook) return false;
+
+    const existingSuggestion = club.suggestions?.find((suggestion) => suggestion.bookId === bookId);
+    if (existingSuggestion) return false;
+
+    const currentDate = getCurrentDateTime();
+    const newSuggestion: BookSuggestion = {
+      bookId,
+      suggestedBy: userId,
+      suggestedAt: currentDate,
+    };
+
+    const updatedClub = {
+      ...club,
+      suggestions: [...(club.suggestions || []), newSuggestion],
+    };
+
+    const updatedClubs = updateClubList(clubId, updatedClub);
+    saveClubs(updatedClubs);
+    return true;
+  }, [findClub, isClubMember, saveClubs, updateClubList]);
+
+  const approveSuggestion = useCallback((clubId: string, bookId: string, userId: string): boolean => {
+    const club = findClub(clubId);
+    if (!club) return false;
+
+    if (!isModerator(clubId, userId)) return false;
+
+    const suggestion = club.suggestions?.find((s) => s.bookId === bookId);
+    if (!suggestion) return false;
+
+    const existingBook = club.books?.find((book) => book.bookId === bookId);
+    if (existingBook) {
+      const updatedSuggestions = club.suggestions?.filter((s) => s.bookId !== bookId) || [];
+      const updatedClub = {
+        ...club,
+        suggestions: updatedSuggestions,
+      };
+      const updatedClubs = updateClubList(clubId, updatedClub);
+      saveClubs(updatedClubs);
+      return false;
+    }
+
+    const currentDate = getCurrentDateTime();
+    const newBook: ClubBook = {
+      bookId,
+      status: 'upcoming',
+      addedBy: userId,
+      addedAt: currentDate,
+      isWishList: false,
+    };
+
+    const updatedSuggestions = club.suggestions?.filter((s) => s.bookId !== bookId) || [];
+    const updatedClub = {
+      ...club,
+      books: [...(club.books || []), newBook],
+      suggestions: updatedSuggestions,
+    };
+
+    const updatedClubs = updateClubList(clubId, updatedClub);
+    saveClubs(updatedClubs);
+    return true;
+  }, [findClub, isModerator, saveClubs, updateClubList]);
+
+  const rejectSuggestion = useCallback((clubId: string, bookId: string, userId: string): boolean => {
+    const club = findClub(clubId);
+    if (!club) return false;
+
+    if (!isModerator(clubId, userId)) return false;
+
+    const suggestion = club.suggestions?.find((s) => s.bookId === bookId);
+    if (!suggestion) return false; 
+
+    const updatedSuggestions = club.suggestions?.filter((s) => s.bookId !== bookId) || [];
+    const updatedClub = {
+      ...club,
+      suggestions: updatedSuggestions,
+    };
+
+    const updatedClubs = updateClubList(clubId, updatedClub);
+    saveClubs(updatedClubs);
+    return true;
+  }, [findClub, isModerator, saveClubs, updateClubList]);
+
+  const getSuggestions = useCallback((clubId: string): BookSuggestion[] => {
+    const club = findClub(clubId);
+    return club?.suggestions || [];
+  }, [findClub]);
+
   return (
     <ClubContext.Provider
       value={{
@@ -296,6 +397,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         isWishListBook,
         updateClubBookStatus,
         isModerator,
+        suggestBook,
+        approveSuggestion,
+        rejectSuggestion,
+        getSuggestions,
       }}
     >
       {children}
