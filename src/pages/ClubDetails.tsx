@@ -65,6 +65,13 @@ export default function ClubDetails() {
     }
   };
 
+  const seeMembers = () => {
+    const clubMembersSection = document.getElementById("clubMembersSection");
+    if (clubMembersSection) {
+      clubMembersSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   if (!club) {
     return (
       <>
@@ -157,7 +164,7 @@ export default function ClubDetails() {
                 <li>
                   <button
                     className="dropdown-item"
-                    onClick={() => console.log("See Members")}
+                    onClick={seeMembers}
                   >
                     <MdPeopleAlt className="me-2" />
                     See Members
@@ -480,7 +487,7 @@ function ClubMembersSection() {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4" id="clubMembersSection">
       <div className="card shadow-sm">
         <div className="card-header bg-light">
           <div className="d-flex justify-content-between align-items-center">
@@ -668,7 +675,7 @@ function CurrentBookSection() {
   };
 
   return (
-    <div className="py-5 bg-light">
+    <div className="bg-light">
       <div className="row mb-5">
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center mb-3">
