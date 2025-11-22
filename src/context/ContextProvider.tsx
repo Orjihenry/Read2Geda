@@ -3,6 +3,7 @@ import { SavedBooksProvider } from "./SavedBooksContext";
 import { ClubProvider } from "./ClubContext";
 import AuthProvider from "./AuthContext";
 import { BookCacheProvider } from "./BookCacheContext";
+import { BookSearchModalProvider } from "./BookSearchModalContext";
 
 interface ContextProviderProps {
   children: ReactNode;
@@ -14,7 +15,9 @@ export function ContextProvider({ children }: ContextProviderProps) {
       <BookCacheProvider>
         <SavedBooksProvider>
           <ClubProvider>
-            {children}
+            <BookSearchModalProvider>
+              {children}
+            </BookSearchModalProvider>
           </ClubProvider>
         </SavedBooksProvider>
       </BookCacheProvider>
@@ -22,4 +25,4 @@ export function ContextProvider({ children }: ContextProviderProps) {
   );
 }
 
-export { SavedBooksProvider, ClubProvider, AuthProvider, BookCacheProvider };
+export { SavedBooksProvider, ClubProvider, AuthProvider, BookCacheProvider, BookSearchModalProvider };
