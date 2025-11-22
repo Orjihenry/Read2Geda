@@ -1,16 +1,15 @@
-import { useState } from "react";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import { useBookCache } from "../context/BookCacheContext";
+import { useBookSearchModal } from "../context/BookSearchModalContext";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import BookCard from "../components/BookCard";
-import BookSearchModal from "../components/BookSearchModal";
 import Swal from "sweetalert2";
 
 export default function BookShelf() {
   const { removeBook, getCompletedBooks, getToReadBooks } = useSavedBooks();
   const { loading } = useBookCache();
-  const [showModal, setShowModal] = useState(false);
+  const { openBookSearch } = useBookSearchModal();
 
   const completedBooks = getCompletedBooks();
   const bookList = getToReadBooks();
@@ -26,7 +25,7 @@ export default function BookShelf() {
             </h1>
             <div className="d-flex gap-2">
               <button
-                onClick={() => setShowModal(true)}
+                onClick={() => openBookSearch()}
                 className="btn btn-success"
               >
                 Add Book
@@ -138,11 +137,6 @@ export default function BookShelf() {
           </div>
         </section>
       </div>
-
-      <BookSearchModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-      />
 
       <Footer />
     </>

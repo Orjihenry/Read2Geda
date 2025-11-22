@@ -8,6 +8,7 @@ import { useFetchImage } from "../hooks/useFetchImage";
 import { useAuthContext } from "../context/AuthContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import { useBookCache } from "../context/BookCacheContext";
+import { useBookSearchModal } from "../context/BookSearchModalContext";
 import type { BookData } from "../utils/bookData";
 import placeholderAvatar from "../assets/placeholder.png";
 import { NavLink } from "react-router-dom";
@@ -15,13 +16,13 @@ import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield } from "react-
 import { FaCrown } from "react-icons/fa";
 import "../styles/Profile.css";
 import useSearchFilter from "../hooks/useSearchFilter";
-import BookSearchModal from "../components/BookSearchModal";
 
 export default function Profile() {
   const { currentUser } = useAuthContext();
   const { clubs } = useClub();
   const { updateProgress, getUserBookProgress, getCompletedBooks, getToReadBooks, loading } = useSavedBooks();
   const { getBooks } = useBookCache();
+  const { openBookSearch } = useBookSearchModal();
 
   const currentClub = clubs.find(
     (club) => club.isActive && club.members.length > 0
@@ -36,7 +37,6 @@ export default function Profile() {
     readingProgress: number;
   } | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [showBookSearchModal, setBookSearchModal] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const { imageUrl: avatar } = useFetchImage(currentUser?.avatar, placeholderAvatar);
 
@@ -90,13 +90,6 @@ export default function Profile() {
     setProgress(currentBook.readingProgress ?? 0);
     setShowModal(true);
   };
-
-  const openBookSearchModal = () => {
-    if (!currentUser) return;
-    setBookSearchModal(true);
-  };
-
-  const closeBookSearchModal = () => setBookSearchModal(false);
 
   const closeModal = () => setShowModal(false);
 
@@ -279,7 +272,7 @@ export default function Profile() {
                       <p className="text-muted">
                         Add a book to your shelf to track progress.
                       </p>
-                      <button className="btn btn-outline-success btn-sm me-2" onClick={openBookSearchModal}>
+                      <button className="btn btn-outline-success btn-sm me-2" onClick={() => openBookSearch()}>
                         Search for Books
                       </button>
                     </div>
@@ -453,11 +446,6 @@ export default function Profile() {
           )}
         </div>
       </div>
-
-      <BookSearchModal
-        isOpen={showBookSearchModal}
-        onClose={closeBookSearchModal}
-      />
 
       <Footer />
     </>
