@@ -54,11 +54,22 @@ export default function BookShelf() {
                           showCancelButton: true,
                           confirmButtonText: "Yes, Remove",
                           cancelButtonText: "Cancel",
-                          confirmButtonColor: "#dc3545",
+                          customClass: {
+                            confirmButton: "btn btn-success",
+                            cancelButton: "btn btn-outline-success",
+                          },
                         });
                         if (isConfirmed) {
                           removeBook(item.id);
-                          Swal.fire("Removed", `${item.title} removed from your shelf.`, "success");
+                          Swal.fire({
+                            title: "Removed",
+                            text: `${item.title} removed from your shelf.`,
+                            icon: "success",
+                            confirmButtonText: "OK",
+                            customClass: {
+                              confirmButton: "btn btn-success",
+                            },
+                          });
                         }
                       },
                       onReadClick: () => {
@@ -95,11 +106,22 @@ export default function BookShelf() {
                             showCancelButton: true,
                             confirmButtonText: "Yes, Remove",
                             cancelButtonText: "Cancel",
-                            confirmButtonColor: "#dc3545",
+                            customClass: {
+                              confirmButton: "btn btn-success",
+                              cancelButton: "btn btn-outline-success",
+                            },
                           });
                           if (isConfirmed) {
                             removeBook(item.id);
-                            Swal.fire("Removed", `${item.title} removed from your shelf.`, "success");
+                            Swal.fire({
+                              title: "Removed",
+                              text: `${item.title} removed from your shelf.`,
+                              icon: "success",
+                              confirmButtonText: "OK",
+                              customClass: {
+                                confirmButton: "btn btn-success",
+                              },
+                            });
                           }
                         },
                         onReadClick: () => {

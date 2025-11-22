@@ -272,7 +272,10 @@ export default function ClubDetails() {
                             showCancelButton: true,
                             confirmButtonText: "Yes, Remove",
                             cancelButtonText: "Cancel",
-                            confirmButtonColor: "#dc3545",
+                            customClass: {
+                              confirmButton: "btn btn-success",
+                              cancelButton: "btn btn-outline-success",
+                            },
                           });
                           if (isConfirmed) {
                             removeBookFromClub(clubId, book.id);
@@ -280,7 +283,10 @@ export default function ClubDetails() {
                               title: "Removed",
                               text: `${book.title} removed from ${club?.name || "club"} shelf.`,
                               icon: "success",
-                              confirmButtonColor: "#198754",
+                              confirmButtonText: "OK",
+                              customClass: {
+                                confirmButton: "btn btn-success",
+                              },
                             });
                           }
                         } : undefined,
@@ -324,7 +330,10 @@ export default function ClubDetails() {
                             title: "Added!",
                             text: `${book.title} added to your shelf.`,
                             icon: "success",
-                            confirmButtonColor: "#198754",
+                            confirmButtonText: "OK",
+                            customClass: {
+                              confirmButton: "btn btn-success",
+                            },
                           });
                         } : undefined,
                         onRemove: canModifyClub ? async () => {
@@ -336,7 +345,10 @@ export default function ClubDetails() {
                             showCancelButton: true,
                             confirmButtonText: "Yes, Remove",
                             cancelButtonText: "Cancel",
-                            confirmButtonColor: "#dc3545",
+                            customClass: {
+                              confirmButton: "btn btn-success",
+                              cancelButton: "btn btn-outline-success",
+                            },
                           });
                           if (isConfirmed) {
                             removeBookFromClub(clubId, book.id);
@@ -344,7 +356,10 @@ export default function ClubDetails() {
                               title: "Removed",
                               text: `${book.title} removed from ${club?.name || "club"} shelf.`,
                               icon: "success",
-                              confirmButtonColor: "#198754",
+                              confirmButtonText: "OK",
+                              customClass: {
+                                confirmButton: "btn btn-success",
+                              },
                             });
                           }
                         } : undefined,

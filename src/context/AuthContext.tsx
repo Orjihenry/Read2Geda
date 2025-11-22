@@ -68,6 +68,10 @@ export default function AuthProvider({
         title: "Email already exists",
         text: "Please use a different email or login",
         confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "btn btn-success",
+          popup: "rounded-3 shadow",
+        },
       });
       return false;
     }
@@ -94,7 +98,7 @@ export default function AuthProvider({
         text: "Please try again",
         confirmButtonText: "OK",
         customClass: {
-          confirmButton: "btn btn-outline-success",
+          confirmButton: "btn btn-success",
           popup: "rounded-3 shadow",
         },
       });
