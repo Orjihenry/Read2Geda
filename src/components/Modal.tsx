@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 type ModalProps = {
-  isOpen?: boolean;
+  isOpen: boolean;
   onClose: () => void;
   title?: string;
   children?: React.ReactNode;
@@ -10,32 +10,24 @@ type ModalProps = {
   showFooter?: boolean;
 };
 
-const Modal = React.memo(function Modal({
-  title,
-  children,
-  isOpen = false,
-  onClose,
-  maxWidth = "500px",
-  footer,
-  showFooter = true,
-}: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, maxWidth = "500px", footer, showFooter = true }: ModalProps) {
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
-  
-  useEffect(() => {
-    const handleEscapeKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleEscapeKey);
-    return () => window.removeEventListener("keydown", handleEscapeKey);
-  }, [onClose]);
 
   return (
     <div
@@ -86,6 +78,4 @@ const Modal = React.memo(function Modal({
       </div>
     </div>
   );
-});
-
-export default Modal;
+}

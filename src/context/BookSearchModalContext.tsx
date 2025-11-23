@@ -25,11 +25,13 @@ export function BookSearchModalProvider({ children }: { children: React.ReactNod
   return (
     <BookSearchModalContext.Provider value={{ openBookSearch, closeBookSearch }}>
       {children}
-      <BookSearchModal
-        isOpen={isOpen}
-        clubId={clubId}
-        onClose={closeBookSearch}
-      />
+      {isOpen && (
+        <BookSearchModal
+          isOpen={isOpen}
+          clubId={clubId}
+          onClose={closeBookSearch}
+        />
+      )}
     </BookSearchModalContext.Provider>
   );
 }
