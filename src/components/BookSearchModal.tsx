@@ -3,10 +3,7 @@ import Modal from "./Modal";
 import BookCard from "./BookCard";
 import useSearchBooks from "../hooks/useSearchBooks";
 import useRandomBooks from "../hooks/useOpenLibrary";
-import { useAuthContext } from "../context/AuthContext";
-import { useClub } from "../context/ClubContext";
-import { useSavedBooks } from "../context/SavedBooksContext";
-import Swal from "sweetalert2";
+import { useBookActions } from "../hooks/useBookActions";
 
 type BookSearchModalProps = {
   isOpen: boolean;
@@ -19,10 +16,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
   const { books: randomBooks } = useRandomBooks();
   const [hasSearched, setHasSearched] = useState(false);
   const { books: searchResults, loading: searchLoading, search } = useSearchBooks();
-  const { currentUser } = useAuthContext();
-  const { addBookToClub, removeBookFromClub, isModerator, getClubBooks, getMyClubs } = useClub();
-  const { isInShelf, addBook } = useSavedBooks();
-  const userId = currentUser?.id || "";
+  const { handleAddBook, handleRemoveBook, getBookStatus } = useBookActions({ clubId });
 
   const handleSearch = useCallback(() => {
     if (!query.trim()) {
@@ -39,9 +33,30 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
     onClose();
   }, [onClose]);
 
+  const renderBookCard = useCallback((item: typeof searchResults[0], index: number) => {
+    const { inClubShelf, canModifyClub } = getBookStatus(item.id);
+
+    return (
+      <div key={item.id || index} className={hasSearched ? "col-md-6" : "col-md-4"}>
+        <BookCard
+          item={item}
+          hideProgress={true}
+          actions={{
+            onAdd: () => handleAddBook(item),
+            onRemove: clubId && inClubShelf && canModifyClub 
+              ? () => handleRemoveBook(item) 
+              : undefined,
+            onReadClick: () => {
+              // TODO: Implement book reading functionality
+            },
+          }}
+        />
+      </div>
+    );
+  }, [hasSearched, clubId, getBookStatus, handleAddBook, handleRemoveBook]);
+
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="🔎 Search for Books" maxWidth="1000px" showFooter={false}
-    >
+    <Modal isOpen={isOpen} onClose={handleClose} title="🔎 Search for Books" maxWidth="1000px" showFooter={false}>
       <div>
         <div className="input-group mb-4">
           <input
@@ -88,310 +103,12 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
               </div>
             ) : searchResults && searchResults.length > 0 ? (
               <div className="row g-3">
-                {searchResults.map((item, index) => {
-                  const inPersonalShelf = isInShelf(item.id);
-                  const inClubShelf = clubId ? getClubBooks(clubId).some((clubBook) => clubBook.bookId === item.id) : false;
-                  const canModifyClub = clubId ? isModerator(clubId, userId) : false;
-                  const myClubs = userId ? getMyClubs(userId) : [];
-                  const moderatorClubs = myClubs.filter((club) => isModerator(club.id, userId));
-
-                  const handleAddBook = async () => {
-                    if (!userId) {
-                      Swal.fire({
-                        title: "Login Required",
-                        text: "Please log in to add books.", 
-                        icon: "info",
-                        confirmButtonColor: "#198754",
-                      });
-                      return;
-                    }
-
-                    if (clubId) {
-                      if (!isModerator(clubId, userId)) {
-                        Swal.fire({
-                          title: "Permission Denied",
-                          text: "Only moderators can add books to the club shelf.", 
-                          icon: "error",
-                          confirmButtonColor: "#dc3545",
-                        });
-                        return;
-                      }
-                      if (inClubShelf) {
-                        Swal.fire({
-                          title: "Already Added",
-                          text: `${item.title} is already in this club's shelf.`, 
-                          icon: "info",
-                          confirmButtonColor: "#198754",
-                        });
-                        return;
-                      }
-                      addBookToClub(clubId, item.id, userId);
-                      const club = myClubs.find((c) => c.id === clubId);
-                      Swal.fire({
-                        title: "Added!",
-                        text: `${item.title} added to ${club?.name || "the club"}.`, 
-                        icon: "success",
-                        confirmButtonColor: "#198754",
-                      });
-                      return;
-                    }
-
-                    if (moderatorClubs.length > 0) {
-                      const { value: choice } = await Swal.fire({
-                        title: "Add to where?",
-                        text: `${item.title}`,
-                        icon: "question",
-                        showCloseButton: true,
-                        showCancelButton: true,
-                        confirmButtonText: "Club Shelf",
-                        cancelButtonText: "My Shelf",
-                        reverseButtons: true,
-                        confirmButtonColor: "#198754",
-                        cancelButtonColor: "#6c757d",
-                      });
-
-                      if (!choice) return;
-
-                      if (choice) {
-                        if (moderatorClubs.length === 1) {
-                          addBookToClub(moderatorClubs[0].id, item.id, userId);
-                          Swal.fire({
-                            title: "Added!",
-                            text: `${item.title} added to ${moderatorClubs[0].name}.`, 
-                            icon: "success",
-                            confirmButtonColor: "#198754",
-                          });
-                        } else {
-                          const { value: selectedClubId } = await Swal.fire({
-                            title: "Select a Club",
-                            input: "select",
-                            inputOptions: moderatorClubs.reduce((opt, c) => ({ ...opt, [c.id]: c.name }), {}),
-                            inputPlaceholder: "Choose a club",
-                            showCloseButton: true,
-                            showCancelButton: true,
-                            confirmButtonText: "Add",
-                            confirmButtonColor: "#198754",
-                            inputValidator: (value) => (!value ? "You must select a club" : undefined),
-                          });
-                          if (selectedClubId) {
-                            addBookToClub(selectedClubId, item.id, userId);
-                            const targetClub = moderatorClubs.find((c) => c.id === selectedClubId);
-                            Swal.fire({
-                              title: "Added!",
-                              text: `${item.title} added to ${targetClub?.name}.`, 
-                              icon: "success",
-                              confirmButtonColor: "#198754",
-                            });
-                          }
-                        }
-                        return;
-                      }
-                    }
-
-                    if (inPersonalShelf) {
-                      Swal.fire("Already in Shelf", `${item.title} is already on your shelf.`, "info");
-                      return;
-                    }
-                    addBook(item);
-                    Swal.fire({
-                      title: "Added!",
-                      text: `${item.title} added to your shelf.`, 
-                      icon: "success",
-                      confirmButtonColor: "#198754",
-                    });
-                  };
-
-                  return (
-                    <div key={item.id || index} className="col-md-6">
-                      <BookCard
-                        item={item}
-                        hideProgress={true}
-                        actions={{
-                          onAdd: handleAddBook,
-                          onRemove: clubId && inClubShelf && canModifyClub ? async () => {
-                            const club = myClubs.find((c) => c.id === clubId);
-                            const { isConfirmed } = await Swal.fire({
-                              title: "Remove from Club?",
-                              text: `Are you sure you want to remove "${item.title}" from ${club?.name || "the club"}?`,
-                              icon: "warning",
-                              showCloseButton: true,
-                              showCancelButton: true,
-                              confirmButtonText: "Yes, Remove",
-                              cancelButtonText: "Cancel",
-                              confirmButtonColor: "#dc3545",
-                            });
-                            if (isConfirmed) {
-                              removeBookFromClub(clubId, item.id);
-                              Swal.fire({
-                                title: "Removed",
-                                text: `${item.title} removed from ${club?.name || "club"} shelf.`, 
-                                icon: "success",
-                                confirmButtonColor: "#198754",
-                              });
-                            }
-                          } : undefined,
-                          onReadClick: () => {
-                            // TODO: Implement book reading functionality
-                          },
-                        }}
-                      />
-                    </div>
-                  );
-                })}
+                {searchResults.map(renderBookCard)}
               </div>
             ) : randomBooks && randomBooks.length > 0 ? (
-              randomBooks.map((item, index) => {
-                const inPersonalShelf = isInShelf(item.id);
-                const inClubShelf = clubId ? getClubBooks(clubId).some((clubBook) => clubBook.bookId === item.id) : false;
-                const canModifyClub = clubId ? isModerator(clubId, userId) : false;
-                const myClubs = userId ? getMyClubs(userId) : [];
-                const moderatorClubs = myClubs.filter((club) => isModerator(club.id, userId));
-
-                const handleAddBook = async () => {
-                  if (!userId) {
-                    Swal.fire({
-                      title: "Login Required",
-                      text: "Please log in to add books.", 
-                      icon: "info",
-                      confirmButtonColor: "#198754",
-                    });
-                    return;
-                  }
-
-                  if (clubId) {
-                    if (!isModerator(clubId, userId)) {
-                      Swal.fire({
-                        title: "Permission Denied",
-                        text: "Only moderators can add books to the club shelf.", 
-                        icon: "error",
-                        confirmButtonColor: "#dc3545",
-                      });
-                      return;
-                    }
-                    if (inClubShelf) {
-                      Swal.fire({
-                        title: "Already Added",
-                        text: `${item.title} is already in this club's shelf.`, 
-                        icon: "info",
-                        confirmButtonColor: "#198754",
-                      });
-                      return;
-                    }
-                    addBookToClub(clubId, item.id, userId);
-                    const club = myClubs.find((c) => c.id === clubId);
-                    Swal.fire({
-                      title: "Added!",
-                      text: `${item.title} added to ${club?.name || "the club"}.`, 
-                      icon: "success",
-                      confirmButtonColor: "#198754",
-                    });
-                    return;
-                  }
-
-                  if (moderatorClubs.length > 0) {
-                    const { value: choice } = await Swal.fire({
-                      title: "Add to where?",
-                      text: `${item.title}`,
-                      icon: "question",
-                      showCloseButton: true,
-                      showCancelButton: true,
-                      confirmButtonText: "Club Shelf",
-                      cancelButtonText: "My Shelf",
-                      reverseButtons: true,
-                      confirmButtonColor: "#198754",
-                      cancelButtonColor: "#6c757d",
-                    });
-
-                    if (choice) {
-                      if (moderatorClubs.length === 1) {
-                        addBookToClub(moderatorClubs[0].id, item.id, userId);
-                        Swal.fire({
-                          title: "Added!",
-                          text: `${item.title} added to ${moderatorClubs[0].name}.`, 
-                          icon: "success",
-                          confirmButtonColor: "#198754",
-                        });
-                      } else {
-                        const { value: selectedClubId } = await Swal.fire({
-                          title: "Select a Club",
-                          input: "select",
-                          inputOptions: moderatorClubs.reduce((opt, c) => ({ ...opt, [c.id]: c.name }), {}),
-                          inputPlaceholder: "Choose a club",
-                          showCloseButton: true,
-                          showCancelButton: true,
-                          confirmButtonText: "Add",
-                          inputValidator: (value) => (!value ? "You must select a club" : undefined),
-                        });
-                        if (selectedClubId) {
-                          addBookToClub(selectedClubId, item.id, userId);
-                          const targetClub = moderatorClubs.find((c) => c.id === selectedClubId);
-                          Swal.fire({
-                            title: "Added!",
-                            text: `${item.title} added to ${targetClub?.name}.`, 
-                            icon: "success",
-                            confirmButtonColor: "#198754",
-                          });
-                        }
-                      }
-                      return;
-                    }
-                  }
-
-                  if (inPersonalShelf) {
-                    Swal.fire({
-                      title: "Already in Shelf",
-                      text: `${item.title} is already on your shelf.`, 
-                      icon: "info",
-                      confirmButtonColor: "#198754",
-                    });
-                    return;
-                  }
-                  addBook(item);
-                  Swal.fire({
-                    title: "Added!",
-                    text: `${item.title} added to your shelf.`, 
-                    icon: "success",
-                    confirmButtonColor: "#198754",
-                  });
-                };
-
-                return (
-                  <div key={item.id || index} className="col-md-4">
-                    <BookCard
-                      item={item}
-                      hideProgress={true}
-                      actions={{
-                        onAdd: handleAddBook,
-                        onRemove: clubId && inClubShelf && canModifyClub ? async () => {
-                          const club = myClubs.find((c) => c.id === clubId);
-                          const { isConfirmed } = await Swal.fire({
-                            title: "Remove from Club?",
-                            text: `Are you sure you want to remove "${item.title}" from ${club?.name || "the club"}?`,
-                            icon: "warning",
-                            showCloseButton: true,
-                            showCancelButton: true,
-                            confirmButtonText: "Yes, Remove",
-                            cancelButtonText: "Cancel",
-                            confirmButtonColor: "#dc3545",
-                          });
-                          if (isConfirmed) {
-                            removeBookFromClub(clubId, item.id);
-                            Swal.fire({
-                              title: "Removed",
-                              text: `${item.title} removed from ${club?.name || "club"} shelf.`, 
-                              icon: "success",
-                              confirmButtonColor: "#198754",
-                            });
-                          }
-                        } : undefined,
-                        onReadClick: () => {
-                          // TODO: Implement book reading functionality
-                        },
-                      }}
-                    />
-                  </div>
-                );
-              })
+              <div className="row g-3">
+                {randomBooks.map(renderBookCard)}
+              </div>
             ) : (
               <div className="text-center py-5">
                 <p className="lead text-muted">
