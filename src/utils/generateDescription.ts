@@ -48,7 +48,7 @@ export async function generateBriefDescription(
   }
 
   try {
-    const prompt = "Brief book description (max 20 words): What is the book about and top 3 genres? Plus its authors";
+    const prompt = `Create a very brief (max 20 words) description of this book. Title: ${title}, Author: ${author}, Year: ${publishedYear || "Unknown"}. Return ONLY the description. No extra commentary.`;
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -61,7 +61,7 @@ export async function generateBriefDescription(
         messages: [
           {
             role: 'system',
-            content: 'Generate brief, concise book descriptions in one sentence (max 20 words).'
+            content: 'Generate brief, concise book descriptions in one sentence (max 20 words). Do not include the title, author, or year in the description.'
           },
           {
             role: 'user',
