@@ -1,12 +1,6 @@
 import { type BookData } from "../utils/bookData";
-import {
-  MdAddLocationAlt,
-  MdPeopleAlt,
-  MdStar,
-} from "react-icons/md";
+import { MdAddLocationAlt, MdPeopleAlt, MdStar } from "react-icons/md";
 import { IoMdPricetag } from "react-icons/io";
-import { useAuthContext } from "../context/AuthContext";
-import { useSavedBooks } from "../context/SavedBooksContext";
 import { Button } from "react-bootstrap";
 
 export type BookCardActions = {
@@ -22,30 +16,29 @@ export type BookCardActions = {
 export type BookCardProps = {
   item: BookData;
   actions?: BookCardActions[];
-  hideItem?: boolean;
+  progress?: number;
+  showProgress?: boolean;
 };
 
-export default function BookCard({ item, actions = [], hideItem = false }: BookCardProps) {
-  const { getUserBookProgress } = useSavedBooks();
-  const { currentUser } = useAuthContext();
-  
-  const userId = currentUser?.id || "";
-  const userBookProgress = getUserBookProgress(userId);
-
-  const renderProgressBar = (label: string) => (
-    <div className="mb-2">
-      <div className="d-flex justify-content-between align-items-center mb-1">
-        <small className="text-muted">{label}</small>
-        <small className="text-muted">{userBookProgress || 0}%</small>
+export default function BookCard({ item, actions = [], progress, showProgress = false }: BookCardProps) {
+  const renderProgressBar = () => {
+    if (!showProgress || progress === undefined) return null;
+    
+    return (
+      <div className="mb-2">
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <small className="text-muted">Progress</small>
+          <small className="text-muted">{progress || 0}%</small>
+        </div>
+        <div className="progress" style={{ height: "4px" }}>
+          <div
+            className="progress-bar bg-success"
+            style={{ width: `${progress || 0}%` }}
+          />
+        </div>
       </div>
-      <div className="progress" style={{ height: "4px" }}>
-        <div
-          className="progress-bar bg-success"
-          style={{ width: `${userBookProgress || 0}%` }}
-        />
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderActionButtons = () => {
     if (actions.length === 0) return null;
@@ -149,7 +142,7 @@ export default function BookCard({ item, actions = [], hideItem = false }: BookC
       </div>
 
        <div className="mt-3 pt-3 border-top">
-         {!hideItem && renderProgressBar("Progress")}
+         {renderProgressBar()}
          {renderActionButtons()}
        </div>
     </div>
