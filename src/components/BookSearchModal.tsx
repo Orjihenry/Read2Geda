@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
 import Modal from "./Modal";
-import BookCard from "./BookCard";
+import BookCard, { type BookCardActions } from "./BookCard";
 import useSearchBooks from "../hooks/useSearchBooks";
 import useRandomBooks from "../hooks/useOpenLibrary";
 import { useBookActions } from "../hooks/useBookActions";
+import { MdOutlineFavorite } from "react-icons/md";
+import { IoMdClose } from "react-icons/io";
 
 type BookSearchModalProps = {
   isOpen: boolean;
@@ -36,20 +38,33 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
   const renderBookCard = useCallback((item: typeof searchResults[0], index: number) => {
     const { inClubShelf, canModifyClub } = getBookStatus(item.id);
 
+    const actions: BookCardActions[] = [];
+    
+    if (clubId && inClubShelf && canModifyClub) {
+      actions.push({
+        key: "remove",
+        label: "Remove",
+        icon: <IoMdClose className="me-1" />,
+        className: "btn btn-outline-danger flex-fill",
+        title: "Remove from club",
+        onClick: () => handleRemoveBook(item),
+      });
+    }
+    
+    actions.push({
+      key: "add",
+      label: "Add",
+      icon: <MdOutlineFavorite className="me-1" />,
+      className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+      title: "Add to shelf",
+      onClick: () => handleAddBook(item),
+    });
+
     return (
       <div key={item.id || index} className={hasSearched ? "col-md-6" : "col-md-4"}>
         <BookCard
           item={item}
-          hideProgress={true}
-          actions={{
-            onAdd: () => handleAddBook(item),
-            onRemove: clubId && inClubShelf && canModifyClub 
-              ? () => handleRemoveBook(item) 
-              : undefined,
-            onReadClick: () => {
-              // TODO: Implement book reading functionality
-            },
-          }}
+          actions={actions}
         />
       </div>
     );

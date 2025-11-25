@@ -24,7 +24,6 @@ export default function BookCarouselPage() {
         <BookCard
           key={index}
           item={item}
-          actions={{}}
         />
       )}
     />
