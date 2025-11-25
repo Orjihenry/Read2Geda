@@ -3,8 +3,9 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import JoinClubButton from "../components/JoinClubButton";
 import { FaCrown } from "react-icons/fa";
+import { IoMdClose } from "react-icons/io";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
-import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdChatBubble } from "react-icons/md";
+import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdChatBubble, MdOutlineFavorite } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
@@ -13,23 +14,25 @@ import { useFetchImage } from "../hooks/useFetchImage";
 import placeholderClubImage from "../assets/bookClub.jpg";
 import { useAuthContext } from "../context/AuthContext";
 import useBookData from "../hooks/useBookData";
-import BookSearchModal from "../components/BookSearchModal";
 import type { ClubBook } from "../utils/bookClub";
-import BookCard from "../components/BookCard";
+import BookCard, { type BookCardActions } from "../components/BookCard";
 import { useSavedBooks } from "../context/SavedBooksContext";
+import { useBookSearchModal } from "../context/BookSearchModalContext";
 import useSearchFilter from "../hooks/useSearchFilter";
+import Button from "../components/Button";
 import Swal from "sweetalert2";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
   const navigate = useNavigate();
+  const { openBookSearch } = useBookSearchModal();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator } = useClub();
   const [upcomingBooks, setUpcomingBooks] = useState<ClubBook[]>([]);
   const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
   const { books } = useBookData();
   const { currentUser } = useAuthContext();
-  const { isInShelf, addBook } = useSavedBooks();
+  const { isInShelf, addBook, getUserBookProgress } = useSavedBooks();
   const userId = currentUser?.id || "";
   const club = clubs.find((c) => c.id === clubId);
   
@@ -189,12 +192,13 @@ export default function ClubDetails() {
 
           <div className="d-flex gap-2 pt-2 justify-content-start">
             <JoinClubButton clubId={clubId} />
-            <NavLink
-              to="/discussions"
-              className="btn btn-outline-success btn-sm"
-            >
-              Discussion Board
-            </NavLink>
+            <Button
+              label="Suggest a Book"
+              onClick={() => openBookSearch(clubId)}
+              className="btn btn-outline-success"
+              >
+              Suggest a Book
+            </Button>
           </div>
         </div>
 
@@ -249,51 +253,72 @@ export default function ClubDetails() {
                 const inPersonalShelf = isInShelf(book.id);
                 const canModifyClub = clubId ? isModerator(clubId, userId) : false;
 
+                const actions: BookCardActions[] = [];
+                
+                if (canModifyClub) {
+                  actions.push({
+                    key: "remove",
+                    label: "Remove",
+                    icon: <IoMdClose className="me-1" />,
+                    className: "btn btn-outline-danger flex-fill",
+                    title: "Remove from club",
+                    onClick: async () => {
+                      if (!clubId) return;
+                      const { isConfirmed } = await Swal.fire({
+                        title: "Remove from Club?",
+                        text: `Are you sure you want to remove "${book.title}" from ${club?.name || "the club"}?`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, Remove",
+                        cancelButtonText: "Cancel",
+                        customClass: {
+                          confirmButton: "btn btn-success",
+                          cancelButton: "btn btn-outline-success",
+                        },
+                      });
+                      if (isConfirmed) {
+                        removeBookFromClub(clubId, book.id);
+                        Swal.fire({
+                          title: "Removed",
+                          text: `${book.title} removed from ${club?.name || "club"} shelf.`,
+                          icon: "success",
+                          confirmButtonText: "OK",
+                          customClass: {
+                            confirmButton: "btn btn-success",
+                          },
+                        });
+                      }
+                    },
+                  });
+                }
+                
+                if (!inPersonalShelf) {
+                  actions.push({
+                    key: "add",
+                    label: "Add",
+                    icon: <MdOutlineFavorite className="me-1" />,
+                    className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+                    title: "Add to shelf",
+                    onClick: () => {
+                      addBook(book);
+                      Swal.fire({
+                        title: "Added!",
+                        text: `${book.title} added to your shelf.`,
+                        icon: "success",
+                        confirmButtonText: "OK",
+                        customClass: {
+                          confirmButton: "btn btn-success",
+                        },
+                      });
+                    },
+                  });
+                }
+
                 return (
                   <div key={clubBook.bookId || index} className="col-md-4">
                     <BookCard
                       item={book}
-                      actions={{
-                        onAdd: !inPersonalShelf ? () => {
-                          addBook(book);
-                          Swal.fire({
-                            title: "Added!",
-                            text: `${book.title} added to your shelf.`,
-                            icon: "success",
-                            confirmButtonColor: "#198754",
-                          });
-                        } : undefined,
-                        onRemove: canModifyClub ? async () => {
-                          if (!clubId) return;
-                          const { isConfirmed } = await Swal.fire({
-                            title: "Remove from Club?",
-                            text: `Are you sure you want to remove "${book.title}" from ${club?.name || "the club"}?`,
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonText: "Yes, Remove",
-                            cancelButtonText: "Cancel",
-                            customClass: {
-                              confirmButton: "btn btn-success",
-                              cancelButton: "btn btn-outline-success",
-                            },
-                          });
-                          if (isConfirmed) {
-                            removeBookFromClub(clubId, book.id);
-                            Swal.fire({
-                              title: "Removed",
-                              text: `${book.title} removed from ${club?.name || "club"} shelf.`,
-                              icon: "success",
-                              confirmButtonText: "OK",
-                              customClass: {
-                                confirmButton: "btn btn-success",
-                              },
-                            });
-                          }
-                        } : undefined,
-                        onReadClick: () => {
-                          // TODO: Implement book reading functionality
-                        },
-                      }}
+                      actions={actions}
                     />
                   </div>
                 );
@@ -318,55 +343,76 @@ export default function ClubDetails() {
                 
                 const inPersonalShelf = isInShelf(book.id);
                 const canModifyClub = clubId ? isModerator(clubId, userId) : false;
+                const progress = getUserBookProgress(book.id);
+
+                const actions: BookCardActions[] = [];
+                
+                if (canModifyClub) {
+                  actions.push({
+                    key: "remove",
+                    label: "Remove",
+                    icon: <IoMdClose className="me-1" />,
+                    className: "btn btn-outline-danger flex-fill",
+                    title: "Remove from club",
+                    onClick: async () => {
+                      if (!clubId) return;
+                      const { isConfirmed } = await Swal.fire({
+                        title: "Remove from Club?",
+                        text: `Are you sure you want to remove "${book.title}" from ${club?.name || "the club"}?`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, Remove",
+                        cancelButtonText: "Cancel",
+                        customClass: {
+                          confirmButton: "btn btn-success",
+                          cancelButton: "btn btn-outline-success",
+                        },
+                      });
+                      if (isConfirmed) {
+                        removeBookFromClub(clubId, book.id);
+                        Swal.fire({
+                          title: "Removed",
+                          text: `${book.title} removed from ${club?.name || "club"} shelf.`,
+                          icon: "success",
+                          confirmButtonText: "OK",
+                          customClass: {
+                            confirmButton: "btn btn-success",
+                          },
+                        });
+                      }
+                    },
+                  });
+                }
+                
+                if (!inPersonalShelf) {
+                  actions.push({
+                    key: "add",
+                    label: "Add",
+                    icon: <MdOutlineFavorite className="me-1" />,
+                    className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+                    title: "Add to shelf",
+                    onClick: () => {
+                      addBook(book);
+                      Swal.fire({
+                        title: "Added!",
+                        text: `${book.title} added to your shelf.`,
+                        icon: "success",
+                        confirmButtonText: "OK",
+                        customClass: {
+                          confirmButton: "btn btn-success",
+                        },
+                      });
+                    },
+                  });
+                }
 
                 return (
                   <div key={clubBook.bookId || index} className="col-md-4">
                     <BookCard
                       item={book}
-                      actions={{
-                        onAdd: !inPersonalShelf ? () => {
-                          addBook(book);
-                          Swal.fire({
-                            title: "Added!",
-                            text: `${book.title} added to your shelf.`,
-                            icon: "success",
-                            confirmButtonText: "OK",
-                            customClass: {
-                              confirmButton: "btn btn-success",
-                            },
-                          });
-                        } : undefined,
-                        onRemove: canModifyClub ? async () => {
-                          if (!clubId) return;
-                          const { isConfirmed } = await Swal.fire({
-                            title: "Remove from Club?",
-                            text: `Are you sure you want to remove "${book.title}" from ${club?.name || "the club"}?`,
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonText: "Yes, Remove",
-                            cancelButtonText: "Cancel",
-                            customClass: {
-                              confirmButton: "btn btn-success",
-                              cancelButton: "btn btn-outline-success",
-                            },
-                          });
-                          if (isConfirmed) {
-                            removeBookFromClub(clubId, book.id);
-                            Swal.fire({
-                              title: "Removed",
-                              text: `${book.title} removed from ${club?.name || "club"} shelf.`,
-                              icon: "success",
-                              confirmButtonText: "OK",
-                              customClass: {
-                                confirmButton: "btn btn-success",
-                              },
-                            });
-                          }
-                        } : undefined,
-                        onReadClick: () => {
-                          // TODO: Implement book reading functionality
-                        },
-                      }}
+                      actions={actions}
+                      progress={progress}
+                      showProgress={inPersonalShelf}
                     />
                   </div>
                 );
@@ -410,7 +456,6 @@ export default function ClubDetails() {
           </div>
         </div>
       )}
-
       <Footer />
     </>
   );
@@ -646,6 +691,7 @@ function ClubMembersSection() {
 function CurrentBookSection() {
   const { currentUser } = useAuthContext();
   const { clubId } = useParams();
+  const { openBookSearch } = useBookSearchModal();
   const { clubs, isModerator, selectCurrentBook, getBookClubProgress, getClubBooks } =
     useClub();
   const { books: allBooks } = useBookData();
@@ -654,7 +700,6 @@ function CurrentBookSection() {
   const club = clubs.find((c) => c.id === clubId);
   const userId = currentUser?.id;
 
-  const [showModal, setShowModal] = useState(false);
   const [currentBook, setCurrentBook] = useState<BookData | null>(null);
 
   const clubBooks = getClubBooks(clubId!) || [];
@@ -718,7 +763,7 @@ function CurrentBookSection() {
                 </div>
                   
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={() => openBookSearch(clubId)}
                   className="btn btn-success"
                 >
                   <FaPlus className="me-1" />
@@ -782,12 +827,6 @@ function CurrentBookSection() {
         </div>
       </div>
       <RecentDiscussions />
-
-      <BookSearchModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        clubId={clubId}
-      />
     </div>
   );
 }
