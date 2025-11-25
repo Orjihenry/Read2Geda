@@ -398,7 +398,7 @@ export default function Profile() {
 
       <div className="py-5">
         <div className="container py-4">
-          <h2 className="display-6 mb-4">Read Books</h2>
+          <h2 className="display-6 mb-4">Last Read Books</h2>
           {loading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-primary mb-2" role="status" />
@@ -425,7 +425,7 @@ export default function Profile() {
 
       <div className="bg-light py-5">
         <div className="container py-4">
-          <h2 className="display-6 pb-4">Books In My Shelf</h2>
+          <h2 className="display-6 pb-4">Latest Books In My Shelf</h2>
           {loading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-primary mb-2" role="status" />
