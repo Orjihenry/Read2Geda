@@ -1,35 +1,36 @@
 import { type BookData } from "../utils/bookData";
 import {
   MdAddLocationAlt,
-  MdOutlineFavorite,
   MdPeopleAlt,
   MdStar,
-  MdPlayArrow,
 } from "react-icons/md";
-import { IoMdClose, IoMdPricetag } from "react-icons/io";
+import { IoMdPricetag } from "react-icons/io";
 import { useAuthContext } from "../context/AuthContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
+import { Button } from "react-bootstrap";
 
 export type BookCardActions = {
-  onAdd?: () => void;
-  onRemove?: () => void;
-  onReadClick?: () => void;
+  key: string;
+  label?: string;
+  icon?: React.ReactNode;
+  className?: string;
+  disabled?: boolean;
+  title?: string;
+  onClick?: () => void;
 };
 
 export type BookCardProps = {
   item: BookData;
-  actions?: BookCardActions;
-  hideProgress?: boolean;
+  actions?: BookCardActions[];
+  hideItem?: boolean;
 };
 
-export default function BookCard({ item, actions = {}, hideProgress = false }: BookCardProps) {
-  const { onAdd, onRemove, onReadClick } = actions;
+export default function BookCard({ item, actions = [], hideItem = false }: BookCardProps) {
   const { getUserBookProgress } = useSavedBooks();
   const { currentUser } = useAuthContext();
   
   const userId = currentUser?.id || "";
   const userBookProgress = getUserBookProgress(userId);
-  const hasStartedReading = userBookProgress > 0;
 
   const renderProgressBar = (label: string) => (
     <div className="mb-2">
@@ -47,58 +48,25 @@ export default function BookCard({ item, actions = {}, hideProgress = false }: B
   );
 
   const renderActionButtons = () => {
-    const buttons = [];
+    if (actions.length === 0) return null;
 
-    if (onReadClick) {
-      buttons.push(
-        <button
-          key="read"
-          className={`btn ${hasStartedReading ? "btn-outline-success" : "btn-success"} ${onRemove ? "flex-fill" : "w-100"}`}
-          onClick={onReadClick}
-        >
-          <MdPlayArrow className="me-1" />
-          {hasStartedReading ? "Continue Reading" : "Start Reading"}
-        </button>
-      );
-    }
-
-    if (onRemove) {
-      buttons.push(
-        <button
-          key="remove"
-          className={`btn btn-outline-danger ${onReadClick ? "" : "w-100"}`}
-          onClick={onRemove}
-          title="Remove"
-        >
-          <IoMdClose className={onReadClick ? "" : "me-1"} />
-          {onReadClick ? "" : "Remove"}
-        </button>
-      );
-    }
-
-    if (onAdd) {
-      buttons.push(
-        <button
-          key="add"
-          className={`btn btn-outline-success ${onReadClick || onRemove ? "flex-fill" : "w-100"}`}
-          onClick={onAdd}
-          title="Add"
-        >
-          <MdOutlineFavorite className="me-1" />
-          Add
-        </button>
-      );
-    }
-
-    if (buttons.length === 0) {
-      return null;
-    }
-
-    if (buttons.length > 1) {
-      return <div className="d-flex gap-2">{buttons}</div>;
-    }
-
-    return buttons[0];
+    return (
+      <div className="d-flex gap-2">
+        {actions.map(action => (
+          <Button
+            key={action.key}
+            variant="null"
+            className={action.className}
+            disabled={action.disabled}
+            title={action.title}
+            onClick={action.onClick}
+          >
+            {action.icon}
+            {action.label}
+          </Button>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -181,7 +149,7 @@ export default function BookCard({ item, actions = {}, hideProgress = false }: B
       </div>
 
        <div className="mt-3 pt-3 border-top">
-         {!hideProgress && renderProgressBar("Progress")}
+         {!hideItem && renderProgressBar("Progress")}
          {renderActionButtons()}
        </div>
     </div>
