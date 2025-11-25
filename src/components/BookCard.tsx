@@ -1,7 +1,7 @@
 import { type BookData } from "../utils/bookData";
 import { MdAddLocationAlt, MdPeopleAlt, MdStar } from "react-icons/md";
 import { IoMdPricetag } from "react-icons/io";
-import { Button } from "react-bootstrap";
+import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export type BookCardActions = {
   key: string;
@@ -46,6 +46,10 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
     return (
       <div className="d-flex gap-2">
         {actions.map(action => (
+        <OverlayTrigger
+          placement="top"
+          overlay={<Tooltip id="tooltip-top">{action.title}</Tooltip>}
+        >
           <Button
             key={action.key}
             variant="null"
@@ -57,6 +61,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             {action.icon}
             {action.label}
           </Button>
+        </OverlayTrigger>
         ))}
       </div>
     );
@@ -82,11 +87,16 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
         >
           {item.title}
         </h5>
-        <p className="text-muted small mb-2" style={{ minHeight: "3rem" }}>
-          {item.summary?.length > 100
-            ? item.summary.slice(0, 100) + "..."
-            : item.summary}
-        </p>
+        <OverlayTrigger
+          placement="top"
+          overlay={<Tooltip id="tooltip-top">AI Generated Summary</Tooltip>}
+        >
+          <p className="text-muted small mb-2 help" style={{ minHeight: "3rem" }}>
+            {item.summary?.length > 100
+              ? item.summary.slice(0, 100) + "..."
+              : item.summary}
+          </p>
+        </OverlayTrigger>
 
         <div className="mt-3">
           <p className="mb-1 small d-flex align-items-center text-secondary">
