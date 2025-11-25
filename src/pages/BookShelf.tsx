@@ -3,11 +3,13 @@ import { useBookCache } from "../context/BookCacheContext";
 import { useBookSearchModal } from "../context/BookSearchModalContext";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import BookCard from "../components/BookCard";
+import BookCard, { type BookCardActions } from "../components/BookCard";
 import Swal from "sweetalert2";
+import { IoMdClose } from "react-icons/io";
+import { MdPlayArrow } from "react-icons/md";
 
 export default function BookShelf() {
-  const { removeBook, getCompletedBooks, getToReadBooks } = useSavedBooks();
+  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress } = useSavedBooks();
   const { loading } = useBookCache();
   const { openBookSearch } = useBookSearchModal();
 
@@ -40,41 +42,61 @@ export default function BookShelf() {
             </div>
           ) : bookList && bookList.length > 0 ? (
             bookList.map((item, index) => {
+              const progress = getUserBookProgress(item.id);
+              const hasStartedReading = progress > 0;
+              const actionsLength = 2;
+              const actions: BookCardActions[] = [
+                {
+                  key: "read",
+                  label: hasStartedReading ? "Continue Reading" : "Start Reading",
+                  icon: <MdPlayArrow className="me-1" />,
+                  className: `btn ${hasStartedReading ? "btn-outline-success" : "btn-success"} ${actionsLength > 1 ? "flex-fill" : "w-100"}`,
+                  title: hasStartedReading ? "Continue Reading" : "Start Reading",
+                  onClick: () => {
+                    console.log("Reading book", item.id);
+                  },
+                },
+                {
+                  key: "remove",
+                  icon: <IoMdClose className="me-1" />,
+                  className: `btn btn-outline-danger ${actionsLength > 1 ? "" : "w-100"}`,
+                  title: "Remove from shelf",
+                  onClick: async () => {
+                    const { isConfirmed } = await Swal.fire({
+                      title: "Remove from Shelf?",
+                      text: `Are you sure you want to remove "${item.title}" from your personal shelf?`,
+                      icon: "warning",
+                      showCancelButton: true,
+                      confirmButtonText: "Yes, Remove",
+                      cancelButtonText: "Cancel",
+                      customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-outline-success",
+                      },
+                    });
+                    if (isConfirmed) {
+                      removeBook(item.id);
+                      Swal.fire({
+                        title: "Removed",
+                        text: `${item.title} removed from your shelf.`,
+                        icon: "success",
+                        confirmButtonText: "OK",
+                        customClass: {
+                          confirmButton: "btn btn-success",
+                        },
+                      });
+                    }
+                  },
+                }
+              ];
+
               return (
                 <div key={item.id || index} className="col-md-4">
                   <BookCard
                     item={item}
-                    actions={{
-                      onRemove: async () => {
-                        const { isConfirmed } = await Swal.fire({
-                          title: "Remove from Shelf?",
-                          text: `Are you sure you want to remove "${item.title}" from your personal shelf?`,
-                          icon: "warning",
-                          showCancelButton: true,
-                          confirmButtonText: "Yes, Remove",
-                          cancelButtonText: "Cancel",
-                          customClass: {
-                            confirmButton: "btn btn-success",
-                            cancelButton: "btn btn-outline-success",
-                          },
-                        });
-                        if (isConfirmed) {
-                          removeBook(item.id);
-                          Swal.fire({
-                            title: "Removed",
-                            text: `${item.title} removed from your shelf.`,
-                            icon: "success",
-                            confirmButtonText: "OK",
-                            customClass: {
-                              confirmButton: "btn btn-success",
-                            },
-                          });
-                        }
-                      },
-                      onReadClick: () => {
-                        // TODO: Implement book reading functionality
-                      },
-                    }}
+                    actions={actions}
+                    progress={progress}
+                    showProgress={true}
                   />
                 </div>
               );
@@ -92,41 +114,50 @@ export default function BookShelf() {
           <div className="row g-3">
             {completedBooks && completedBooks.length > 0 ? (
               completedBooks.map((item, index) => {
+                const progress = getUserBookProgress(item.id);
+                const actions: BookCardActions[] = [
+                  {
+                    key: "remove",
+                    label: "Remove",
+                    icon: <IoMdClose className="me-1" />,
+                    className: "btn btn-outline-danger w-100",
+                    title: "Remove from shelf",
+                    onClick: async () => {
+                      const { isConfirmed } = await Swal.fire({
+                        title: "Remove from Shelf?",
+                        text: `Are you sure you want to remove "${item.title}" from your personal shelf?`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Yes, Remove",
+                        cancelButtonText: "Cancel",
+                        customClass: {
+                          confirmButton: "btn btn-success",
+                          cancelButton: "btn btn-outline-success",
+                        },
+                      });
+                      if (isConfirmed) {
+                        removeBook(item.id);
+                        Swal.fire({
+                          title: "Removed",
+                          text: `${item.title} removed from your shelf.`,
+                          icon: "success",
+                          confirmButtonText: "OK",
+                          customClass: {
+                            confirmButton: "btn btn-success",
+                          },
+                        });
+                      }
+                    },
+                  },
+                ];
+
                 return (
                   <div key={item.id || index} className="col-md-4">
                     <BookCard
                       item={item}
-                      actions={{
-                        onRemove: async () => {
-                          const { isConfirmed } = await Swal.fire({
-                            title: "Remove from Shelf?",
-                            text: `Are you sure you want to remove "${item.title}" from your personal shelf?`,
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonText: "Yes, Remove",
-                            cancelButtonText: "Cancel",
-                            customClass: {
-                              confirmButton: "btn btn-success",
-                              cancelButton: "btn btn-outline-success",
-                            },
-                          });
-                          if (isConfirmed) {
-                            removeBook(item.id);
-                            Swal.fire({
-                              title: "Removed",
-                              text: `${item.title} removed from your shelf.`,
-                              icon: "success",
-                              confirmButtonText: "OK",
-                              customClass: {
-                                confirmButton: "btn btn-success",
-                              },
-                            });
-                          }
-                        },
-                        onReadClick: () => {
-                          // TODO: Update button text & functionality
-                        },
-                      }}
+                      actions={actions}
+                      progress={progress}
+                      showProgress={true}
                     />
                   </div>
                 );

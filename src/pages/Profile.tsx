@@ -412,7 +412,7 @@ export default function Profile() {
               <div className="row g-3">
                 {completedBooks.slice(0, 6).map((book) => (
                   <div key={book.id} className="col-6 col-md-4 col-lg-3">
-                    <BookCard item={book} actions={{}} />
+                    <BookCard item={book} />
                   </div>
                 ))}
               </div>
@@ -436,7 +436,7 @@ export default function Profile() {
               {toReadBooks.length > 0 ? (
                 toReadBooks.slice(0, 6).map((book) => (
                   <div key={book.id} className="col-md-4">
-                    <BookCard item={book} actions={{}} />
+                    <BookCard item={book} />
                   </div>
                 ))
               ) : (
