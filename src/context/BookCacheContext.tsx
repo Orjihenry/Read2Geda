@@ -7,11 +7,11 @@ type BookCacheContextType = {
   books: Map<string, BookData>;
   getBook: (bookId: string) => BookData | undefined;
   getBooks: (bookIds?: string[]) => BookData[];
-  addBook: (book: BookData | any) => void;
-  addBooks: (books: (BookData | any)[]) => BookData[];
+  addBook: (book: BookData | any) => Promise<void>;
+  addBooks: (books: (BookData | any)[]) => Promise<BookData[]>;
   hasBook: (bookId: string) => boolean;
   loading: boolean;
-  clearCache: () => void;
+  clearCache: () => Promise<void>;
 };
 
 const BookCacheContext = createContext<BookCacheContextType | undefined>(undefined);
@@ -22,7 +22,7 @@ export function BookCacheProvider({ children }: { children: React.ReactNode }) {
 
   const booksRef = useRef<Map<string, BookData>>(new Map());
 
-  const normalizeBook = useCallback((book: BookData | any): BookData => {
+  const normalizeBook = useCallback(async (book: BookData | any): Promise<BookData> => {
     if (book.id && book.title && book.author && typeof book.publishedYear === 'number') {
       return {
         id: book.id,
@@ -37,7 +37,7 @@ export function BookCacheProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    return convertDataSet(book);
+    return await convertDataSet(book);
   }, []);
 
   const saveToStorage = useCallback((bookMap: Map<string, BookData>) => {
@@ -51,49 +51,56 @@ export function BookCacheProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setLoading(true);
-    try {
-      const stored = localStorage.getItem("bookCache");
-      const bookMap = new Map<string, BookData>();
+    (async () => {
+      try {
+        const stored = localStorage.getItem("bookCache");
+        const bookMap = new Map<string, BookData>();
 
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          parsed.forEach((book: BookData) => {
-            const normalized = normalizeBook(book);
-            bookMap.set(normalized.id, normalized);
-          });
-        } else if (typeof parsed === 'object') {
-          Object.values(parsed).forEach((book: any) => {
-            const normalized = normalizeBook(book);
-            bookMap.set(normalized.id, normalized);
-          });
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            const normalizedPromises = parsed.map((book: BookData) => normalizeBook(book));
+            const normalized = await Promise.all(normalizedPromises);
+            normalized.forEach((book) => {
+              bookMap.set(book.id, book);
+            });
+          } else if (typeof parsed === 'object') {
+            const booksArray = Object.values(parsed);
+            const normalizedPromises = booksArray.map((book: any) => normalizeBook(book));
+            const normalized = await Promise.all(normalizedPromises);
+            normalized.forEach((book) => {
+              bookMap.set(book.id, book);
+            });
+          }
         }
+
+        const initialPromises = initialBookData.map((book) => normalizeBook(book));
+        const initialNormalized = await Promise.all(initialPromises);
+        initialNormalized.forEach((book) => {
+          if (!bookMap.has(book.id)) {
+            bookMap.set(book.id, book);
+          }
+        });
+
+        booksRef.current = bookMap;
+        setBooks(bookMap);
+        saveToStorage(bookMap);
+      } catch (error) {
+        console.error("Error loading book cache:", error);
+        const bookMap = new Map<string, BookData>();
+        const initialPromises = initialBookData.map((book) => normalizeBook(book));
+        const initialNormalized = await Promise.all(initialPromises);
+        initialNormalized.forEach((book) => {
+          bookMap.set(book.id, book);
+        });
+        booksRef.current = bookMap;
+        setBooks(bookMap);
+        saveToStorage(bookMap);
+      } finally {
+        setLoading(false);
       }
-
-      initialBookData.forEach((book) => {
-        const normalized = normalizeBook(book);
-        if (!bookMap.has(normalized.id)) {
-          bookMap.set(normalized.id, normalized);
-        }
-      });
-
-      booksRef.current = bookMap;
-      setBooks(bookMap);
-      saveToStorage(bookMap);
-    } catch (error) {
-      console.error("Error loading book cache:", error);
-      const bookMap = new Map<string, BookData>();
-      initialBookData.forEach((book) => {
-        const normalized = normalizeBook(book);
-        bookMap.set(normalized.id, normalized);
-      });
-      booksRef.current = bookMap;
-      setBooks(bookMap);
-      saveToStorage(bookMap);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    })();
+  }, [normalizeBook, saveToStorage]);
 
   useEffect(() => {
     booksRef.current = books;
@@ -117,8 +124,8 @@ export function BookCacheProvider({ children }: { children: React.ReactNode }) {
     return booksRef.current.has(bookId);
   }, []);
 
-  const addBook = useCallback((book: BookData | any) => {
-    const normalized = normalizeBook(book);
+  const addBook = useCallback(async (book: BookData | any) => {
+    const normalized = await normalizeBook(book);
     setBooks((prev) => {
       const updated = new Map(prev);
       updated.set(normalized.id, normalized);
@@ -128,14 +135,13 @@ export function BookCacheProvider({ children }: { children: React.ReactNode }) {
     });
   }, [normalizeBook, saveToStorage]);
 
-  const addBooks = useCallback((booksToAdd: (BookData | any)[]): BookData[] => {
-    const normalizedBooks: BookData[] = [];
+  const addBooks = useCallback(async (booksToAdd: (BookData | any)[]): Promise<BookData[]> => {
+    const normalizedPromises = booksToAdd.map((book) => normalizeBook(book));
+    const normalizedBooks = await Promise.all(normalizedPromises);
     const updated = new Map(booksRef.current);
     
-    booksToAdd.forEach((book) => {
-      const normalized = normalizeBook(book);
-      normalizedBooks.push(normalized);
-      updated.set(normalized.id, normalized);
+    normalizedBooks.forEach((book) => {
+      updated.set(book.id, book);
     });
     
     booksRef.current = updated;
@@ -145,11 +151,12 @@ export function BookCacheProvider({ children }: { children: React.ReactNode }) {
     return normalizedBooks;
   }, [normalizeBook, saveToStorage]);
 
-  const clearCache = useCallback(() => {
+  const clearCache = useCallback(async () => {
     const bookMap = new Map<string, BookData>();
-    initialBookData.forEach((book) => {
-      const normalized = normalizeBook(book);
-      bookMap.set(normalized.id, normalized);
+    const normalizedPromises = initialBookData.map((book) => normalizeBook(book));
+    const normalized = await Promise.all(normalizedPromises);
+    normalized.forEach((book) => {
+      bookMap.set(book.id, book);
     });
     booksRef.current = bookMap;
     setBooks(bookMap);

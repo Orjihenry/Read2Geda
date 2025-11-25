@@ -28,7 +28,7 @@ export default function useRandomBooks(subject: string = "fiction") {
 
         const fetchedBooks = data.works || [];
 
-        const normalizedBooks = addBooks(fetchedBooks);
+        const normalizedBooks = await addBooks(fetchedBooks);
 
         const shuffled = [...normalizedBooks].sort(() => 0.5 - Math.random());
         setBooks(shuffled.slice(0, 10));

@@ -24,14 +24,14 @@ export default function useSearchBooks() {
     try {
       const quotedQuery = `"${query.trim()}"`;
       const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(quotedQuery)}&limit=20`,
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(quotedQuery)}&limit=20&fields=key,title,author_name,author_key,first_publish_year,cover_i,subject,ratings_average`,
         { signal: abortRef.current.signal }
       );
       
       if (!response.ok) throw new Error("Failed to fetch API");
 
       const data = await response.json();
-      const formatted: BookData[] = data.docs.map(convertDataSet);
+      const formatted: BookData[] = await Promise.all(data.docs.map(convertDataSet));
       setBooks(formatted);
     } catch (err: unknown) {
       if ((err as any)?.name === "AbortError") return;
