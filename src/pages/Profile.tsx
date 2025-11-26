@@ -24,10 +24,6 @@ export default function Profile() {
   const { getBooks } = useBookCache();
   const { openBookSearch } = useBookSearchModal();
 
-  const currentClub = clubs.find(
-    (club) => club.isActive && club.members.length > 0
-  );
-
   const [books, setBooks] = useState<BookData[]>([]);
   const [currentBook, setCurrentBook] = useState<{
     id: string;
@@ -267,14 +263,43 @@ export default function Profile() {
                       )}
                     </div>
                   ) : (
-                    <div className="text-center mb-4">
-                      <h5 className="mb-1">No current book yet</h5>
-                      <p className="text-muted">
-                        Add a book to your shelf to track progress.
+                    <div className="text-center">
+                      <h5 className="mb-2">No current book yet</h5>
+                      <p className="text-muted mb-4">
+                        Select a book from your shelf to track your reading progress.
                       </p>
-                      <button className="btn btn-outline-success btn-sm me-2" onClick={() => openBookSearch()}>
-                        Search for Books
-                      </button>
+                      
+                      {books && books.length > 0 ? (
+                        <div className="d-flex flex-column align-items-center gap-3">
+                          <select
+                            className="form-select"
+                            style={{ maxWidth: "400px", width: "100%" }}
+                            value=""
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => changeCurrentBook(e.target.value)}
+                          >
+                            <option value="" disabled>Select current book</option>
+                            {books.map((b: BookData) => (
+                              <option key={b.id} value={b.id}>
+                                {b.title}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="text-muted small mb-2">or</div>
+                          <button 
+                            className="btn btn-success" 
+                            onClick={() => openBookSearch()}
+                          >
+                            Search for New Books
+                          </button>
+                        </div>
+                      ) : (
+                        <button 
+                          className="btn btn-success" 
+                          onClick={() => openBookSearch()}
+                        >
+                          Search for Books
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -293,30 +318,6 @@ export default function Profile() {
                           className="progress-bar bg-success"
                           style={{ width: `${currentBook.readingProgress}%` }}
                         ></div>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentClub && (
-                    <div className="mb-3 p-3 bg-light rounded">
-                      <div className="d-flex align-items-center">
-                        <div className="me-3">
-                          <div
-                            className="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                            style={{ width: "40px", height: "40px" }}
-                          >
-                            <span className="text-white fw-bold">
-                              {currentClub.name.charAt(0)}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex-grow-1">
-                          <h6 className="mb-1">{currentClub.name}</h6>
-                          <small className="text-muted">
-                            {currentClub.meetingFrequency} •{" "}
-                            {currentClub.members.length} members
-                          </small>
-                        </div>
                       </div>
                     </div>
                   )}
@@ -411,7 +412,7 @@ export default function Profile() {
               </p>
               <div className="row g-3">
                 {completedBooks.slice(0, 6).map((book) => (
-                  <div key={book.id} className="col-6 col-md-4 col-lg-3">
+                  <div key={book.id} className="col-md-4">
                     <BookCard item={book} />
                   </div>
                 ))}
