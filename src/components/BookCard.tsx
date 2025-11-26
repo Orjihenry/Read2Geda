@@ -1,6 +1,6 @@
 import { type BookData } from "../utils/bookData";
 import { MdAddLocationAlt, MdPeopleAlt, MdStar } from "react-icons/md";
-import { IoMdPricetag } from "react-icons/io";
+// import { IoMdPricetag } from "react-icons/io";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export type BookCardActions = {
@@ -21,6 +21,7 @@ export type BookCardProps = {
 };
 
 export default function BookCard({ item, actions = [], progress, showProgress = false }: BookCardProps) {
+  const rating = Math.round((item.rating || 0) * 10) / 10;
   const renderProgressBar = () => {
     if (!showProgress || progress === undefined) return null;
     
@@ -47,6 +48,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
       <div className="d-flex gap-2">
         {actions.map(action => (
         <OverlayTrigger
+          key={action.key}
           placement="top"
           overlay={<Tooltip id="tooltip-top">{action.title}</Tooltip>}
         >
@@ -118,25 +120,31 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
           </p>
 
           {item.rating != null && (
-            <div className="d-flex align-items-center small text-secondary mb-1">
-              <span className="me-2 text-muted">
-                <MdStar />
-              </span>
-              <span className="me-1">Rating:</span>
-              <div className="d-flex">
-                {Array.from({ length: 5 }, (_, i) => (
-                  <span
-                    key={i}
-                    className={i < (item.rating ?? 0) ? "text-warning" : "text-muted"}
-                  >
-                    ★
-                  </span>
-                ))}
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id="tooltip-rating">{rating} / 5</Tooltip>}
+            >
+              <div className="d-flex align-items-center small text-secondary mb-1">
+                <span className="me-2 text-muted">
+                  <MdStar />
+                </span>
+                <span className="me-1">Rating:</span>
+                <div className="d-flex">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <span
+                      key={i}
+                      className={i < (item.rating || 0) ? "text-warning" : "text-muted"}
+                      style={{ fontSize: "1rem", lineHeight: 1 }}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            </OverlayTrigger>
           )}
 
-          <p className="mb-1 small d-flex align-items-center text-secondary">
+          {/* <p className="mb-1 small d-flex align-items-center text-secondary">
             <span className="me-2 text-muted">
               <IoMdPricetag />
             </span>
@@ -147,7 +155,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                   (item.tags.length > 2 ? "..." : "")
                 : "None"}
             </span>
-          </p>
+          </p> */}
         </div>
       </div>
 
