@@ -59,19 +59,19 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
     const { inPersonalShelf, inClubShelf } = getBookStatus(book.id);
 
-    if (moderatorClubs.length > 1) {
+    if (moderatorClubs.length > 0) {
       const { value: addToClub, isDismissed } = await Swal.fire({
         title: "Add to where?",
         text: book.title,
         icon: "question",
-        showCancelButton: true,
         showCloseButton: true,
         confirmButtonText: "Club Shelf",
-        cancelButtonText: "My Shelf",
+        showDenyButton: true,
+        denyButtonText: "My Shelf",
         allowEscapeKey: true,
         customClass: {
           confirmButton: "btn btn-success",
-          cancelButton: "btn btn-outline-success",
+          denyButton: "btn btn-outline-dark",
         },
       });
 
@@ -128,7 +128,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       const selectedClub = moderatorClubs.find(c => c.id === selectedClubId);
       const selectedClubName = selectedClub?.name || "the club";
       
-      addBookToClub(selectedClubId, book.id, userId);
+      addBookToClub(selectedClubId, book, userId);
       return Swal.fire({
         title: "Added!",
         text: `${book.title} added to ${selectedClubName}.`,
@@ -176,7 +176,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
         return;
       }
 
-      addBookToClub(clubId, book.id, userId);
+      addBookToClub(clubId, book, userId);
       return Swal.fire({
         title: "Added!",
         text: `${book.title} added to ${clubName}.`,
@@ -189,40 +189,6 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
           confirmButton: "btn btn-success",
         },
       });
-    }
-
-    if (moderatorClubs.length === 1) {
-      const { value: addToClub, isDismissed } = await Swal.fire({
-        title: "Add to where?",
-        text: book.title,
-        icon: "question",
-        showCancelButton: true,
-        showCloseButton: true,
-        confirmButtonText: "Club Shelf",
-        cancelButtonText: "My Shelf",
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-          cancelButton: "btn btn-outline-success",
-        },
-      });
-
-      if (isDismissed) return;
-
-      if (addToClub) {
-        addBookToClub(moderatorClubs[0].id, book.id, userId);
-        return Swal.fire({
-          title: "Added!",
-          text: `${book.title} added to ${moderatorClubs[0].name}.`,
-          icon: "success",
-          confirmButtonText: "OK",
-          showCloseButton: true,
-          allowEscapeKey: true,
-          customClass: {
-            confirmButton: "btn btn-success",
-          },
-        });
-      }
     }
 
     if (inPersonalShelf) {
