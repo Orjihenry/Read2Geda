@@ -18,6 +18,7 @@ import type { ClubBook } from "../utils/bookClub";
 import BookCard, { type BookCardActions } from "../components/BookCard";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import { useBookSearchModal } from "../context/BookSearchModalContext";
+import { useBookCache } from "../context/BookCacheContext";
 import useSearchFilter from "../hooks/useSearchFilter";
 import Button from "../components/Button";
 import Swal from "sweetalert2";
@@ -30,7 +31,7 @@ export default function ClubDetails() {
   const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator } = useClub();
   const [upcomingBooks, setUpcomingBooks] = useState<ClubBook[]>([]);
   const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
-  const { books } = useBookData();
+  const { books } = useBookCache();
   const { currentUser } = useAuthContext();
   const { isInShelf, addBook, getUserBookProgress } = useSavedBooks();
   const userId = currentUser?.id || "";
@@ -247,7 +248,7 @@ export default function ClubDetails() {
           {upcomingBooks.length > 0 ? (
             <div className="row g-3">
               {upcomingBooks.map((clubBook, index) => {
-                const book = books?.find((b) => b.id === clubBook.bookId);
+                const book = books.get(clubBook.bookId);
                 if (!book) return null;
 
                 const inPersonalShelf = isInShelf(book.id);
@@ -338,7 +339,7 @@ export default function ClubDetails() {
           <div className="row g-3">
             {completedBooks && completedBooks.length > 0 ? (
               completedBooks.map((clubBook, index) => {
-                const book = books?.find((b) => b.id === clubBook.bookId);
+                const book = books.get(clubBook.bookId);
                 if (!book) return null;
                 
                 const inPersonalShelf = isInShelf(book.id);

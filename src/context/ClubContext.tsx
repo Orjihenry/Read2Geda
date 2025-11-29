@@ -5,6 +5,8 @@ import { getCurrentDateTime } from "../utils/dateUtils";
 import { v4 as uuidv4 } from "uuid";
 import { useAuthContext } from "./AuthContext";
 import type { UserBooks } from "../types/user";
+import type { BookData } from "../utils/bookData";
+import { useBookCache } from "./BookCacheContext";
 
 type ClubBookStatus = 'upcoming' | 'current' | 'completed';
 
@@ -19,7 +21,7 @@ type ClubContextType = {
   isClubMember: (clubId: string, userId: string) => boolean;
   leaveClub: (clubId: string, userId: string) => void;
   getMyClubs: (userId: string) => bookClub[];
-  addBookToClub: (clubId: string, bookId: string, userId: string) => void;
+  addBookToClub: (clubId: string, book: BookData, userId: string) => void;
   selectCurrentBook: (clubId: string, bookId: string, userId: string) => void;
   removeBookFromClub: (clubId: string, bookId: string) => void;
   getUserBookProgressById: (userId: string, bookId: string) => number;
@@ -40,6 +42,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   const [clubs, setClubs] = useState<bookClub[]>([]);
   const [loading, setLoading] = useState(false);
   const { users } = useAuthContext();
+  const { addBook: addBookToCache } = useBookCache();
 
   useEffect(() => {
     const savedClubs = localStorage.getItem("bookClubs");
@@ -154,15 +157,16 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     );
   }, [clubs]);
 
-  const addBookToClub = useCallback((clubId: string, bookId: string, userId: string) => {
+  const addBookToClub = useCallback((clubId: string, book: BookData, userId: string) => {
     const currentDate = getCurrentDateTime();
     const club = findClub(clubId);
     if (!club) return;
-    const newBook: ClubBook = { bookId, status: 'upcoming', addedBy: userId, addedAt: currentDate };
-    const updatedClub = { ...club, books: [...(club.books || []), newBook]};
+    const newClubBook: ClubBook = { bookId: book.id, status: 'upcoming', addedBy: userId, addedAt: currentDate };
+    const updatedClub = { ...club, books: [...(club.books || []), newClubBook]};
     const updatedClubs = updateClubList(clubId, updatedClub);
     saveClubs(updatedClubs);
-  }, [findClub, saveClubs, updateClubList]);
+    addBookToCache(book);
+  }, [findClub, saveClubs, updateClubList, addBookToCache]);
 
   const selectCurrentBook = useCallback((clubId: string, bookId: string, userId: string) => {
     const currentDate = getCurrentDateTime();
