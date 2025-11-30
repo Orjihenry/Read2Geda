@@ -1,6 +1,5 @@
 import { type BookData } from "../utils/bookData";
 import { MdAddLocationAlt, MdPeopleAlt, MdStar } from "react-icons/md";
-// import { IoMdPricetag } from "react-icons/io";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 export type BookCardActions = {
@@ -89,7 +88,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
         >
           {item.title}
         </h5>
-        <OverlayTrigger
+        {/* <OverlayTrigger
           placement="top"
           overlay={<Tooltip id="tooltip-top">AI Generated Summary</Tooltip>}
         >
@@ -98,7 +97,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
               ? item.summary.slice(0, 100) + "..."
               : item.summary}
           </p>
-        </OverlayTrigger>
+        </OverlayTrigger> */}
 
         <div className="mt-3">
           <p className="mb-1 small d-flex align-items-center text-secondary">

@@ -30,7 +30,7 @@ export default function Home() {
               <NavButton
                 className="col col-md-4 btn-dark text-light mx-2"
                 href="/clubs"
-                label="Discover Now"
+                label="Discover"
               />
               <NavButton
                 className="col col-md-4 btn-light mx-2"
