@@ -21,7 +21,7 @@ export function BookCacheProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const normalizeBook = useCallback(async (book: BookData | any): Promise<BookData> => {
-    if (book.id && book.title && book.author && typeof book.publishedYear === 'number') {
+    if (book.id && book.title && book.author && typeof book.publishedYear === "number") {
       return {
         id: book.id,
         title: book.title || "Untitled",
@@ -51,106 +51,79 @@ export function BookCacheProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     (async () => {
       try {
-        const stored = localStorage.getItem("bookCache");
         const bookMap = new Map<string, BookData>();
+        const stored = localStorage.getItem("bookCache");
 
         if (stored) {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) {
-            const normalizedPromises = parsed.map((book: BookData) => normalizeBook(book));
-            const normalized = await Promise.all(normalizedPromises);
-            normalized.forEach((book) => {
-              bookMap.set(book.id, book);
-            });
-          } else if (typeof parsed === 'object') {
-            const booksArray = Object.values(parsed);
-            const normalizedPromises = booksArray.map((book: any) => normalizeBook(book));
-            const normalized = await Promise.all(normalizedPromises);
-            normalized.forEach((book) => {
-              bookMap.set(book.id, book);
-            });
-          }
+          const normalizedStored = await Promise.all(
+            (Array.isArray(parsed) ? parsed : Object.values(parsed)).map((b: any) => normalizeBook(b))
+          );
+          normalizedStored.forEach((b) => bookMap.set(b.id, b));
         }
 
-        const initialPromises = initialBookData.map((book) => normalizeBook(book));
-        const initialNormalized = await Promise.all(initialPromises);
-        initialNormalized.forEach((book) => {
-          if (!bookMap.has(book.id)) {
-            bookMap.set(book.id, book);
-          }
+        const normalizedDefaults = await Promise.all(
+          initialBookData.map((b) => normalizeBook(b))
+        );
+        normalizedDefaults.forEach((b) => {
+          if (!bookMap.has(b.id)) bookMap.set(b.id, b);
         });
 
         setBooks(bookMap);
         saveToStorage(bookMap);
-      } catch (error) {
-        console.error("Error loading book cache:", error);
-        const bookMap = new Map<string, BookData>();
-        const initialPromises = initialBookData.map((book) => normalizeBook(book));
-        const initialNormalized = await Promise.all(initialPromises);
-        initialNormalized.forEach((book) => {
-          bookMap.set(book.id, book);
-        });
-        setBooks(bookMap);
-        saveToStorage(bookMap);
+      } catch (err) {
+        console.error("Error loading cache:", err);
       } finally {
         setLoading(false);
       }
     })();
   }, [normalizeBook, saveToStorage]);
 
-  const getBook = useCallback((bookId: string): BookData | undefined => {
-    return books?.get(bookId);
+  const getBook = useCallback((bookId: string) => {
+    return books.get(bookId);
   }, [books]);
 
   const getBooks = useCallback((bookIds?: string[]): BookData[] => {
-    const currentBooks = books;
-    if (!bookIds) {
-      return Array.from(currentBooks.values());
-    }
+    if (!bookIds) return Array.from(books.values());
     return bookIds
-      .map((id) => currentBooks.get(id))
-      .filter((book): book is BookData => book !== undefined);
+      .map((id) => books.get(id))
+      .filter((book): book is BookData => !!book);
   }, [books]);
 
-  const hasBook = useCallback((bookId: string): boolean => {
-    return books.has(bookId);
-  }, [books]);
+  const hasBook = useCallback((bookId: string) => books.has(bookId), [books]);
 
   const addBook = useCallback(async (book: BookData | any) => {
     const normalized = await normalizeBook(book);
+    
     setBooks((prev) => {
       const updated = new Map(prev);
       updated.set(normalized.id, normalized);
-      setBooks(updated);
       saveToStorage(updated);
       return updated;
     });
   }, [normalizeBook, saveToStorage]);
 
-  const addBooks = useCallback(async (booksToAdd: (BookData | any)[]): Promise<BookData[]> => {
-    const normalizedPromises = booksToAdd.map((book) => normalizeBook(book));
-    const normalizedBooks = await Promise.all(normalizedPromises);
-    const updated = new Map(books);
-    
-    normalizedBooks.forEach((book) => {
-      updated.set(book.id, book);
+  const addBooks = useCallback(async (booksToAdd: (BookData | any)[]) => {
+    const normalizedBooks = await Promise.all(booksToAdd.map((b) => normalizeBook(b)));
+
+    setBooks((prev) => {
+      const updated = new Map(prev);
+      normalizedBooks.forEach((book) => updated.set(book.id, book));
+      saveToStorage(updated);
+      return updated;
     });
 
-    setBooks(updated);
-    saveToStorage(updated);
-    
     return normalizedBooks;
   }, [normalizeBook, saveToStorage]);
 
   const clearCache = useCallback(async () => {
-    const bookMap = new Map<string, BookData>();
-    const normalizedPromises = initialBookData.map((book) => normalizeBook(book));
-    const normalized = await Promise.all(normalizedPromises);
-    normalized.forEach((book) => {
-      bookMap.set(book.id, book);
-    });
-    setBooks(bookMap);
-    saveToStorage(bookMap);
+    const freshMap = new Map<string, BookData>();
+    const normalizedDefaults = await Promise.all(initialBookData.map((b) => normalizeBook(b)));
+
+    normalizedDefaults.forEach((b) => freshMap.set(b.id, b));
+
+    setBooks(freshMap);
+    saveToStorage(freshMap);
   }, [normalizeBook, saveToStorage]);
 
   const value = useMemo(() => ({
