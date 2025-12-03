@@ -8,6 +8,7 @@ import ClubDetails from "./pages/ClubDetails";
 import Contact from "./pages/Contact";
 import ClubForm from "./pages/ClubForm";
 import Clubs from "./pages/Clubs";
+import CommunityGuidelines from "./pages/CommunityGuidelines";
 import Discussions from "./pages/Discussions";
 import FAQs from "./pages/FAQs";
 import Home from "./pages/Home";
@@ -40,6 +41,7 @@ function App() {
             <Route path="/club/:clubId" element={<ClubDetails />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/community-guidelines" element={<CommunityGuidelines />} />
             <Route path="/discussions" element={<Discussions />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
