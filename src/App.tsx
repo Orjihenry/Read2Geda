@@ -9,6 +9,7 @@ import Contact from "./pages/Contact";
 import ClubForm from "./pages/ClubForm";
 import Clubs from "./pages/Clubs";
 import Discussions from "./pages/Discussions";
+import FAQs from "./pages/FAQs";
 import Home from "./pages/Home";
 import HowItWorks from "./pages/HowItWorks";
 import Login from "./pages/Auth/Login";
@@ -35,6 +36,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/clubs" element={<Clubs />} />
             <Route path="/how_it_works" element={<HowItWorks />} />
+            <Route path="/faqs" element={<FAQs />} />
             <Route path="/club/:clubId" element={<ClubDetails />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
