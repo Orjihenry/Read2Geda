@@ -193,13 +193,15 @@ export default function ClubDetails() {
 
           <div className="d-flex gap-2 pt-2 justify-content-start">
             <JoinClubButton clubId={clubId} />
-            <Button
-              label="Suggest a Book"
-              onClick={() => openBookSearch(clubId)}
-              className="btn btn-outline-success"
-              >
-              Suggest a Book
-            </Button>
+            {isModerator(clubId!, userId!) && (
+              <Button
+                label="Add a Book"
+                onClick={() => openBookSearch(clubId)}
+                className="btn btn-outline-success"
+                >
+                Add a Book
+              </Button>
+            )}
           </div>
         </div>
 
