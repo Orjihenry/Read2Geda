@@ -1,5 +1,5 @@
-.bg-image {
-  background-image: url("../../assets/reading.png");
+.bg-image-home {
+  background-image: url("../assets/reading.png");
   background-size: cover;
   background-position: center;
   height: 100%;

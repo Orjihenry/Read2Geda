@@ -39,7 +39,7 @@ export default function Home() {
               />
             </div>
           </div>
-          <div className="col bg-image d-none d-md-block my-5">
+          <div className="col bg-image-home d-none d-md-block my-5">
             <div className="p-5"></div>
           </div>
         </div>

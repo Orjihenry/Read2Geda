@@ -13,7 +13,7 @@
   }
 }
 
-.bg-image,
+.bg-image-about,
 .bg-image-section2,
 .bg-image-section3 {
   background-size: contain;
@@ -22,7 +22,7 @@
   height: 100%;
 }
 
-.bg-image {
+.bg-image-about {
   background-image: url("../assets/about-us-reading.png");
   min-height: 500px;
 }

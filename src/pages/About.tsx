@@ -16,7 +16,7 @@ export default function About() {
               discussions, curated book clubs, and shared literary journeys.
             </p>
           </div>
-          <div className="col bg-image d-none d-md-block my-5">
+          <div className="col bg-image-about d-none d-md-block my-5">
             <div className="p-5"></div>
           </div>
         </div>
