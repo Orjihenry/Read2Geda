@@ -2,19 +2,19 @@ import { NavLink, useParams, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import JoinClubButton from "../components/JoinClubButton";
-import { FaCrown } from "react-icons/fa";
+import { FaBookOpen, FaCrown, FaEdit, FaTrash } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
 import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdChatBubble, MdOutlineFavorite } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
-import { FaTrash, FaEdit } from "react-icons/fa";
 import { useFetchImage } from "../hooks/useFetchImage";
 import placeholderClubImage from "../assets/bookClub.jpg";
 import { useAuthContext } from "../context/AuthContext";
 import useBookData from "../hooks/useBookData";
-import type { ClubBook } from "../utils/bookClub";
+import type { ClubBook, ClubRule } from "../utils/bookClub";
+import { getClubRules } from "../utils/clubRules";
 import BookCard, { type BookCardActions } from "../components/BookCard";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import { useBookSearchModal } from "../context/BookSearchModalContext";
@@ -28,7 +28,8 @@ export default function ClubDetails() {
   const navigate = useNavigate();
   const { openBookSearch } = useBookSearchModal();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator } = useClub();
+  const [showRulesModal, setShowRulesModal] = useState(false);
+  const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator, updateClubRules, addRule, removeRule, updateRule } = useClub();
   const [upcomingBooks, setUpcomingBooks] = useState<ClubBook[]>([]);
   const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
   const { books } = useBookCache();
@@ -36,6 +37,60 @@ export default function ClubDetails() {
   const { isInShelf, addBook, getUserBookProgress, updateProgress } = useSavedBooks();
   const userId = currentUser?.id || "";
   const club = clubs.find((c) => c.id === clubId);
+  
+  const [editingRules, setEditingRules] = useState<ClubRule[]>([]);
+  
+  const canModifyRules = clubId ? isModerator(clubId, userId) : false;
+  
+  const handleOpenRulesModal = () => {
+    if (club) {
+      setEditingRules(club.rules && club.rules.length > 0 
+        ? [...club.rules] 
+        : getClubRules(club.name));
+      setShowRulesModal(true);
+    }
+  };
+  
+  const handleSaveRules = () => {
+    if (!clubId) return;
+    
+    const success = updateClubRules(clubId, editingRules);
+    
+    if (success) {
+      setShowRulesModal(false);
+      Swal.fire({
+        title: "Rules Updated!",
+        text: "Club rules have been successfully updated.",
+        icon: "success",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "btn btn-success",
+        },
+      });
+    } else {
+      Swal.fire({
+        title: "Error",
+        text: "Failed to update club rules. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "btn btn-danger",
+        },
+      });
+    }
+  };
+  
+  const handleAddRule = () => {
+    setEditingRules(addRule(editingRules));
+  };
+  
+  const handleRemoveRule = (index: number) => {
+    setEditingRules(removeRule(editingRules, index));
+  };
+  
+  const handleUpdateRule = (index: number, field: "title" | "description", value: string) => {
+    setEditingRules(updateRule(editingRules, index, field, value));
+  };
   
   const { imageUrl, loading } = useFetchImage(club?.imageUrl, placeholderClubImage);
   
@@ -217,32 +272,112 @@ export default function ClubDetails() {
       </div>
 
       <div className="container py-5">
-        <h2 className="display-6 py-2">Club Reviews</h2>
-        <NavLink to="" className="btn btn-dark btn-md">
-          Discussion Questions
-        </NavLink>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h2 className="display-6 py-2 mb-0">Club Rules</h2>
+          {canModifyRules && (
+            <button 
+              className="btn btn-success btn-md"
+              onClick={handleOpenRulesModal}
+            >
+              <FaEdit className="me-1" />
+              Update Rules
+            </button>
+          )}
+        </div>
 
         <div className="py-4">
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem
-            nisi id exercitationem dignissimos expedita veritatis error fugiat
-            assumenda sunt et quis earum, temporibus architecto? At delectus sit
-            dolor rem facilis?
-          </p>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem
-            nisi id exercitationem dignissimos expedita veritatis error fugiat
-            assumenda sunt et quis earum, temporibus architecto? At delectus sit
-            dolor rem facilis?
-          </p>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem
-            nisi id exercitationem dignissimos expedita veritatis error fugiat
-            assumenda sunt et quis earum, temporibus architecto? At delectus sit
-            dolor rem facilis?
-          </p>
+          {(club?.rules && club.rules.length > 0 ? club.rules : getClubRules(club?.name || "")).map((rule, index) => (
+            <div key={index} className="mb-3">
+              <span className="fw-semibold fs-5 mb-2">
+                <span className="me-2"><FaBookOpen className="me-1" /></span>
+                {rule.title}:&nbsp;
+              </span>
+              <span className="text-muted mb-0">{rule.description}</span>
+            </div>
+          ))}
         </div>
       </div>
+
+      {showRulesModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ background: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+          onClick={() => setShowRulesModal(false)}
+        >
+          <div 
+            className="card shadow" 
+            style={{ maxWidth: "700px", width: "90%", maxHeight: "90vh", overflowY: "auto" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="card-header bg-success text-white">
+              <h5 className="card-title mb-0">Edit Club Rules</h5>
+            </div>
+            <div className="card-body">
+              <div className="mb-3">
+                {editingRules.map((rule, index) => (
+                  <div key={index} className="card mb-3">
+                    <div className="card-body">
+                      <div className="d-flex justify-content-between align-items-start mb-2">
+                        <h6 className="text-muted mb-0">Rule {index + 1}</h6>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleRemoveRule(index)}
+                        >
+                          <IoMdClose />
+                        </button>
+                      </div>
+                      <div className="mb-2">
+                        <label className="form-label">Title</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={rule.title}
+                          onChange={(e) => handleUpdateRule(index, "title", e.target.value)}
+                          placeholder="Rule title"
+                        />
+                      </div>
+                      <div>
+                        <label className="form-label">Description</label>
+                        <textarea
+                          className="form-control"
+                          rows={3}
+                          value={rule.description}
+                          onChange={(e) => handleUpdateRule(index, "description", e.target.value)}
+                          placeholder="Rule description"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <button
+                className="btn btn-outline-success mb-3"
+                onClick={handleAddRule}
+              >
+                <FaPlus className="me-1" />
+                Add Rule
+              </button>
+              
+              <div className="d-flex justify-content-end gap-2">
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowRulesModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-success"
+                  onClick={handleSaveRules}
+                  disabled={editingRules.some(r => !r.title.trim() || !r.description.trim())}
+                >
+                  Save Rules
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-light py-5">
         <div className="container py-4">

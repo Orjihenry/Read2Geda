@@ -28,6 +28,11 @@ export type BookSuggestion = {
   suggestedAt: string;
 };
 
+export type ClubRule = {
+  title: string;
+  description: string;
+};
+
 export type bookClub = {
   id: string;
   name: string;
@@ -48,7 +53,8 @@ export type bookClub = {
   meetingPlatform?: string;
   currentBook?: ClubBook;
   books?: ClubBook[];
-  suggestions?: BookSuggestion[]; // New field for member suggestions
+  suggestions?: BookSuggestion[];
+  rules?: ClubRule[];
 };
 
 export const defaultBookClubs: bookClub[] = [

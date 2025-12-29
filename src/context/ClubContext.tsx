@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import type { bookClub, ClubBook, BookSuggestion, clubMember } from "../utils/bookClub";
+import type { bookClub, ClubBook, BookSuggestion, clubMember, ClubRule } from "../utils/bookClub";
 import { defaultBookClubs } from "../utils/bookClub";
 import { getCurrentDateTime } from "../utils/dateUtils";
 import { v4 as uuidv4 } from "uuid";
@@ -34,6 +34,10 @@ type ClubContextType = {
   approveSuggestion: (clubId: string, bookId: string, userId: string) => boolean;
   rejectSuggestion: (clubId: string, bookId: string, userId: string) => boolean;
   getSuggestions: (clubId: string) => BookSuggestion[];
+  updateClubRules: (clubId: string, rules: ClubRule[]) => boolean;
+  addRule: (rules: ClubRule[]) => ClubRule[];
+  removeRule: (rules: ClubRule[], index: number) => ClubRule[];
+  updateRule: (rules: ClubRule[], index: number, field: "title" | "description", value: string) => ClubRule[];
 };
 
 const ClubContext = createContext<ClubContextType | undefined>(undefined);
@@ -106,6 +110,35 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     };
     saveClubs(updateClubList(club.id, updateClub));
   }, [saveClubs, updateClubList]);
+
+  const updateClubRules = useCallback((clubId: string, rules: ClubRule[]): boolean => {
+    const club = findClub(clubId);
+    if (!club) return false;
+
+    const updatedClub = {
+      ...club,
+      rules: rules,
+      updatedAt: getCurrentDateTime(),
+    };
+    
+    saveClubs(updateClubList(clubId, updatedClub));
+    return true;
+  }, [findClub, saveClubs, updateClubList]);
+
+  const addRule = useCallback((rules: ClubRule[]): ClubRule[] => {
+    return [...rules, { title: "", description: "" }];
+  }, []);
+
+  const removeRule = useCallback((rules: ClubRule[], index: number): ClubRule[] => {
+    return rules.filter((_, i) => i !== index);
+  }, []);
+
+  const updateRule = useCallback((rules: ClubRule[], index: number, field: "title" | "description", value: string ): ClubRule[] => 
+    {
+      const updated = [...rules];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    }, []);
 
   const deleteClub = useCallback((clubId: string) => {
     saveClubs(clubs.filter((c) => c.id !== clubId));
@@ -405,6 +438,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         approveSuggestion,
         rejectSuggestion,
         getSuggestions,
+        updateClubRules,
+        addRule,
+        removeRule,
+        updateRule,
       }}
     >
       {children}
