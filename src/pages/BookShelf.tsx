@@ -61,6 +61,7 @@ export default function BookShelf() {
       },
       {
         key: "remove",
+        title: "Remove",
         icon: <IoMdClose className="me-1" />,
         className: "btn btn-outline-danger",
         onClick: () => handleRemoveBook(item),

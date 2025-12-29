@@ -63,23 +63,21 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
     return (
       <div className="d-flex gap-2">
         {actions.map(action => (
-        <OverlayTrigger
-          key={action.key}
-          placement="top"
-          overlay={<Tooltip id="tooltip-top">{action.title}</Tooltip>}
-        >
-          <Button
+          <OverlayTrigger
             key={action.key}
-            variant="null"
-            className={action.className}
-            disabled={action.disabled}
-            title={action.title}
-            onClick={action.onClick}
+            placement="top"
+            overlay={<Tooltip id={`tooltip-${item.id}-${action.key}`}>{action.title || action.label}</Tooltip>}
           >
-            {action.icon}
-            {action.label}
-          </Button>
-        </OverlayTrigger>
+            <Button
+              variant="null"
+              className={action.className}
+              disabled={action.disabled}
+              onClick={action.onClick}
+            >
+              {action.icon}
+              {action.label}
+            </Button>
+          </OverlayTrigger>
         ))}
       </div>
     );
@@ -138,7 +136,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
           {item.rating != null && (
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip id="tooltip-rating">{rating} / 5</Tooltip>}
+              overlay={<Tooltip id={`tooltip-rating-${item.id}`}>{rating} / 5</Tooltip>}
             >
               <div className="d-flex align-items-center small text-secondary mb-1">
                 <span className="me-2 text-muted">
