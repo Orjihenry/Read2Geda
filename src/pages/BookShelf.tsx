@@ -11,7 +11,7 @@ import { IoMdClose } from "react-icons/io";
 import { MdPlayArrow } from "react-icons/md";
 
 export default function BookShelf() {
-  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress } = useSavedBooks();
+  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, updateProgress } = useSavedBooks();
   const { loading } = useBookCache();
   const { openBookSearch } = useBookSearchModal();
 
@@ -110,6 +110,7 @@ export default function BookShelf() {
                     actions={shelfBooksActions(item, progress)}
                     progress={progress}
                     showProgress={true}
+                    onProgressChange={(newProgress) => updateProgress(item.id, newProgress)}
                   />
                 </div>
               );
@@ -138,6 +139,7 @@ export default function BookShelf() {
                       actions={completedBooksActions(item)}
                       progress={progress}
                       showProgress={true}
+                      onProgressChange={(newProgress) => updateProgress(item.id, newProgress)}
                     />
                   </div>
                 );

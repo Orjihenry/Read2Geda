@@ -1,6 +1,7 @@
 import { type BookData } from "../utils/bookData";
 import { MdAddLocationAlt, MdPeopleAlt, MdStar } from "react-icons/md";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
+import "../styles/BookCard.css";
 
 export type BookCardActions = {
   key: string;
@@ -17,25 +18,41 @@ export type BookCardProps = {
   actions?: BookCardActions[];
   progress?: number;
   showProgress?: boolean;
+  onProgressChange?: (progress: number) => void;
 };
 
-export default function BookCard({ item, actions = [], progress, showProgress = false }: BookCardProps) {
+export default function BookCard({ item, actions = [], progress, showProgress = false, onProgressChange }: BookCardProps) {
   const rating = Math.round((item.rating || 0) * 10) / 10;
   const renderProgressBar = () => {
     if (!showProgress || progress === undefined) return null;
+    
+    const currentProgress = progress || 0;
     
     return (
       <div className="mb-2">
         <div className="d-flex justify-content-between align-items-center mb-1">
           <small className="text-muted">Progress</small>
-          <small className="text-muted">{progress || 0}%</small>
+          <small className="text-muted">{currentProgress}%</small>
         </div>
-        <div className="progress" style={{ height: "4px" }}>
-          <div
-            className="progress-bar bg-success"
-            style={{ width: `${progress || 0}%` }}
+        {onProgressChange ? (
+          <input
+            type="range"
+            className="form-range book-progress-range"
+            style={{ "--progress": `${currentProgress}%` } as React.CSSProperties}
+            min={0}
+            max={100}
+            step={1}
+            value={currentProgress}
+            onChange={(e) => onProgressChange(Number(e.target.value))}
           />
-        </div>
+        ) : (
+          <div className="progress" style={{ height: "4px" }}>
+            <div
+              className="progress-bar bg-success"
+              style={{ width: `${currentProgress}%` }}
+            />
+          </div>
+        )}
       </div>
     );
   };

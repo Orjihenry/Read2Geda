@@ -33,7 +33,7 @@ export default function ClubDetails() {
   const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
   const { books } = useBookCache();
   const { currentUser } = useAuthContext();
-  const { isInShelf, addBook, getUserBookProgress } = useSavedBooks();
+  const { isInShelf, addBook, getUserBookProgress, updateProgress } = useSavedBooks();
   const userId = currentUser?.id || "";
   const club = clubs.find((c) => c.id === clubId);
   
@@ -416,6 +416,7 @@ export default function ClubDetails() {
                       actions={actions}
                       progress={progress}
                       showProgress={inPersonalShelf}
+                      onProgressChange={inPersonalShelf ? (newProgress) => updateProgress(book.id, newProgress) : undefined}
                     />
                   </div>
                 );

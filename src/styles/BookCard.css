@@ -1,0 +1,59 @@
+.book-progress-range {
+  height: 4px;
+  --progress: 0%;
+}
+
+.book-progress-range::-webkit-slider-runnable-track {
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    #198754 0%,
+    #198754 var(--progress),
+    #e9ecef var(--progress),
+    #e9ecef 100%
+  );
+  border-radius: 2px;
+}
+
+.book-progress-range::-moz-range-track {
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    #198754 0%,
+    #198754 var(--progress),
+    #e9ecef var(--progress),
+    #e9ecef 100%
+  );
+  border-radius: 2px;
+}
+
+.book-progress-range::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  background: #198754;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+
+.book-progress-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #198754;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.book-progress-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.book-progress-range::-moz-range-thumb:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
