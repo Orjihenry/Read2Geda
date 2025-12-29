@@ -1,6 +1,9 @@
 .book-progress-range {
   height: 4px;
   --progress: 0%;
+  accent-color: #198754;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .book-progress-range::-webkit-slider-runnable-track {
@@ -31,22 +34,25 @@
   width: 16px;
   height: 16px;
   margin-top: -6px;
-  background: #198754;
-  border: 2px solid #ffffff;
+  background: #198754 !important;
+  border: 2px solid #ffffff !important;
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .book-progress-range::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  background: #198754;
-  border: 2px solid #ffffff;
+  background: #198754 !important;
+  border: 2px solid #ffffff !important;
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   cursor: pointer;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .book-progress-range::-webkit-slider-thumb:hover {
