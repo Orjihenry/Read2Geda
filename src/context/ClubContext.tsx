@@ -126,6 +126,10 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   }, [findClub, saveClubs, updateClubList]);
 
   const addRule = useCallback((rules: ClubRule[]): ClubRule[] => {
+    const MAX_RULES = 7;
+    if (rules.length >= MAX_RULES) {
+      return rules;
+    }
     return [...rules, { title: "", description: "" }];
   }, []);
 

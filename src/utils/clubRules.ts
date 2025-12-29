@@ -2,25 +2,9 @@ import type { ClubRule } from "./bookClub";
 
 export function getClubRules(clubName: string): ClubRule[] {
   const name = clubName.toLowerCase();
-  
-  const defaultRules: ClubRule[] = [
-    {
-      title: "Respectful Discussions",
-      description: "Always maintain a respectful and inclusive environment. Disagreements are welcome, but personal attacks or disrespectful language are not tolerated."
-    },
-    {
-      title: "Active Participation",
-      description: "Members are encouraged to actively participate in discussions and share their thoughts. Your unique perspective enriches our reading experience."
-    },
-    {
-      title: "Reading Pace",
-      description: "We understand everyone reads at different speeds. Feel free to participate in discussions even if you haven't finished the book, but please mark spoilers appropriately."
-    }
-  ];
 
   if (name.includes("sci-fi") || name.includes("science fiction")) {
     return [
-      ...defaultRules,
       {
         title: "Spoiler Protocol",
         description: "When discussing plot twists, time travel paradoxes, or major reveals, always use spoiler tags. We want everyone to enjoy the journey, not just the destination."
@@ -38,7 +22,6 @@ export function getClubRules(clubName: string): ClubRule[] {
 
   if (name.includes("mystery") || name.includes("crime")) {
     return [
-      ...defaultRules,
       {
         title: "No Spoilers Policy",
         description: "Absolutely no spoilers in discussion titles or initial posts. Use spoiler tags for any plot reveals, clues, or solutions. Let everyone solve the mystery themselves!"
@@ -56,7 +39,6 @@ export function getClubRules(clubName: string): ClubRule[] {
 
   if (name.includes("fantasy")) {
     return [
-      ...defaultRules,
       {
         title: "Magic System Discussions",
         description: "We love deep dives into magic systems, world-building, and lore. Share your thoughts on how the fantasy elements enhance the story."
@@ -74,7 +56,6 @@ export function getClubRules(clubName: string): ClubRule[] {
 
   if (name.includes("historical")) {
     return [
-      ...defaultRules,
       {
         title: "Historical Context",
         description: "Feel free to discuss the historical accuracy, period details, and how the author weaves real events into the narrative."
@@ -92,7 +73,6 @@ export function getClubRules(clubName: string): ClubRule[] {
 
   if (name.includes("romance")) {
     return [
-      ...defaultRules,
       {
         title: "Spoiler-Free Zone",
         description: "Keep endings and major relationship developments under wraps. Use spoiler tags liberally so everyone can enjoy the romantic journey."
@@ -110,7 +90,6 @@ export function getClubRules(clubName: string): ClubRule[] {
 
   if (name.includes("young adult") || name.includes("ya")) {
     return [
-      ...defaultRules,
       {
         title: "Age-Appropriate Discussions",
         description: "We welcome readers of all ages. Keep discussions appropriate and remember that YA books often tackle important themes for young readers."
@@ -128,7 +107,6 @@ export function getClubRules(clubName: string): ClubRule[] {
 
   if (name.includes("non-fiction") || name.includes("memoir")) {
     return [
-      ...defaultRules,
       {
         title: "Fact-Checking Welcome",
         description: "Feel free to discuss the accuracy of information presented. Share additional sources or perspectives that enhance understanding."
@@ -146,7 +124,6 @@ export function getClubRules(clubName: string): ClubRule[] {
 
   if (name.includes("classic") || name.includes("literary")) {
     return [
-      ...defaultRules,
       {
         title: "Literary Analysis",
         description: "Deep dives into themes, symbolism, and literary techniques are encouraged. Share your interpretations and analysis."
@@ -164,7 +141,6 @@ export function getClubRules(clubName: string): ClubRule[] {
 
   if (name.includes("dystopian") || name.includes("post-apocalyptic")) {
     return [
-      ...defaultRules,
       {
         title: "World-Building Analysis",
         description: "Discuss how the dystopian world is constructed, what led to it, and how it compares to our own society."
@@ -180,6 +156,6 @@ export function getClubRules(clubName: string): ClubRule[] {
     ];
   }
 
-  return defaultRules;
+  return [];
 }
 

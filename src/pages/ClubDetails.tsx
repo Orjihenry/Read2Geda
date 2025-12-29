@@ -289,7 +289,7 @@ export default function ClubDetails() {
           {(club?.rules && club.rules.length > 0 ? club.rules : getClubRules(club?.name || "")).map((rule, index) => (
             <div key={index} className="mb-3">
               <span className="fw-semibold fs-5 mb-2">
-                <span className="me-2"><FaBookOpen className="me-1" /></span>
+                <FaBookOpen className="me-2" />
                 {rule.title}:&nbsp;
               </span>
               <span className="text-muted mb-0">{rule.description}</span>
@@ -354,9 +354,11 @@ export default function ClubDetails() {
               <button
                 className="btn btn-outline-success mb-3"
                 onClick={handleAddRule}
+                disabled={editingRules.length >= 7}
+                title={editingRules.length >= 7 ? "Maximum of 7 rules allowed" : ""}
               >
                 <FaPlus className="me-1" />
-                Add Rule
+                Add Rule {editingRules.length >= 7 && <span className="text-muted">(Limit: 7)</span>}
               </button>
               
               <div className="d-flex justify-content-end gap-2">
