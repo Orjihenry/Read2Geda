@@ -68,9 +68,7 @@ export default function CommunityGuidelines() {
               established norms.
             </li>
             <li>
-              <strong>Participate constructively:</strong> Contribute meaningfully
-              to discussions. Low-effort posts, trolling, or derailing
-              conversations are discouraged.
+              <strong>Active participation:</strong> Members are encouraged to actively participate in discussions and share their thoughts. Your unique perspective enriches our reading experience. Contribute meaningfully to discussions—low-effort posts, trolling, or derailing conversations are discouraged.
             </li>
             <li>
               <strong>Respect reading pace:</strong> Be mindful of spoilers if
