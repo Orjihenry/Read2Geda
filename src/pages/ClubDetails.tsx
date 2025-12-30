@@ -22,6 +22,7 @@ import { useBookCache } from "../context/BookCacheContext";
 import useSearchFilter from "../hooks/useSearchFilter";
 import Button from "../components/Button";
 import Swal from "sweetalert2";
+import "../styles/ClubDetails.css";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -754,42 +755,47 @@ function ClubMembersSection() {
                   const memberProgress = currentBookId 
                     ? getUserBookProgressById(member.id, currentBookId) : 0;
                   
-                  return (
-                    <div key={member.id} className="col-md-6 col-lg-4">
-                      <div className="d-flex flex-column p-2 border rounded">
-                        <div className="d-flex align-items-center mb-2">
-                          <div
-                            className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
-                            style={{ width: "40px", height: "40px", fontSize: "14px" }}
-                          >
-                            {member.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="flex-grow-1 min-w-0">
-                            <div className="fw-semibold small text-truncate" title={member.name}>
-                              {member.name}
+                    return (
+                      <div key={member.id} className="col-md-6 col-lg-4">
+                      <NavLink 
+                        to={`/user/${member.id}`} 
+                        className="text-decoration-none h-100 d-block"
+                      >
+                        <div className="d-flex flex-column p-2 border rounded h-100 member-card-hover">
+                          <div className="d-flex align-items-center mb-2">
+                            <div
+                              className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
+                              style={{ width: "40px", height: "40px", fontSize: "14px" }}
+                            >
+                              {member.name.charAt(0).toUpperCase()}
                             </div>
-                            <div className="small">{getRoleBadge(member.role)}</div>
+                            <div className="flex-grow-1 min-w-0">
+                              <div className="fw-semibold small text-truncate" title={member.name}>
+                                {member.name}
+                              </div>
+                              <div className="small">{getRoleBadge(member.role)}</div>
+                            </div>
                           </div>
+                          {currentBookId && (
+                            <div className="mt-2">
+                              <div className="d-flex justify-content-between align-items-center mb-1">
+                                <span className="small text-muted">Current Book Progress</span>
+                                <span className="small text-muted fw-semibold">{memberProgress}%</span>
+                              </div>
+                              <div className="progress" style={{ height: "6px" }}>
+                                <div
+                                  className="progress-bar bg-success"
+                                  role="progressbar"
+                                  style={{ width: `${memberProgress}%` }}
+                                  aria-valuenow={memberProgress}
+                                  aria-valuemin={0}
+                                  aria-valuemax={100}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        {currentBookId && (
-                          <div className="mt-2">
-                            <div className="d-flex justify-content-between align-items-center mb-1">
-                              <span className="small text-muted">Current Book Progress</span>
-                              <span className="small text-muted fw-semibold">{memberProgress}%</span>
-                            </div>
-                            <div className="progress" style={{ height: "6px" }}>
-                              <div
-                                className="progress-bar bg-success"
-                                role="progressbar"
-                                style={{ width: `${memberProgress}%` }}
-                                aria-valuenow={memberProgress}
-                                aria-valuemin={0}
-                                aria-valuemax={100}
-                              ></div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      </NavLink>
                     </div>
                   );
                 })}

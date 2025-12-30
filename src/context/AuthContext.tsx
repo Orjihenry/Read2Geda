@@ -14,6 +14,7 @@ type AuthContextType = {
   register: (name: string, email: string, pwd: string) => boolean;
   updateProfile: (user: User) => boolean;
   logout: () => void;
+  getUserById: (userId: string) => User | undefined;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -137,6 +138,10 @@ export default function AuthProvider({
     setIsLoggedIn(false);
   }, []);
 
+  const getUserById = useCallback((userId: string): User | undefined => {
+    return users.find((u) => u.id === userId);
+  }, [users]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -148,6 +153,7 @@ export default function AuthProvider({
         updateProfile,
         login,
         logout,
+        getUserById,
       }}
     >
       {children}
