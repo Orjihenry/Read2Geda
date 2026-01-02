@@ -39,6 +39,7 @@ function App() {
             <Route path="/how_it_works" element={<HowItWorks />} />
             <Route path="/faqs" element={<FAQs />} />
             <Route path="/club/:clubId" element={<ClubDetails />} />
+            <Route path="/user/:userId" element={<Profile />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/community-guidelines" element={<CommunityGuidelines />} />

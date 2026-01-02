@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import NavButton from "../components/NavButton";
 import { useEffect, useState } from "react";
+import { useParams, NavLink, useNavigate } from "react-router-dom";
 import { useClub } from "../context/ClubContext";
 import { useFetchImage } from "../hooks/useFetchImage";
 import { useAuthContext } from "../context/AuthContext";
@@ -10,19 +11,25 @@ import { useSavedBooks } from "../context/SavedBooksContext";
 import { useBookCache } from "../context/BookCacheContext";
 import { useBookSearchModal } from "../context/BookSearchModalContext";
 import type { BookData } from "../utils/bookData";
+import type { User } from "../types/user";
 import placeholderAvatar from "../assets/placeholder.png";
-import { NavLink } from "react-router-dom";
 import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield } from "react-icons/md";
-import { FaCrown } from "react-icons/fa";
+import { FaCrown, FaArrowLeft } from "react-icons/fa";
 import "../styles/Profile.css";
 import useSearchFilter from "../hooks/useSearchFilter";
 
 export default function Profile() {
-  const { currentUser } = useAuthContext();
+  const { userId } = useParams<{ userId?: string }>();
+  const navigate = useNavigate();
+  const { currentUser, getUserById } = useAuthContext();
   const { clubs } = useClub();
   const { updateProgress, getUserBookProgress, getCompletedBooks, getToReadBooks, loading } = useSavedBooks();
   const { getBooks } = useBookCache();
   const { openBookSearch } = useBookSearchModal();
+
+  const displayUser = userId ? getUserById(userId) : currentUser;
+  const isOwnProfile = !userId || currentUser?.id === userId;
+  const isViewingOtherUser = userId && currentUser?.id !== userId;
 
   const [books, setBooks] = useState<BookData[]>([]);
   const [currentBook, setCurrentBook] = useState<{
@@ -34,52 +41,56 @@ export default function Profile() {
   } | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [progress, setProgress] = useState<number>(0);
-  const { imageUrl: avatar } = useFetchImage(currentUser?.avatar, placeholderAvatar);
+  const { imageUrl: avatar } = useFetchImage(displayUser?.avatar, placeholderAvatar);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!displayUser) return;
 
     try {
-      const userBookIds = Object.keys(currentUser.books || {});
+      const userBookIds = Object.keys(displayUser.books || {});
       const userBooks = getBooks(userBookIds);
       setBooks(userBooks);
 
-      const storedCurrentId = localStorage.getItem("currentBookId");
-      let selected: BookData | undefined;
-      
-      if (storedCurrentId && userBooks.find((b) => b.id === storedCurrentId)) {
-        selected = userBooks.find((b) => b.id === storedCurrentId);
-      } else if (storedCurrentId === null) {
-        selected = undefined;
-      } else {
-        const readingBookId = Object.entries(currentUser.books || {}).find(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ([_, bookData]) => bookData.status === "reading"
-        )?.[0];
+      if (isOwnProfile) {
+        const storedCurrentId = localStorage.getItem("currentBookId");
+        let selected: BookData | undefined;
         
-        selected = readingBookId 
-          ? userBooks.find((b) => b.id === readingBookId)
-          : userBooks[0];
-      }
+        if (storedCurrentId && userBooks.find((b) => b.id === storedCurrentId)) {
+          selected = userBooks.find((b) => b.id === storedCurrentId);
+        } else if (storedCurrentId === null) {
+          selected = undefined;
+        } else {
+          const readingBookId = Object.entries(displayUser.books || {}).find(
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            ([_, bookData]) => bookData.status === "reading"
+          )?.[0];
+          
+          selected = readingBookId 
+            ? userBooks.find((b) => b.id === readingBookId)
+            : userBooks[0];
+        }
 
-      if (selected) {
-        const userProgress = getUserBookProgress(selected.id);
-        setCurrentBook({
-          id: selected.id,
-          title: selected.title,
-          author: selected.author,
-          coverImage: selected.coverImage,
-          readingProgress: userProgress,
-        });
-        setProgress(userProgress);
+        if (selected) {
+          const userProgress = getUserBookProgress(selected.id);
+          setCurrentBook({
+            id: selected.id,
+            title: selected.title,
+            author: selected.author,
+            coverImage: selected.coverImage,
+            readingProgress: userProgress,
+          });
+          setProgress(userProgress);
+        } else {
+          setCurrentBook(null);
+          setProgress(0);
+        }
       } else {
         setCurrentBook(null);
-        setProgress(0);
       }
     } catch (error) {
       console.error("Failed to load books:", error);
     }
-  }, [currentUser, getBooks, getUserBookProgress]);
+  }, [displayUser, getBooks, getUserBookProgress, isOwnProfile]);
 
   const openModal = () => {
     if (!currentBook) return;
@@ -90,7 +101,7 @@ export default function Profile() {
   const closeModal = () => setShowModal(false);
 
   const saveProgress = () => {
-    if (!currentBook || !currentUser) return;
+    if (!currentBook || !isOwnProfile || !displayUser) return;
     const pct = Math.max(0, Math.min(100, Number(progress) || 0));
 
     updateProgress(currentBook.id, pct);
@@ -131,27 +142,48 @@ export default function Profile() {
     }
   };
 
-  const stats = (() => {
-    if (!currentUser?.books) return [];
+  if (!displayUser) {
+    return (
+      <>
+        <Header />
+        <div className="container my-5 text-center">
+          <h2 className="display-6 mb-3">User Not Found</h2>
+          <p className="text-muted">The user you're looking for doesn't exist.</p>
+          <NavLink to="/" className="btn btn-success">
+            <FaArrowLeft className="me-1" />
+            Go Home
+          </NavLink>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
-    const userBooks = currentUser.books;
+  const stats = (() => {
+    if (!displayUser?.books) return [];
+
+    const userBooks = displayUser.books;
     const completedCount = Object.values(userBooks).filter(
       (book) => book.status === "completed"
     ).length;
     const myClubsCount = clubs.filter((c) => 
-      c.members.some((m) => m.id === currentUser.id)
+      c.members.some((m) => m.id === displayUser.id)
     ).length;
 
     return [
       { count: completedCount, label: "Books Read" },
       { count: Object.keys(userBooks).length, label: "Books in Shelf" },
-      { count: 0, label: "Likes / Votes" },
       { count: myClubsCount, label: "Clubs Joined" },
     ];
   })();
 
-  const completedBooks = getCompletedBooks(3);
-  const toReadBooks = getToReadBooks(3);
+  const completedBooks = isOwnProfile 
+    ? getCompletedBooks(3)
+    : books.filter((book) => displayUser.books?.[book.id]?.status === "completed").slice(0, 3);
+  
+  const toReadBooks = isOwnProfile
+    ? getToReadBooks(3)
+    : books.filter((book) => displayUser.books?.[book.id]?.status !== "completed").slice(0, 3);
 
   return (
     <>
@@ -176,32 +208,45 @@ export default function Profile() {
             </div>
             <div className="col-lg-6 py-4 py-md-0">
               <div className="about-text">
-                <h3 className="display-6 dark-color">{currentUser?.name}</h3>
+                <h3 className="display-6 dark-color">{displayUser?.name}</h3>
                 <p className="lead">
-                  {currentUser?.bio ||
-                    "You can edit your profile to add a bio."}
+                  {displayUser?.bio ||
+                    (isOwnProfile ? "You can edit your profile to add a bio." : "This user hasn't added a bio yet.")}
                 </p>
 
-                <div className="pb-3">
-                  <NavButton
-                    href="#"
-                    className="btn-dark text-light"
-                    label="My Clubs"
-                    onClick={myClubsSection}
-                  />
-                  <NavButton
-                    href="/edit_profile"
-                    className="mx-2"
-                    label="Edit Profile"
-                  />
-                </div>
+                {isOwnProfile && (
+                  <div className="pb-3">
+                    <NavButton
+                      href="#"
+                      className="btn-dark text-light"
+                      label="My Clubs"
+                      onClick={myClubsSection}
+                    />
+                    <NavButton
+                      href="/edit_profile"
+                      className="mx-2"
+                      label="Edit Profile"
+                    />
+                  </div>
+                )}
+                {isViewingOtherUser && (
+                  <div className="pb-3">
+                    <button 
+                      className="btn btn-outline-success"
+                      onClick={() => navigate(-1)}
+                    >
+                      <FaArrowLeft className="me-1" />
+                      Back
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
           <div className="counter">
             <div className="row">
               {stats.map(({ count, label }, index) => (
-                <div key={index} className="col-6 col-lg-3">
+                <div key={index} className="col-6 col-lg-4">
                   <div className="count-data text-center">
                     <h6 className="count h2">{count}</h6>
                     <p className="m-0px font-w-600">{label}</p>
@@ -213,15 +258,16 @@ export default function Profile() {
         </div>
       </section>
 
-      <section className="py-5">
-        <div className="container">
-          <h2 className="display-6 text-center mb-5">On My Bookshelf Today</h2>
+      {isOwnProfile && (
+        <section className="py-5">
+          <div className="container">
+            <h2 className="display-6 text-center mb-5">On My Bookshelf Today</h2>
 
-          <div className="row justify-content-center">
-            <div className="col-lg-8">
-              <div className="card shadow-sm border-0">
-                <div className="card-body p-4">
-                  {currentBook ? (
+            <div className="row justify-content-center">
+              <div className="col-lg-8">
+                <div className="card shadow-sm border-0">
+                  <div className="card-body p-4">
+                    {currentBook ? (
                     <div className="text-center mb-4">
                       <img
                         src={currentBook.coverImage}
@@ -337,14 +383,15 @@ export default function Profile() {
                       </>
                     )}
                   </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {showModal && (
+      {isOwnProfile && showModal && (
         <div
           className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
           style={{ background: "rgba(0,0,0,0.5)", zIndex: 1050 }}
@@ -395,7 +442,7 @@ export default function Profile() {
         </div>
       )}
 
-      <MyClubsSection />
+      <MyClubsSection isOwnProfile={isOwnProfile} displayUser={displayUser} />
 
       <div className="py-5">
         <div className="container py-4">
@@ -408,7 +455,7 @@ export default function Profile() {
           ) : completedBooks.length > 0 ? (
             <>
               <p className="lead mb-5 font-italic">
-                You've completed {completedBooks.length} book{completedBooks.length !== 1 ? "s" : ""}!
+                {isOwnProfile ? "You've" : `${displayUser.name} has`} completed {completedBooks.length} book{completedBooks.length !== 1 ? "s" : ""}!
               </p>
               <div className="row g-3">
                 {completedBooks.slice(0, 6).map((book) => (
@@ -426,7 +473,7 @@ export default function Profile() {
 
       <div className="bg-light py-5">
         <div className="container py-4">
-          <h2 className="display-6 pb-4">Latest Books In My Shelf</h2>
+          <h2 className="display-6 pb-4">Latest Books in Shelf</h2>
           {loading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-primary mb-2" role="status" />
@@ -441,7 +488,7 @@ export default function Profile() {
                   </div>
                 ))
               ) : (
-                <p className="text-muted">Add books to your reading list to see them here.</p>
+                <p className="text-muted">{isOwnProfile ? "Add books to your reading list to see them here." : "No books in shelf yet."}</p>
               )}
             </div>
           )}
@@ -465,13 +512,13 @@ function ClubsImageUrl({ imageId, fallback }: { imageId?: string; fallback?: str
   );
 }
 
-function MyClubsSection() {
-  const { currentUser } = useAuthContext();
+function MyClubsSection({ isOwnProfile, displayUser }: { isOwnProfile: boolean; displayUser: User | null }) {
+  if (!displayUser) return null;
   const { getMyClubs } = useClub();
   const [showAll, setShowAll] = useState(false);
   const INITIAL_DISPLAY_COUNT = 6;
   
-  const userId = currentUser?.id || "";
+  const userId = displayUser.id;
   const myClubs = getMyClubs(userId);
   
   const { filteredData: filteredClubs, searchInput: searchQuery, setSearchInput: setSearchQuery } = useSearchFilter(myClubs);
@@ -523,7 +570,7 @@ function MyClubsSection() {
             <div className="d-flex justify-content-between align-items-center">
               <h3 className="mb-0 d-flex align-items-center">
                 <MdGroups className="me-2" />
-                My Clubs ({myClubs.length})
+                {isOwnProfile ? "My Clubs" : `${displayUser.name}'s Clubs`} ({myClubs.length})
               </h3>
               {myClubs.length > INITIAL_DISPLAY_COUNT && (
                 <button
