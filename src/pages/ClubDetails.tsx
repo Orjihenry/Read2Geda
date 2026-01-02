@@ -5,7 +5,7 @@ import JoinClubButton from "../components/JoinClubButton";
 import { FaBookOpen, FaCrown, FaEdit, FaTrash } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
-import { MdArrowForward, MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdChatBubble, MdOutlineFavorite } from "react-icons/md";
+import { MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdChatBubble, MdOutlineFavorite } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
@@ -973,73 +973,73 @@ function CurrentBookSection() {
           )}
         </div>
       </div>
-      <RecentDiscussions />
+      {/* <RecentDiscussions /> */}
     </div>
   );
 }
 
-function RecentDiscussions() {
-  const recentPosts = [
-    {
-      id: 1,
-      title: "Chapter 15 Analysis",
-      author: "Sarah M.",
-      time: "2 hours ago",
-      replies: 8,
-    },
-    {
-      id: 2,
-      title: "Character Development Discussion",
-      author: "Mike R.",
-      time: "5 hours ago",
-      replies: 12,
-    },
-    {
-      id: 3,
-      title: "Themes and Symbolism",
-      author: "Emma L.",
-      time: "1 day ago",
-      replies: 15,
-    },
-  ];
+// function RecentDiscussions() {
+//   const recentPosts = [
+//     {
+//       id: 1,
+//       title: "Chapter 15 Analysis",
+//       author: "Sarah M.",
+//       time: "2 hours ago",
+//       replies: 8,
+//     },
+//     {
+//       id: 2,
+//       title: "Character Development Discussion",
+//       author: "Mike R.",
+//       time: "5 hours ago",
+//       replies: 12,
+//     },
+//     {
+//       id: 3,
+//       title: "Themes and Symbolism",
+//       author: "Emma L.",
+//       time: "1 day ago",
+//       replies: 15,
+//     },
+//   ];
 
-  return (
-    <div className="row">
-      <div className="col-12">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h2 className="display-6 mb-0">Recent Discussions</h2>
-          <NavLink to="/discussions" className="btn btn-outline-success">
-            View All Discussions
-            <MdArrowForward />
-          </NavLink>
-        </div>
+//   return (
+//     <div className="row">
+//       <div className="col-12">
+//         <div className="d-flex justify-content-between align-items-center mb-4">
+//           <h2 className="display-6 mb-0">Recent Discussions</h2>
+//           <NavLink to="/discussions" className="btn btn-outline-success">
+//             View All Discussions
+//             <MdArrowForward />
+//           </NavLink>
+//         </div>
 
-        <div className="row">
-          {recentPosts.map((post) => (
-            <div key={post.id} className="col-md-4 mb-3">
-              <div className="card h-100">
-                <div className="card-body">
-                  <h5 className="card-title">{post.title}</h5>
-                  <p className="card-text text-muted small">
-                    by {post.author} • {post.time}
-                  </p>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span className="badge bg-secondary">
-                      {post.replies} replies
-                    </span>
-                    <NavLink
-                      to={`/discussions/${post.id}`}
-                      className="btn btn-sm btn-outline-success"
-                    >
-                      Join Discussion
-                    </NavLink>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+//         <div className="row">
+//           {recentPosts.map((post) => (
+//             <div key={post.id} className="col-md-4 mb-3">
+//               <div className="card h-100">
+//                 <div className="card-body">
+//                   <h5 className="card-title">{post.title}</h5>
+//                   <p className="card-text text-muted small">
+//                     by {post.author} • {post.time}
+//                   </p>
+//                   <div className="d-flex justify-content-between align-items-center">
+//                     <span className="badge bg-secondary">
+//                       {post.replies} replies
+//                     </span>
+//                     <NavLink
+//                       to={`/discussions/${post.id}`}
+//                       className="btn btn-sm btn-outline-success"
+//                     >
+//                       Join Discussion
+//                     </NavLink>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
