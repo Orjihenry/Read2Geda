@@ -513,15 +513,16 @@ function ClubsImageUrl({ imageId, fallback }: { imageId?: string; fallback?: str
 }
 
 function MyClubsSection({ isOwnProfile, displayUser }: { isOwnProfile: boolean; displayUser: User | null }) {
-  if (!displayUser) return null;
   const { getMyClubs } = useClub();
   const [showAll, setShowAll] = useState(false);
-  const INITIAL_DISPLAY_COUNT = 6;
   
-  const userId = displayUser.id;
-  const myClubs = getMyClubs(userId);
-  
+  const myClubs = displayUser ? getMyClubs(displayUser.id) : [];
   const { filteredData: filteredClubs, searchInput: searchQuery, setSearchInput: setSearchQuery } = useSearchFilter(myClubs);
+  
+  if (!displayUser) return null;
+  
+  const INITIAL_DISPLAY_COUNT = 6;
+  const userId = displayUser.id;
 
   if (myClubs.length === 0) return null;
 
