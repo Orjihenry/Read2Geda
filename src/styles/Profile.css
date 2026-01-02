@@ -32,3 +32,14 @@
 .font-italic {
     font-style: italic;
 }
+
+.club-card-hover {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.club-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12) !important;
+  border-color: #198754 !important;
+}

@@ -635,7 +635,7 @@ function MyClubsSection({ isOwnProfile, displayUser }: { isOwnProfile: boolean; 
                           to={`/club/${club.id}`}
                           className="text-decoration-none"
                         >
-                          <div className="card h-100 border hover-shadow transition-all">
+                          <div className="card h-100 border club-card-hover">
                             <div className="card-body p-3">
                               <div className="d-flex align-items-start">
                                 <ClubsImageUrl imageId={club.imageUrl} />
