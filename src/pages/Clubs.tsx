@@ -5,7 +5,6 @@ import { useAuthContext } from "../context/AuthContext";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import ClubCard from "../components/ClubCard";
-import ClubCarousel from "../components/ClubCarousel";
 import useSearchFilter from "../hooks/useSearchFilter";
 import "../styles/Clubs.css";
 
@@ -106,12 +105,6 @@ export default function Clubs() {
             </div>
           </div>
         )}
-
-        <div className="section my-2">
-          <h1 className="display-6 py-3">Popular Clubs</h1>
-
-          <ClubCarousel />
-        </div>
 
         <div className="row g-3 my-5">
           <h2 className="display-6 py-3">Book Clubs</h2>
