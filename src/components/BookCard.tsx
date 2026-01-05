@@ -31,8 +31,18 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
     return (
       <div className="mb-2">
         <div className="d-flex justify-content-between align-items-center mb-1">
-          <small className="text-muted">Progress</small>
-          <small className="text-muted">{currentProgress}%</small>
+          <div>
+            <small className="text-muted">Progress</small>
+            <small className="text-muted fw-medium ms-1">{currentProgress}%</small>
+          </div>
+          <div>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id={`tooltip-completed-${item.id}`}>Mark as completed?</Tooltip>}
+            >
+              <small className="book-completed-text">Completed</small>
+            </OverlayTrigger>
+          </div>
         </div>
         {onProgressChange ? (
           <input
