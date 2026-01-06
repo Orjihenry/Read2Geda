@@ -1,6 +1,7 @@
 import { type BookData } from "../utils/bookData";
 import { MdAddLocationAlt, MdPeopleAlt, MdStar } from "react-icons/md";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
+import Swal from "sweetalert2";
 import "../styles/BookCard.css";
 
 export type BookCardActions = {
@@ -23,6 +24,107 @@ export type BookCardProps = {
 
 export default function BookCard({ item, actions = [], progress, showProgress = false, onProgressChange }: BookCardProps) {
   const rating = Math.round((item.rating || 0) * 10) / 10;
+  
+  const handleMarkAsCompleted = async () => {
+    if (!onProgressChange) return;
+    
+    const { isConfirmed } = await Swal.fire({
+      title: "Mark as Completed?",
+      text: `"${item.title}" will be moved to your completed books section.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Mark as Completed",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-outline-success",
+      },
+    });
+
+    if (isConfirmed) {
+      onProgressChange(100);
+      Swal.fire({
+        title: "Completed!",
+        text: `"${item.title}" has been marked as completed.`,
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 2000,
+        showConfirmButton: true,
+        customClass: {
+          confirmButton: "btn btn-success",
+        },
+      });
+    }
+  };
+
+  const handleResetProgress = async () => {
+    if (!onProgressChange) return;
+    
+    const { isConfirmed } = await Swal.fire({
+      title: "Reset Progress?",
+      text: `This action will remove "${item.title}" from your completed books section.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Reset",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-outline-success",
+      },
+    });
+
+    if (isConfirmed) {
+      onProgressChange(0);
+      Swal.fire({
+        title: "Reset!",
+        text: `Progress for "${item.title}" has been reset.`,
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 2000,
+        showConfirmButton: true,
+        customClass: {
+          confirmButton: "btn btn-success",
+        },
+      });
+    }
+  };
+
+  const handleProgressChange = async (newProgress: number) => {
+    if (!onProgressChange) return;
+    
+    if (newProgress === 100 && progress !== 100) {
+      const { isConfirmed } = await Swal.fire({
+        title: "Mark as Completed?",
+        text: `"${item.title}" will be moved to your completed books section.`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Mark as Completed",
+        cancelButtonText: "Cancel",
+        customClass: {
+          confirmButton: "btn btn-success",
+          cancelButton: "btn btn-outline-success",
+        },
+      });
+
+      if (isConfirmed) {
+        onProgressChange(100);
+        Swal.fire({
+          title: "Completed!",
+          text: `"${item.title}" has been marked as completed.`,
+          icon: "success",
+          confirmButtonText: "OK",
+          timer: 2000,
+          showConfirmButton: true,
+          customClass: {
+            confirmButton: "btn btn-success",
+          },
+        });
+      }
+    } else {
+      onProgressChange(newProgress);
+    }
+  };
+
   const renderProgressBar = () => {
     if (!showProgress || progress === undefined) return null;
     
@@ -39,21 +141,29 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             {onProgressChange ? (
               <OverlayTrigger
                 placement="top"
-                overlay={<Tooltip id={`tooltip-completed-${item.id}`}>Mark as completed?</Tooltip>}
+                overlay={
+                  <Tooltip id={`tooltip-completed-${item.id}`}>
+                    {currentProgress === 100 ? "Reset progress to 0%?" : "Mark as completed?"}
+                  </Tooltip>
+                }
               >
                 <small 
                   className="book-completed-text"
-                  onClick={() => onProgressChange(100)}
+                  onClick={currentProgress === 100 ? handleResetProgress : handleMarkAsCompleted}
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      onProgressChange(100);
+                      if (currentProgress === 100) {
+                        handleResetProgress();
+                      } else {
+                        handleMarkAsCompleted();
+                      }
                     }
                   }}
                 >
-                  Completed
+                  {currentProgress === 100 ? "Reset" : "Completed"}
                 </small>
               </OverlayTrigger>
             ) : (
@@ -70,7 +180,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             max={100}
             step={1}
             value={currentProgress}
-            onChange={(e) => onProgressChange(Number(e.target.value))}
+            onChange={(e) => handleProgressChange(Number(e.target.value))}
           />
         ) : (
           <div className="progress" style={{ height: "4px" }}>
