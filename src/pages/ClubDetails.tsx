@@ -12,7 +12,6 @@ import { useClub } from "../context/ClubContext";
 import { useFetchImage } from "../hooks/useFetchImage";
 import placeholderClubImage from "../assets/bookClub.jpg";
 import { useAuthContext } from "../context/AuthContext";
-import useBookData from "../hooks/useBookData";
 import type { ClubBook, ClubRule } from "../utils/bookClub";
 import { getClubRules } from "../utils/clubRules";
 import BookCard, { type BookCardActions } from "../components/BookCard";
@@ -841,7 +840,7 @@ function CurrentBookSection() {
   const { openBookSearch } = useBookSearchModal();
   const { clubs, isModerator, selectCurrentBook, getBookClubProgress, getClubBooks } =
     useClub();
-  const { books: allBooks } = useBookData();
+  const { getBook } = useBookCache();
 
   const clubProgress = getBookClubProgress(clubId!);
   const club = clubs.find((c) => c.id === clubId);
@@ -853,29 +852,32 @@ function CurrentBookSection() {
   const availableBooks = clubBooks
     .filter((clubBook) => clubBook.status !== "completed")
     .map((clubBook) => {
-      const book = allBooks?.find((b) => b.id === clubBook.bookId);
+      const book = getBook(clubBook.bookId);
       return book;
     })
     .filter((book): book is BookData => book !== undefined);
 
   useEffect(() => {
-    if (!club || !allBooks) return;
+    if (!club) return;
 
-    const clubCurrent = club.currentBook?.bookId;
-    const selected = allBooks.find((b: BookData) => b.id === clubCurrent);
-
-    if (selected) {
-      setCurrentBook(selected);
+    const clubCurrentBookId = club.currentBook?.bookId;
+    if (clubCurrentBookId) {
+      const selected = getBook(clubCurrentBookId);
+      if (selected) {
+        setCurrentBook(selected);
+      } else {
+        setCurrentBook(null);
+      }
     } else {
       setCurrentBook(null);
     }
-  }, [club?.currentBook?.bookId, allBooks, club]);
+  }, [club?.currentBook?.bookId, club, getBook]);
 
   const changeCurrentBook = (bookId: string) => {
     if (!clubId || !userId) return;
     selectCurrentBook(clubId, bookId, userId);
     
-    const selected = allBooks?.find((b: BookData) => b.id === bookId);
+    const selected = getBook(bookId);
     if (selected) {
       setCurrentBook(selected);
     }
