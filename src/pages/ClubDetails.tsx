@@ -34,7 +34,7 @@ export default function ClubDetails() {
   const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
   const { books } = useBookCache();
   const { currentUser } = useAuthContext();
-  const { isInShelf, addBook, getUserBookProgress, updateProgress } = useSavedBooks();
+  const { isInShelf, addBook, updateProgress } = useSavedBooks();
   const userId = currentUser?.id || "";
   const club = clubs.find((c) => c.id === clubId);
   
@@ -483,7 +483,6 @@ export default function ClubDetails() {
                 
                 const inPersonalShelf = isInShelf(book.id);
                 const canModifyClub = clubId ? isModerator(clubId, userId) : false;
-                const progress = getUserBookProgress(book.id);
 
                 const actions: BookCardActions[] = [];
                 
@@ -551,7 +550,6 @@ export default function ClubDetails() {
                     <BookCard
                       item={book}
                       actions={actions}
-                      progress={progress}
                       showProgress={inPersonalShelf}
                       onProgressChange={inPersonalShelf ? (newProgress) => updateProgress(book.id, newProgress) : undefined}
                     />
@@ -945,7 +943,7 @@ function CurrentBookSection() {
 
                   <div className="mb-3">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <span className="small text-muted">Reading Progress</span>
+                      <span className="small text-muted">Club's Average Progress</span>
                       <span className="small text-muted">{clubProgress}%</span>
                     </div>
                     <div className="progress" style={{ height: "8px" }}>
