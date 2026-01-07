@@ -103,8 +103,25 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
 
   const handleProgressChange = async (newProgress: number) => {
     if (!onProgressChange) return;
-    
-    if (newProgress === 100 && progress !== 100) {
+
+    if (progress === 100 && newProgress < 100) {
+      const { isConfirmed } = await Swal.fire({
+        title: "Update Progress?",
+        text: `This will remove "${item.title}" from your completed books section. The completed date will be reset.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Update Progress",
+        cancelButtonText: "Cancel",
+        customClass: {
+          confirmButton: "btn btn-success",
+          cancelButton: "btn btn-outline-success",
+        },
+      });
+
+      if (isConfirmed) {
+        onProgressChange(newProgress);
+      }
+    } else if (newProgress === 100 && progress !== 100) {
       const { isConfirmed } = await Swal.fire({
         title: "Mark as Completed?",
         text: `"${item.title}" will be moved to your completed books section.`,
