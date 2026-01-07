@@ -11,7 +11,7 @@ import { IoMdClose } from "react-icons/io";
 import { MdPlayArrow } from "react-icons/md";
 
 export default function BookShelf() {
-  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, updateProgress } = useSavedBooks();
+  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, updateProgress } = useSavedBooks();
   const { loading } = useBookCache();
   const { openBookSearch } = useBookSearchModal();
 
@@ -103,6 +103,8 @@ export default function BookShelf() {
           ) : bookList?.length ? (
             bookList.map((item) => {
               const progress = getUserBookProgress(item.id);
+              const startedAt = getUserBookStartedAt(item.id);
+              const completedAt = getUserBookCompletedAt(item.id);
 
               return (
                 <div key={item.id} className="col-md-4">
@@ -112,6 +114,8 @@ export default function BookShelf() {
                     progress={progress}
                     showProgress={true}
                     onProgressChange={(newProgress) => updateProgress(item.id, newProgress)}
+                    startedAt={startedAt}
+                    completedAt={completedAt}
                   />
                 </div>
               );
@@ -132,6 +136,8 @@ export default function BookShelf() {
             {completedBooks.length ? (
               completedBooks.map((item) => {
                 const progress = getUserBookProgress(item.id);
+                const startedAt = getUserBookStartedAt(item.id);
+                const completedAt = getUserBookCompletedAt(item.id);
 
                 return (
                   <div key={item.id} className="col-md-4">
@@ -141,6 +147,8 @@ export default function BookShelf() {
                       progress={progress}
                       showProgress={true}
                       onProgressChange={(newProgress) => updateProgress(item.id, newProgress)}
+                      startedAt={startedAt}
+                      completedAt={completedAt}
                     />
                   </div>
                 );

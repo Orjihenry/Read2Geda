@@ -23,7 +23,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const { currentUser, getUserById } = useAuthContext();
   const { clubs } = useClub();
-  const { updateProgress, getUserBookProgress, getCompletedBooks, getToReadBooks, loading } = useSavedBooks();
+  const { updateProgress, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, getCompletedBooks, getToReadBooks, loading } = useSavedBooks();
   const { getBooks } = useBookCache();
   const { openBookSearch } = useBookSearchModal();
 
@@ -458,11 +458,22 @@ export default function Profile() {
                 {isOwnProfile ? "You've" : `${displayUser.name} has`} completed {completedBooks.length} book{completedBooks.length !== 1 ? "s" : ""}!
               </p>
               <div className="row g-3">
-                {completedBooks.slice(0, 6).map((book) => (
-                  <div key={book.id} className="col-md-4">
-                    <BookCard item={book} />
-                  </div>
-                ))}
+                {completedBooks.slice(0, 6).map((book) => {
+                  const startedAt = isOwnProfile ? getUserBookStartedAt(book.id) : displayUser.books?.[book.id]?.startedAt;
+                  const completedAt = isOwnProfile ? getUserBookCompletedAt(book.id) : displayUser.books?.[book.id]?.completedAt;
+                  const progress = isOwnProfile ? getUserBookProgress(book.id) : displayUser.books?.[book.id]?.progress;
+                  
+                  return (
+                    <div key={book.id} className="col-md-4">
+                      <BookCard 
+                        item={book} 
+                        progress={progress}
+                        startedAt={startedAt}
+                        completedAt={completedAt}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </>
           ) : (
@@ -482,11 +493,20 @@ export default function Profile() {
           ) : (
             <div className="row g-3">
               {toReadBooks.length > 0 ? (
-                toReadBooks.slice(0, 6).map((book) => (
-                  <div key={book.id} className="col-md-4">
-                    <BookCard item={book} />
-                  </div>
-                ))
+                toReadBooks.slice(0, 6).map((book) => {
+                  const startedAt = isOwnProfile ? getUserBookStartedAt(book.id) : displayUser.books?.[book.id]?.startedAt;
+                  const completedAt = isOwnProfile ? getUserBookCompletedAt(book.id) : displayUser.books?.[book.id]?.completedAt;
+                  
+                  return (
+                    <div key={book.id} className="col-md-4">
+                      <BookCard 
+                        item={book} 
+                        startedAt={startedAt}
+                        completedAt={completedAt}
+                      />
+                    </div>
+                  );
+                })
               ) : (
                 <p className="text-muted">{isOwnProfile ? "Add books to your reading list to see them here." : "No books in shelf yet."}</p>
               )}

@@ -1,7 +1,8 @@
 import { type BookData } from "../utils/bookData";
-import { MdAddLocationAlt, MdPeopleAlt, MdStar } from "react-icons/md";
+import { MdAddLocationAlt, MdPeopleAlt, MdStar, MdCalendarToday, MdCheckCircle } from "react-icons/md";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
 import "../styles/BookCard.css";
 
 export type BookCardActions = {
@@ -20,10 +21,21 @@ export type BookCardProps = {
   progress?: number;
   showProgress?: boolean;
   onProgressChange?: (progress: number) => void;
+  startedAt?: string;
+  completedAt?: string;
 };
 
-export default function BookCard({ item, actions = [], progress, showProgress = false, onProgressChange }: BookCardProps) {
+export default function BookCard({ item, actions = [], progress, showProgress = false, onProgressChange, startedAt, completedAt }: BookCardProps) {
   const rating = Math.round((item.rating || 0) * 10) / 10;
+  
+  const formatDate = (dateString?: string): string => {
+    if (!dateString) return "";
+    const date = dayjs(dateString);
+    if (date.isValid()) {
+      return date.format("MMM DD, YYYY");
+    }
+    return dateString;
+  };
   
   const handleMarkAsCompleted = async () => {
     if (!onProgressChange) return;
@@ -62,7 +74,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
     
     const { isConfirmed } = await Swal.fire({
       title: "Reset Progress?",
-      text: `This action will remove "${item.title}" from your completed books section.`,
+      text: `This action will remove "${item.title}" from your completed books section and all metadata will be lost.`,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Yes, Reset",
@@ -293,6 +305,26 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                 </div>
               </div>
             </OverlayTrigger>
+          )}
+
+          {startedAt && (progress === undefined || progress > 0) && (
+            <p className="mb-1 small d-flex align-items-center text-secondary">
+              <span className="me-2 text-muted">
+                <MdCalendarToday />
+              </span>
+              Started:{" "}
+              <span className="ms-1 fw-medium">{formatDate(startedAt)}</span>
+            </p>
+          )}
+
+          {completedAt && (progress === undefined || progress === 100) && (
+            <p className="mb-1 small d-flex align-items-center text-success">
+              <span className="me-2">
+                <MdCheckCircle />
+              </span>
+              Completed:{" "}
+              <span className="ms-1 fw-medium">{formatDate(completedAt)}</span>
+            </p>
           )}
 
           {/* <p className="mb-1 small d-flex align-items-center text-secondary">
