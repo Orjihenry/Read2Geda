@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
 import Button from "./Button";
+import { FaUser } from "react-icons/fa";
 import "../styles/Header.css";
 
 export default function Header() {
@@ -38,6 +39,16 @@ export default function Header() {
             <ul className="navbar-nav mr-auto">
               <li className="nav-item">
                 <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    isActive ? "nav-link active" : "nav-link"
+                  }
+                >
+                  Home
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink
                   to="/clubs"
                   className={({ isActive }) =>
                     isActive ? "nav-link active" : "nav-link"
@@ -48,22 +59,12 @@ export default function Header() {
               </li>
               <li className="nav-item">
                 <NavLink
-                  to="/my_shelf"
+                  to="/about"
                   className={({ isActive }) =>
                     isActive ? "nav-link active" : "nav-link"
                   }
                 >
-                  Book Shelf
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink
-                  to="/profile"
-                  className={({ isActive }) =>
-                    isActive ? "nav-link active" : "nav-link"
-                  }
-                >
-                  Profile
+                  About Us
                 </NavLink>
               </li>
               <li className="nav-item">
@@ -79,12 +80,58 @@ export default function Header() {
             </ul>
 
             {currentUser ? (
-              <Button
-                className={"btn-outline-success m-md-2 my-sm-0"}
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
+              <div className="dropdown">
+                <button
+                  className="btn btn-outline-light d-flex align-items-center justify-content-center m-md-2 my-sm-0"
+                  type="button"
+                  id="userMenuDropdown"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  style={{ borderRadius: "50%", width: "40px", height: "40px", padding: 0 }}
+                  title={currentUser.name}
+                >
+                  <FaUser />
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuDropdown">
+                  <li>
+                    <div className="dropdown-item-text">
+                      <small className="text-muted">Signed in as</small>
+                      <div className="fw-semibold text-truncate" style={{ maxWidth: "200px" }}>
+                        {currentUser.name}
+                      </div>
+                    </div>
+                  </li>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <NavLink
+                      to="/profile"
+                      className={({ isActive }) =>
+                        `dropdown-item ${isActive ? "active" : ""}`
+                      }
+                    >
+                      Profile
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/my_shelf"
+                      className={({ isActive }) =>
+                        `dropdown-item ${isActive ? "active" : ""}`
+                      }
+                    >
+                      Book Shelf
+                    </NavLink>
+                  </li>
+                  <li>
+                    <button
+                      className="dropdown-item text-danger"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
             ) : (
               <NavLink
                 to="/login"
