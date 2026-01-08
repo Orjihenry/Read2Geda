@@ -21,6 +21,7 @@ import { useBookCache } from "../context/BookCacheContext";
 import useSearchFilter from "../hooks/useSearchFilter";
 import Button from "../components/Button";
 import Swal from "sweetalert2";
+import { getCurrentDateTime } from "../utils/dateUtils";
 import "../styles/ClubDetails.css";
 
 export default function ClubDetails() {
@@ -840,7 +841,7 @@ function ClubMembersSection() {
 function CurrentBookSection() {
   const { currentUser } = useAuthContext();
   const { clubId } = useParams();
-  const { clubs, isModerator, selectCurrentBook, getBookClubProgress, getClubBooks, updateClubBookStatus } =
+  const { clubs, isModerator, getBookClubProgress, getClubBooks, updateClubBookStatus, updateClub } =
     useClub();
   const { getBook } = useBookCache();
 
@@ -855,7 +856,6 @@ function CurrentBookSection() {
     ? clubBooks.find((cb) => cb.bookId === currentBook.id)?.status 
     : undefined;
   const availableBooks = clubBooks
-    .filter((clubBook) => clubBook.status !== "completed")
     .map((clubBook) => {
       const book = getBook(clubBook.bookId);
       return book;
@@ -879,8 +879,14 @@ function CurrentBookSection() {
   }, [club?.currentBook?.bookId, club, getBook]);
 
   const changeCurrentBook = (bookId: string) => {
-    if (!clubId || !userId) return;
-    selectCurrentBook(clubId, bookId, userId);
+    if (!clubId || !userId || !club) return;
+    
+    const updatedClub = {
+      ...club,
+      currentBook: { bookId, status: "current" as const, startDate: club.currentBook?.startDate || getCurrentDateTime() },
+    };
+    
+    updateClub(updatedClub);
     
     const selected = getBook(bookId);
     if (selected) {
@@ -915,7 +921,7 @@ function CurrentBookSection() {
               <div className="d-flex gap-2">
                 <div className="input-group" style={{ maxWidth: 360 }}>
                   <label className="input-group-text" htmlFor="currentBookSelect">
-                    Select Current Book
+                    Club Books
                   </label>
                   <select
                     id="currentBookSelect"
@@ -949,17 +955,17 @@ function CurrentBookSection() {
                 </div>
                 <div className="col-md-6">
                   <h3 className="h4 mb-2">{currentBook.title}</h3>
-                  <p className="text-muted mb-1">{currentBook.author}</p>
+                  <p className="text-muted mb-1"><span className="fw-semibold font-italic">by</span> {currentBook.author}</p>
                   <p className="text-muted mb-1">
-                    Published: {currentBook.publishedYear}
+                    <span className="fw-semibold">Published:</span> {currentBook.publishedYear}
                   </p>
                   <p className="text-muted mb-3">
-                    Tags: {currentBook.tags?.join(", ")}
+                    <span className="fw-semibold">Tags:</span> {currentBook.tags?.join(", ")}
                   </p>
 
                   <div className="mb-3">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <span className="small text-muted">Club's Average Progress</span>
+                      <span className="small text-muted fw-semibold">Club's Average Progress</span>
                       <span className="small text-muted">{clubProgress}%</span>
                     </div>
                     <div className="progress" style={{ height: "8px" }}>
