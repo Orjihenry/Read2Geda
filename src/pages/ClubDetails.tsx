@@ -840,8 +840,7 @@ function ClubMembersSection() {
 function CurrentBookSection() {
   const { currentUser } = useAuthContext();
   const { clubId } = useParams();
-  const { openBookSearch } = useBookSearchModal();
-  const { clubs, isModerator, selectCurrentBook, getBookClubProgress, getClubBooks } =
+  const { clubs, isModerator, selectCurrentBook, getBookClubProgress, getClubBooks, updateClubBookStatus } =
     useClub();
   const { getBook } = useBookCache();
 
@@ -850,8 +849,11 @@ function CurrentBookSection() {
   const userId = currentUser?.id;
 
   const [currentBook, setCurrentBook] = useState<BookData | null>(null);
-
+  
   const clubBooks = getClubBooks(clubId!) || [];
+  const currentBookStatus = currentBook 
+    ? clubBooks.find((cb) => cb.bookId === currentBook.id)?.status 
+    : undefined;
   const availableBooks = clubBooks
     .filter((clubBook) => clubBook.status !== "completed")
     .map((clubBook) => {
@@ -886,6 +888,22 @@ function CurrentBookSection() {
     }
   };
 
+  const handleMarkAsCompleted = () => {
+    if (!clubId || !userId || !currentBook) return;
+
+    updateClubBookStatus(clubId, userId, currentBook.id, "completed");
+
+    setCurrentBook(null);
+  };
+
+  const handleMarkAsUpcoming = () => {
+    if (!clubId || !userId || !currentBook) return;
+
+    updateClubBookStatus(clubId, userId, currentBook.id, "upcoming");
+    
+    setCurrentBook(null);
+  };
+
   return (
     <div className="bg-light">
       <div className="row mb-5">
@@ -905,6 +923,7 @@ function CurrentBookSection() {
                     value={currentBook?.id || ""}
                     onChange={(e) => changeCurrentBook(e.target.value)}
                   >
+                    <option value="" disabled>Select Book</option>
                     {availableBooks.map((b: BookData) => (
                       <option key={b.id} value={b.id}>
                         {b.title}
@@ -913,14 +932,6 @@ function CurrentBookSection() {
                   </select>
 
                 </div>
-                  
-                <button
-                  onClick={() => openBookSearch(clubId)}
-                  className="btn btn-success"
-                >
-                  <FaPlus className="me-1" />
-                  Add Book
-                </button>
               </div>
             )}
           </div>
@@ -962,12 +973,12 @@ function CurrentBookSection() {
                   </div>
                 </div>
                 <div className="col-md-3 text-center">
-                  <NavLink
-                    to="/discussions"
+                  <Button
                     className="btn btn-outline-success mb-2 d-block"
+                    onClick={currentBookStatus === "completed" ? handleMarkAsUpcoming : handleMarkAsCompleted}
                   >
-                    Join Discussions
-                  </NavLink>
+                     {currentBookStatus === "completed" ? "Return to Club Shelf" : "Mark as Completed"}
+                  </Button>
                 </div>
               </div>
             </div>
