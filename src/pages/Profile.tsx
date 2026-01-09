@@ -13,7 +13,7 @@ import { useBookSearchModal } from "../context/BookSearchModalContext";
 import type { BookData } from "../utils/bookData";
 import type { User } from "../types/user";
 import placeholderAvatar from "../assets/placeholder.png";
-import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield } from "react-icons/md";
+import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield, MdMoreVert } from "react-icons/md";
 import { FaCrown, FaArrowLeft } from "react-icons/fa";
 import "../styles/Profile.css";
 import useSearchFilter from "../hooks/useSearchFilter";
@@ -92,9 +92,18 @@ export default function Profile() {
     }
   }, [displayUser, getBooks, getUserBookProgress, isOwnProfile]);
 
-  const openModal = () => {
-    if (!currentBook) return;
-    setProgress(currentBook.readingProgress ?? 0);
+  const openModal = (bookId?: string) => {
+    const targetBook = bookId ? books.find(b => b.id === bookId) : currentBook;
+    if (!targetBook) return;
+    const bookProgress = getUserBookProgress(targetBook.id);
+    setCurrentBook({
+      id: targetBook.id,
+      title: targetBook.title,
+      author: targetBook.author,
+      coverImage: targetBook.coverImage,
+      readingProgress: bookProgress,
+    });
+    setProgress(bookProgress);
     setShowModal(true);
   };
 
@@ -109,6 +118,14 @@ export default function Profile() {
     setCurrentBook({ ...currentBook, readingProgress: pct });
     setProgress(pct);
     setShowModal(false);
+  };
+
+  const handleMarkAsComplete = (bookId: string) => {
+    updateProgress(bookId, 100);
+  };
+
+  const handleResetProgress = (bookId: string) => {
+    updateProgress(bookId, 0);
   };
 
   const changeCurrentBook = (bookId: string) => {
@@ -263,130 +280,113 @@ export default function Profile() {
           <div className="container">
             <h2 className="display-6 text-center mb-5">On My Bookshelf Today</h2>
 
-            <div className="row justify-content-center">
-              <div className="col-lg-8">
-                <div className="card shadow-sm border-0">
-                  <div className="card-body p-4">
-                    {currentBook ? (
-                    <div className="text-center mb-4">
-                      <img
-                        src={currentBook.coverImage}
-                        alt={currentBook.title}
-                        className="img-fluid rounded shadow-sm mb-3"
-                        style={{ maxHeight: "200px", objectFit: "cover" }}
-                      />
-                      <h4 className="mb-1">{currentBook.title}</h4>
-                      <p className="text-muted mb-3">by {currentBook.author}</p>
-                      {books && books.length > 0 && (
-                        <div className="d-flex justify-content-center mb-2">
-                          <div
-                            className="input-group"
-                            style={{ maxWidth: 360 }}
-                          >
-                            <label
-                              className="input-group-text"
-                              htmlFor="currentBookSelect"
+            {(() => {
+              const currentlyReadingBooks = books.filter((book) => {
+                const progress = getUserBookProgress(book.id);
+                return progress > 0 && progress < 100;
+              });
+
+              return currentlyReadingBooks.length > 0 ? (
+                <div className="row g-4">
+                  {currentlyReadingBooks.map((book) => {
+                    const progress = getUserBookProgress(book.id);
+                    const startedAt = getUserBookStartedAt(book.id);
+                    return (
+                      <div key={book.id} className="col-md-4 col-lg-3">
+                        <div className="card h-100 border shadow-sm position-relative club-card-hover">
+                          <div className="dropdown position-absolute" style={{ top: "8px", right: "8px", zIndex: 10 }}>
+                            <button
+                              className="btn btn-sm btn-link text-muted p-1"
+                              type="button"
+                              id={`bookMenuDropdown-${book.id}`}
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                              style={{ 
+                                border: "none",
+                                background: "transparent",
+                                fontSize: "1.1rem",
+                                lineHeight: 1,
+                              }}
                             >
-                              Current
-                            </label>
-                            <select
-                              id="currentBookSelect"
-                              className="form-select"
-                              value={currentBook?.id || ""}
-                              onChange={(e) =>
-                                changeCurrentBook(e.target.value)
-                              }
-                            >
-                              <option value="" disabled>Select Book</option>
-                              {books.map((b: { id: string; title: string }) => (
-                                <option key={b.id} value={b.id}>
-                                  {b.title}
-                                </option>
-                              ))}
-                            </select>
+                              <MdMoreVert />
+                            </button>
+                            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby={`bookMenuDropdown-${book.id}`}>
+                              <li>
+                                <button
+                                  className="dropdown-item small"
+                                  onClick={() => openModal(book.id)}
+                                >
+                                  Update Progress
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item text-success small"
+                                  onClick={() => handleMarkAsComplete(book.id)}
+                                >
+                                  Mark as Complete
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  className="dropdown-item text-danger small"
+                                  onClick={() => handleResetProgress(book.id)}
+                                >
+                                  Reset Progress
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                          <div className="card-body p-3">
+                            <div className="text-center mb-2">
+                              <img
+                                src={book.coverImage}
+                                alt={book.title}
+                                className="img-fluid rounded shadow-sm"
+                                style={{ 
+                                  maxHeight: "100px", 
+                                  objectFit: "cover",
+                                  width: "100%",
+                                  maxWidth: "80px"
+                                }}
+                              />
+                            </div>
+                            <h6 className="card-title text-center mb-2" style={{ fontSize: "0.9rem", minHeight: "2.5rem" }}>
+                              {book.title}
+                            </h6>
+                            {startedAt && (
+                              <p className="text-muted text-center small mb-2" style={{ fontSize: "0.75rem", opacity: 0.7 }}>
+                                Started {new Date(startedAt).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
+                              </p>
+                            )}
+                            <div className="mb-2">
+                              <div className="d-flex justify-content-between align-items-center mb-1">
+                                <span className="small text-muted">Progress</span>
+                                <span className="small text-muted fw-semibold">{progress}%</span>
+                              </div>
+                              <div className="progress" style={{ height: "6px" }}>
+                                <div
+                                  className="progress-bar bg-success"
+                                  style={{ width: `${progress}%` }}
+                                ></div>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                      <h5 className="mb-2">No current book yet</h5>
-                      <p className="text-muted mb-4">
-                        Select a book from your shelf to track your reading progress.
-                      </p>
-                      
-                      {books && books.length > 0 ? (
-                        <div className="d-flex flex-column align-items-center gap-3">
-                          <select
-                            className="form-select"
-                            style={{ maxWidth: "400px", width: "100%" }}
-                            value=""
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => changeCurrentBook(e.target.value)}
-                          >
-                            <option value="" disabled>Select current book</option>
-                            {books.map((b: BookData) => (
-                              <option key={b.id} value={b.id}>
-                                {b.title}
-                              </option>
-                            ))}
-                          </select>
-                          <div className="text-muted small mb-2">or</div>
-                          <button 
-                            className="btn btn-success" 
-                            onClick={() => openBookSearch()}
-                          >
-                            Search for New Books
-                          </button>
-                        </div>
-                      ) : (
-                        <button 
-                          className="btn btn-success" 
-                          onClick={() => openBookSearch()}
-                        >
-                          Search for Books
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {currentBook && (
-                    <div className="mb-3">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <span className="small text-muted">
-                          Reading Progress
-                        </span>
-                        <span className="small text-muted">
-                          {currentBook.readingProgress}%
-                        </span>
                       </div>
-                      <div className="progress" style={{ height: "8px" }}>
-                        <div
-                          className="progress-bar bg-success"
-                          style={{ width: `${currentBook.readingProgress}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="text-center">
-                    {currentBook && (
-                      <>
-                        <button className="btn btn-outline-success btn-sm me-2">
-                          Continue Reading
-                        </button>
-                        <button
-                          className="btn btn-dark btn-sm"
-                          onClick={openModal}
-                        >
-                          Update Progress
-                        </button>
-                      </>
-                    )}
-                  </div>
-                  </div>
+                    );
+                  })}
                 </div>
-              </div>
-            </div>
+              ) : (
+                <div className="text-center py-5">
+                  <p className="text-muted">No books currently being read.</p>
+                </div>
+              );
+            })()}
           </div>
         </section>
       )}
