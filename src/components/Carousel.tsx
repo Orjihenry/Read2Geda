@@ -1,3 +1,4 @@
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -9,7 +10,13 @@ type CarouselProps<T> = {
     renderItem: (item: T, index: number) => React.ReactNode;
 };
 
-export default function Carousel<T>({ data, renderItem }: CarouselProps<T>) {
+export default forwardRef(function Carousel<T>({ data, renderItem }: CarouselProps<T>, ref: React.Ref<any>) {
+    const sliderRef = useRef<Slider>(null);
+
+    useImperativeHandle(ref, () => ({
+        slickPause: () => sliderRef.current?.slickPause(),
+        slickPlay: () => sliderRef.current?.slickPlay(),
+    }));
 
     const settings = {
         dots: true,
@@ -48,7 +55,7 @@ export default function Carousel<T>({ data, renderItem }: CarouselProps<T>) {
 
     return (
         <div className="slider-container">
-            <Slider {...settings}>
+            <Slider ref={sliderRef} {...settings}>
             {data.map((item, index) => (
                 <div key={index} className="px-2">
                     {renderItem(item, index)}
@@ -57,4 +64,4 @@ export default function Carousel<T>({ data, renderItem }: CarouselProps<T>) {
             </Slider>
         </div>
     );
-}
+});
