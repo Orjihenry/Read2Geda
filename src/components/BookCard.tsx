@@ -210,6 +210,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             step={1}
             value={currentProgress}
             onChange={(e) => handleProgressChange(Number(e.target.value))}
+            disabled={progress === 100}
           />
         ) : (
           <div className="progress" style={{ height: "4px" }}>
@@ -254,12 +255,12 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
       className="p-3 rounded-3 shadow-sm bg-white border card-custom-wrapper transition-all hover:shadow-lg h-100 d-flex flex-column justify-content-between"
     >
       <div>
-        <div className="text-center mb-3">
+        <div className="text-center mb-2">
           <img
             src={item.coverImage}
             alt={item.title}
             className="img-fluid rounded mx-auto"
-            style={{ maxHeight: "220px", objectFit: "cover" }}
+            style={{ maxHeight: "140px", maxWidth: "100px", objectFit: "cover" }}
           />
         </div>
 
@@ -269,23 +270,13 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
         >
           {item.title}
         </h5>
-        {/* <OverlayTrigger
-          placement="top"
-          overlay={<Tooltip id="tooltip-top">AI Generated Summary</Tooltip>}
-        >
-          <p className="text-muted small mb-2 help" style={{ minHeight: "3rem" }}>
-            {item.summary?.length > 100
-              ? item.summary.slice(0, 100) + "..."
-              : item.summary}
-          </p>
-        </OverlayTrigger> */}
 
-        <div className="mt-3">
+        <div className="mt-3" style={{ fontSize: "0.875rem" }}>
           <p className="mb-1 small d-flex align-items-center text-secondary">
             <span className="me-2 text-muted">
               <MdAddLocationAlt />
             </span>
-            Published:{" "}
+            <span className="fw-semibold text-muted">Published:</span>
             <span className="ms-1 fw-medium">
               {item.publishedYear || "Unknown"}
             </span>
@@ -295,7 +286,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             <span className="me-2 text-muted">
               <MdPeopleAlt />
             </span>
-            Author:{" "}
+            <span className="fw-semibold text-muted">Author:</span>
             <span className="ms-1 fw-medium">{item.author || "Unknown"}</span>
           </p>
 
@@ -308,7 +299,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                 <span className="me-2 text-muted">
                   <MdStar />
                 </span>
-                <span className="me-1">Rating:</span>
+                <span className="fw-semibold text-muted">Rating:</span>
                 <div className="d-flex">
                   {Array.from({ length: 5 }, (_, i) => (
                     <span
@@ -329,7 +320,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
               <span className="me-2 text-muted">
                 <MdCalendarToday />
               </span>
-              Started:{" "}
+              <span className="fw-semibold text-muted">Started:</span>
               <span className="ms-1 fw-medium">{formatDate(startedAt)}</span>
             </p>
           )}
@@ -339,23 +330,10 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
               <span className="me-2">
                 <MdCheckCircle />
               </span>
-              Completed:{" "}
+              <span className="fw-semibold text-muted">Completed:</span>
               <span className="ms-1 fw-medium">{formatDate(completedAt)}</span>
             </p>
           )}
-
-          {/* <p className="mb-1 small d-flex align-items-center text-secondary">
-            <span className="me-2 text-muted">
-              <IoMdPricetag />
-            </span>
-            Tags:{" "}
-            <span className="ms-1 fw-medium">
-              {item.tags && item.tags.length > 0
-                ? item.tags.slice(0, 2).join(", ") +
-                  (item.tags.length > 2 ? "..." : "")
-                : "None"}
-            </span>
-          </p> */}
         </div>
       </div>
 
