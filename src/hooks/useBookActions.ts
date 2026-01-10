@@ -41,7 +41,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
     canModifyClub: clubId ? isModerator(clubId, userId) : false
   }), [clubId, userId, isInShelf, isModerator, clubBooks]);
 
-  const handleAddBook = useCallback(async (book: BookData) => {
+  const checkLogin = useCallback((): boolean => {
     if (!userId) {
       Swal.fire({
         title: "Login Required",
@@ -54,8 +54,42 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
           confirmButton: "btn btn-success",
         },
       });
-      return;
+      return false;
     }
+    return true;
+  }, [userId]);
+
+  const showAlreadyInShelf = useCallback((bookTitle: string) => {
+    return Swal.fire({
+      title: "Already in Shelf",
+      html: `<p><span class="font-italic">'${bookTitle}'</span> is already on your shelf.</p>`,
+      icon: "info",
+      confirmButtonText: "OK",
+      showCloseButton: true,
+      allowEscapeKey: true,
+      customClass: {
+        confirmButton: "btn btn-success",
+      },
+    });
+  }, []);
+
+  const showAddedSuccess = useCallback((bookTitle: string, location: string, allowOutsideClick: boolean = true) => {
+    return Swal.fire({
+      title: "Added!",
+      text: `${bookTitle} added to ${location}.`,
+      icon: "success",
+      confirmButtonText: "OK",
+      showCloseButton: true,
+      allowOutsideClick,
+      allowEscapeKey: true,
+      customClass: {
+        confirmButton: "btn btn-success",
+      },
+    });
+  }, []);
+
+  const handleAddBook = useCallback(async (book: BookData) => {
+    if (!checkLogin()) return;
 
     const { inPersonalShelf, inClubShelf } = getBookStatus(book.id);
 
@@ -79,31 +113,10 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
       if (!addToClub) {
         if (inPersonalShelf) {
-          return Swal.fire({
-            title: "Already in Shelf",
-            text: `${book.title} is already on your shelf.`,
-            icon: "info",
-            confirmButtonText: "OK",
-            showCloseButton: true,
-            allowEscapeKey: true,
-            customClass: {
-              confirmButton: "btn btn-success",
-            },
-          });
+          return showAlreadyInShelf(book.title);
         }
         addBook(book);
-        return Swal.fire({
-          title: "Added!",
-          text: `${book.title} added to your shelf.`,
-          icon: "success",
-          confirmButtonText: "OK",
-          showCloseButton: true,
-          allowOutsideClick: false,
-          allowEscapeKey: true,
-          customClass: {
-            confirmButton: "btn btn-success",
-          },
-        });
+        return showAddedSuccess(book.title, "your shelf", false);
       }
 
       const { value: selectedClubId, isDismissed: isClubSelectionDismissed } = await Swal.fire({
@@ -129,17 +142,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       const selectedClubName = selectedClub?.name || "the club";
       
       addBookToClub(selectedClubId, book, userId);
-      return Swal.fire({
-        title: "Added!",
-        text: `${book.title} added to ${selectedClubName}.`,
-        icon: "success",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
-      });
+      return showAddedSuccess(book.title, selectedClubName);
     }
 
     if (clubId) {
@@ -177,47 +180,16 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       }
 
       addBookToClub(clubId, book, userId);
-      return Swal.fire({
-        title: "Added!",
-        text: `${book.title} added to ${clubName}.`,
-        icon: "success",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowOutsideClick: false,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
-      });
+      return showAddedSuccess(book.title, clubName, false);
     }
 
     if (inPersonalShelf) {
-      return Swal.fire({
-        title: "Already in Shelf",
-        html: `<p><span class="font-italic">'${book.title}'</span> is already on your shelf.</p>`,
-        icon: "info",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
-      });
+      return showAlreadyInShelf(book.title);
     }
 
     addBook(book);
-    Swal.fire({
-      title: "Added!",
-      text: `${book.title} added to your shelf.`,
-      icon: "success",
-      confirmButtonText: "OK",
-      showCloseButton: true,
-      allowEscapeKey: true,
-      customClass: {
-        confirmButton: "btn btn-success",
-      },
-    });
-  }, [ userId, clubId, getBookStatus, addBook, addBookToClub, moderatorClubs, isModerator, getClubName ]);
+    showAddedSuccess(book.title, "your shelf");
+  }, [userId, clubId, getBookStatus, addBook, addBookToClub, moderatorClubs, isModerator, getClubName, checkLogin, showAlreadyInShelf, showAddedSuccess]);
 
   const handleRemoveBook = useCallback(async (book: BookData) => {
     if (!clubId || !userId) return;
@@ -227,6 +199,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
     const { isConfirmed, isDismissed } = await Swal.fire({
       title: "Remove book?",
       html: `Remove <span class="font-italic">'${book.title}'</span> from <strong>${clubName}</strong>?`,
+      icon: "warning",
       showCancelButton: true,
       showCloseButton: true,
       confirmButtonText: "Yes, Remove",
@@ -234,7 +207,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       allowEscapeKey: true,
       customClass: {
         confirmButton: "btn btn-success",
-        cancelButton: "btn btn-outline-success",
+        cancelButton: "btn btn-outline-danger",
       },
     });
 
@@ -256,9 +229,21 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
     }
   }, [clubId, userId, removeBookFromClub, getClubName]);
 
+  const handleAddToPersonalShelf = useCallback(async (book: BookData) => {
+    if (!checkLogin()) return;
+
+    if (isInShelf(book.id)) {
+      return showAlreadyInShelf(book.title);
+    }
+
+    addBook(book);
+    showAddedSuccess(book.title, "your shelf");
+  }, [checkLogin, isInShelf, addBook, showAlreadyInShelf, showAddedSuccess]);
+
   return {
     handleAddBook,
     handleRemoveBook,
+    handleAddToPersonalShelf,
     getBookStatus
   };
 }
