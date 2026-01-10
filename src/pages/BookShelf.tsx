@@ -8,7 +8,7 @@ import BookCard, { type BookCardActions } from "../components/BookCard";
 import Swal from "sweetalert2";
 import { useCallback } from "react";
 import { IoMdClose } from "react-icons/io";
-import { MdCheckCircle, MdPlayArrow } from "react-icons/md";
+import { MdCheckCircle, MdPlayArrow, MdRefresh } from "react-icons/md";
 
 export default function BookShelf() {
   const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, updateProgress } = useSavedBooks();
@@ -20,6 +20,66 @@ export default function BookShelf() {
 
   const handleStartReading = useCallback((book: BookData) => {
     updateProgress(book.id, 1);
+  }, [updateProgress]);
+
+  const handleMarkAsCompleted = useCallback(async (book: BookData) => {
+    const { isConfirmed } = await Swal.fire({
+      title: "Mark as Completed?",
+      text: `"${book.title}" will be moved to your completed books section.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Mark as Completed",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-outline-success",
+      },
+    });
+
+    if (isConfirmed) {
+      updateProgress(book.id, 100);
+      Swal.fire({
+        title: "Completed!",
+        text: `"${book.title}" has been marked as completed.`,
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 2000,
+        showConfirmButton: true,
+        customClass: {
+          confirmButton: "btn btn-success",
+        },
+      });
+    }
+  }, [updateProgress]);
+
+  const handleResetProgress = useCallback(async (book: BookData) => {
+    const { isConfirmed } = await Swal.fire({
+      title: "Reset Progress?",
+      text: `Started and Completed metadata will be lost.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Reset",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-outline-success",
+      },
+    });
+
+    if (isConfirmed) {
+      updateProgress(book.id, 0);
+      Swal.fire({
+        title: "Reset!",
+        text: `Progress for "${book.title}" has been reset.`,
+        icon: "success",
+        confirmButtonText: "OK",
+        timer: 2000,
+        showConfirmButton: true,
+        customClass: {
+          confirmButton: "btn btn-success",
+        },
+      });
+    }
   }, [updateProgress]);
 
   const handleRemoveBook = useCallback(async (book: BookData) => {
@@ -64,9 +124,9 @@ export default function BookShelf() {
         className: started ? "btn btn-outline-success flex-fill" : "btn btn-success flex-fill",
         onClick: () => {
           if (started) {
-            updateProgress(item.id, 100);
+            handleMarkAsCompleted(item);
           } else {
-          handleStartReading(item)
+            handleStartReading(item);
           }
         },
       },
@@ -83,10 +143,10 @@ export default function BookShelf() {
   const completedBooksActions = (item: BookData): BookCardActions[] => [
     {
       key: "reset",
-      label: "Reset",
-      icon: <MdPlayArrow className="me-1" />,
+      label: "Reset Progress",
+      icon: <MdRefresh className="me-1" />,
       className: "btn btn-outline-success flex-fill",
-      onClick: () => updateProgress(item.id, 0),
+      onClick: () => handleResetProgress(item),
     },
     {
       key: "remove",
