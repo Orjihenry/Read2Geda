@@ -22,7 +22,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
   const { books: randomBooks } = useRandomBooks();
   const [hasSearched, setHasSearched] = useState(false);
   const { books: searchResults, loading: searchLoading, search } = useSearchBooks();
-  const { handleAddBook, handleRemoveBook, getBookStatus } = useBookActions({ clubId });
+  const { handleAddBook, handleRemoveBook, handleAddToPersonalShelf, getBookStatus } = useBookActions({ clubId });
   const { clubs, addBookToClub, isModerator, getClubBooks } = useClub();
   const { currentUser } = useAuthContext();
   const userId = currentUser?.id || "";
@@ -50,18 +50,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
     const inClubShelf = clubBooks.some(cb => cb.bookId === book.id);
 
     if (inClubShelf) {
-      Swal.fire({
-        title: "Already Added",
-        html: `<p><span class="font-italic">'${book.title}'</span> is already in <strong>${clubName}</strong>.</p>`,
-        icon: "info",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
-      });
-      return;
+      return handleAddToPersonalShelf(book);
     }
 
     if (!isModerator(clubId, userId)) {
@@ -91,10 +80,10 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
         confirmButton: "btn btn-success",
       },
     });
-  }, [clubId, userId, addBookToClub, isModerator, getClubBooks]);
+  }, [clubId, userId, addBookToClub, isModerator, getClubBooks, clubs, handleAddToPersonalShelf]);
 
   const renderBookCard = useCallback((item: typeof searchResults[0], index: number) => {
-    const { inClubShelf, canModifyClub } = getBookStatus(item.id);
+    const { inClubShelf, inPersonalShelf, canModifyClub } = getBookStatus(item.id);
 
     const actions: BookCardActions[] = [];
     
@@ -109,14 +98,38 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
       });
     }
     
-    actions.push({
-      key: "add",
-      label: "Add",
-      icon: <MdOutlineFavorite className="me-1" />,
-      className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
-      title: clubId ? "Add to club" : "Add to shelf",
-      onClick: () => clubId ? handleDirectAddToClub(item) : handleAddBook(item),
-    });
+    if (clubId && inClubShelf && !inPersonalShelf) {
+      actions.push({
+        key: "add-personal",
+        label: "Add to My Shelf",
+        icon: <MdOutlineFavorite className="me-1" />,
+        className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+        title: "Add to personal shelf",
+        onClick: () => handleAddToPersonalShelf(item),
+      });
+    }
+
+    else if (clubId && !inClubShelf && inPersonalShelf) {
+      actions.push({
+        key: "add-club",
+        label: "Add to Club",
+        icon: <MdOutlineFavorite className="me-1" />,
+        className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+        title: "Add to club",
+        onClick: () => handleDirectAddToClub(item),
+      });
+    }
+
+    else if (!inClubShelf && !inPersonalShelf) {
+      actions.push({
+        key: "add",
+        label: "Add",
+        icon: <MdOutlineFavorite className="me-1" />,
+        className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+        title: clubId ? "Add to club" : "Add to shelf",
+        onClick: () => clubId ? handleDirectAddToClub(item) : handleAddBook(item),
+      });
+    }
 
     return (
       <div key={item.id || index} className={hasSearched ? "col-md-6" : "col-md-4"}>
@@ -126,7 +139,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
         />
       </div>
     );
-  }, [hasSearched, clubId, getBookStatus, handleAddBook, handleRemoveBook, handleDirectAddToClub]);
+  }, [hasSearched, clubId, getBookStatus, handleAddBook, handleRemoveBook, handleDirectAddToClub, handleAddToPersonalShelf]);
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="🔎 Search for Books" maxWidth="1000px" showFooter={false}>
