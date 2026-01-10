@@ -22,7 +22,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
   const { books: randomBooks } = useRandomBooks();
   const [hasSearched, setHasSearched] = useState(false);
   const { books: searchResults, loading: searchLoading, search } = useSearchBooks();
-  const { handleAddBook, handleRemoveBook, handleAddToPersonalShelf, getBookStatus } = useBookActions({ clubId });
+  const { handleAddBook, handleRemoveBook, handleAddToPersonalShelf, handleRemoveFromPersonalShelf, getBookStatus } = useBookActions({ clubId });
   const { clubs, addBookToClub, isModerator, getClubBooks } = useClub();
   const { currentUser } = useAuthContext();
   const userId = currentUser?.id || "";
@@ -89,46 +89,53 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
     
     if (clubId && inClubShelf && canModifyClub) {
       actions.push({
-        key: "remove",
+        key: "remove-club",
         label: "Remove",
         icon: <IoMdClose className="me-1" />,
         className: "btn btn-outline-danger flex-fill",
         title: "Remove from club",
         onClick: () => handleRemoveBook(item),
       });
+    } else if (!clubId && inPersonalShelf) {
+      actions.push({
+        key: "remove-personal",
+        label: "Remove",
+        icon: <IoMdClose className="me-1" />,
+        className: "btn btn-outline-danger flex-fill",
+        title: "Remove from shelf",
+        onClick: () => handleRemoveFromPersonalShelf(item),
+      });
     }
     
-    if (clubId && inClubShelf && !inPersonalShelf) {
-      actions.push({
-        key: "add-personal",
-        label: "Add to My Shelf",
-        icon: <MdOutlineFavorite className="me-1" />,
-        className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
-        title: "Add to personal shelf",
-        onClick: () => handleAddToPersonalShelf(item),
-      });
-    }
-
-    else if (clubId && !inClubShelf && inPersonalShelf) {
-      actions.push({
-        key: "add-club",
-        label: "Add to Club",
-        icon: <MdOutlineFavorite className="me-1" />,
-        className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
-        title: "Add to club",
-        onClick: () => handleDirectAddToClub(item),
-      });
-    }
-
-    else if (!inClubShelf && !inPersonalShelf) {
-      actions.push({
-        key: "add",
-        label: "Add",
-        icon: <MdOutlineFavorite className="me-1" />,
-        className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
-        title: clubId ? "Add to club" : "Add to shelf",
-        onClick: () => clubId ? handleDirectAddToClub(item) : handleAddBook(item),
-      });
+    if (!(inPersonalShelf && inClubShelf)) {
+      if (clubId && inClubShelf && !inPersonalShelf) {
+        actions.push({
+          key: "add-personal",
+          label: "Add to My Shelf",
+          icon: <MdOutlineFavorite className="me-1" />,
+          className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+          title: "Add to personal shelf",
+          onClick: () => handleAddToPersonalShelf(item),
+        });
+      } else if (clubId && !inClubShelf && inPersonalShelf) {
+        actions.push({
+          key: "add-club",
+          label: "Add to Club",
+          icon: <MdOutlineFavorite className="me-1" />,
+          className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+          title: "Add to club",
+          onClick: () => handleDirectAddToClub(item),
+        });
+      } else if (!inClubShelf && !inPersonalShelf) {
+        actions.push({
+          key: "add",
+          label: clubId ? "Add to Club" : "Add to My Shelf",
+          icon: <MdOutlineFavorite className="me-1" />,
+          className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+          title: clubId ? "Add to club" : "Add to shelf",
+          onClick: () => clubId ? handleDirectAddToClub(item) : handleAddToPersonalShelf(item),
+        });
+      }
     }
 
     return (
@@ -139,7 +146,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
         />
       </div>
     );
-  }, [hasSearched, clubId, getBookStatus, handleAddBook, handleRemoveBook, handleDirectAddToClub, handleAddToPersonalShelf]);
+  }, [hasSearched, clubId, getBookStatus, handleAddBook, handleRemoveBook, handleRemoveFromPersonalShelf, handleDirectAddToClub, handleAddToPersonalShelf]);
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="🔎 Search for Books" maxWidth="1000px" showFooter={false}>
