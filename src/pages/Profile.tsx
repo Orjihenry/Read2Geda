@@ -9,7 +9,6 @@ import { useFetchImage } from "../hooks/useFetchImage";
 import { useAuthContext } from "../context/AuthContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import { useBookCache } from "../context/BookCacheContext";
-import { useBookSearchModal } from "../context/BookSearchModalContext";
 import type { BookData } from "../utils/bookData";
 import type { User } from "../types/user";
 import placeholderAvatar from "../assets/placeholder.png";
@@ -25,7 +24,6 @@ export default function Profile() {
   const { clubs } = useClub();
   const { updateProgress, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, getCompletedBooks, getToReadBooks, loading } = useSavedBooks();
   const { getBooks } = useBookCache();
-  const { openBookSearch } = useBookSearchModal();
 
   const displayUser = userId ? getUserById(userId) : currentUser;
   const isOwnProfile = !userId || currentUser?.id === userId;
@@ -126,30 +124,6 @@ export default function Profile() {
 
   const handleResetProgress = (bookId: string) => {
     updateProgress(bookId, 0);
-  };
-
-  const changeCurrentBook = (bookId: string) => {
-    if (bookId === "" || bookId === "Select Book") {
-      setCurrentBook(null);
-      setProgress(0);
-      localStorage.removeItem("currentBookId");
-      return;
-    }
-
-    const next = books.find((b) => b.id === bookId);
-    if (!next) return;
-
-    const userProgress = getUserBookProgress(bookId);
-
-    setCurrentBook({
-      id: next.id,
-      title: next.title,
-      author: next.author,
-      coverImage: next.coverImage,
-      readingProgress: userProgress,
-    });
-    setProgress(userProgress);
-    localStorage.setItem("currentBookId", next.id);
   };
 
   const myClubsSection = () => {
