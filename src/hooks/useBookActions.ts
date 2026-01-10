@@ -194,7 +194,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
     if (inPersonalShelf) {
       return Swal.fire({
         title: "Already in Shelf",
-        text: `${book.title} is already on your shelf.`,
+        html: `<p><span class="font-italic">'${book.title}'</span> is already on your shelf.</p>`,
         icon: "info",
         confirmButtonText: "OK",
         showCloseButton: true,
@@ -226,7 +226,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
     const { isConfirmed, isDismissed } = await Swal.fire({
       title: "Remove book?",
-      text: `Remove "${book.title}" from ${clubName}?`,
+      html: `Remove <span class="font-italic">'${book.title}'</span> from <strong>${clubName}</strong>?`,
       showCancelButton: true,
       showCloseButton: true,
       confirmButtonText: "Yes, Remove",

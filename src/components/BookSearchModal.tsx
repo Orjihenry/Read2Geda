@@ -4,8 +4,12 @@ import BookCard, { type BookCardActions } from "./BookCard";
 import useSearchBooks from "../hooks/useSearchBooks";
 import useRandomBooks from "../hooks/useOpenLibrary";
 import { useBookActions } from "../hooks/useBookActions";
+import { useClub } from "../context/ClubContext";
+import { useAuthContext } from "../context/AuthContext";
 import { MdOutlineFavorite } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
+import Swal from "sweetalert2";
+import type { BookData } from "../utils/bookData";
 
 type BookSearchModalProps = {
   isOpen: boolean;
@@ -19,6 +23,9 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
   const [hasSearched, setHasSearched] = useState(false);
   const { books: searchResults, loading: searchLoading, search } = useSearchBooks();
   const { handleAddBook, handleRemoveBook, getBookStatus } = useBookActions({ clubId });
+  const { clubs, addBookToClub, isModerator, getClubBooks } = useClub();
+  const { currentUser } = useAuthContext();
+  const userId = currentUser?.id || "";
 
   const handleSearch = useCallback(() => {
     if (!query.trim()) {
@@ -34,6 +41,57 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
     setHasSearched(false);
     onClose();
   }, [onClose]);
+
+  const handleDirectAddToClub = useCallback(async (book: BookData) => {
+    if (!clubId || !userId) return;
+
+    const clubName = clubs.find(c => c.id === clubId)?.name || "the club";
+    const clubBooks = getClubBooks(clubId);
+    const inClubShelf = clubBooks.some(cb => cb.bookId === book.id);
+
+    if (inClubShelf) {
+      Swal.fire({
+        title: "Already Added",
+        html: `<p><span class="font-italic">'${book.title}'</span> is already in <strong>${clubName}</strong>.</p>`,
+        icon: "info",
+        confirmButtonText: "OK",
+        showCloseButton: true,
+        allowEscapeKey: true,
+        customClass: {
+          confirmButton: "btn btn-success",
+        },
+      });
+      return;
+    }
+
+    if (!isModerator(clubId, userId)) {
+      Swal.fire({
+        title: "Permission Denied",
+        html: `<p>Only moderators can add books to <strong>${clubName}</strong>.</p>`,
+        icon: "error",
+        confirmButtonText: "OK",
+        showCloseButton: true,
+        allowEscapeKey: true,
+        customClass: {
+          confirmButton: "btn btn-success",
+        },
+      });
+      return;
+    }
+
+    addBookToClub(clubId, book, userId);
+    Swal.fire({
+      title: "Added!",
+      html: `<p><span class="font-italic">'${book.title}'</span> added to <strong>${clubName}</strong>.</p>`,
+      icon: "success",
+      confirmButtonText: "OK",
+      showCloseButton: true,
+      allowEscapeKey: true,
+      customClass: {
+        confirmButton: "btn btn-success",
+      },
+    });
+  }, [clubId, userId, addBookToClub, isModerator, getClubBooks]);
 
   const renderBookCard = useCallback((item: typeof searchResults[0], index: number) => {
     const { inClubShelf, canModifyClub } = getBookStatus(item.id);
@@ -56,8 +114,8 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
       label: "Add",
       icon: <MdOutlineFavorite className="me-1" />,
       className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
-      title: "Add to shelf",
-      onClick: () => handleAddBook(item),
+      title: clubId ? "Add to club" : "Add to shelf",
+      onClick: () => clubId ? handleDirectAddToClub(item) : handleAddBook(item),
     });
 
     return (
@@ -68,7 +126,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
         />
       </div>
     );
-  }, [hasSearched, clubId, getBookStatus, handleAddBook, handleRemoveBook]);
+  }, [hasSearched, clubId, getBookStatus, handleAddBook, handleRemoveBook, handleDirectAddToClub]);
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="🔎 Search for Books" maxWidth="1000px" showFooter={false}>
