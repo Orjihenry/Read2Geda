@@ -76,7 +76,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
   const showAddedSuccess = useCallback((bookTitle: string, location: string, allowOutsideClick: boolean = true) => {
     return Swal.fire({
       title: "Added!",
-      text: `${bookTitle} added to ${location}.`,
+      html: `<p><span class="font-italic">'${bookTitle}'</span> added to ${location}.</p>`,
       icon: "success",
       confirmButtonText: "OK",
       showCloseButton: true,
@@ -151,7 +151,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       if (!isModerator(clubId, userId)) {
         Swal.fire({
           title: "Permission Denied",
-          text: `Only moderators can add books to ${clubName}.`,
+          html: `<p>Only moderators can add books to <strong>${clubName}</strong>.</p>`,
           icon: "error",
           confirmButtonText: "OK",
           showCloseButton: true,
@@ -166,7 +166,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       if (inClubShelf) {
         Swal.fire({
           title: "Already Added",
-          text: `${book.title} is already in ${clubName}.`,
+          html: `<p><span class="font-italic">'${book.title}'</span> is already in <strong>${clubName}</strong>.</p>`,
           icon: "info",
           confirmButtonText: "OK",
           showCloseButton: true,
@@ -198,7 +198,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
     const { isConfirmed, isDismissed } = await Swal.fire({
       title: "Remove book?",
-      html: `Remove <span class="font-italic">'${book.title}'</span> from <strong>${clubName}</strong>?`,
+      html: `<p>Remove <span class="font-italic">'${book.title}'</span> from <strong>${clubName}</strong>?</p>`,
       icon: "warning",
       showCancelButton: true,
       showCloseButton: true,
@@ -217,7 +217,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       removeBookFromClub(clubId, book.id);
       Swal.fire({
         title: "Removed!",
-        text: `${book.title} removed from ${clubName}.`,
+        html: `<p><span class="font-italic">'${book.title}'</span> removed from <strong>${clubName}</strong>.</p>`,
         icon: "success",
         confirmButtonText: "OK",
         showCloseButton: true,
@@ -245,7 +245,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
     const { isConfirmed, isDismissed } = await Swal.fire({
       title: "Remove from Shelf?",
-      html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span>?`,
+      html: `<p>Are you sure you want to remove <span class="font-italic">'${book.title}'</span>?</p>`,
       icon: "warning",
       showCancelButton: true,
       showCloseButton: true,
@@ -264,7 +264,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       removeBook(book.id);
       Swal.fire({
         title: "Removed",
-        text: `${book.title} removed.`,
+        html: `<p><span class="font-italic">'${book.title}'</span> removed.</p>`,
         icon: "success",
         confirmButtonText: "OK",
         showCloseButton: true,
