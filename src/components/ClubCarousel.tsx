@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Carousel from "./Carousel";
 import ClubCard from "./ClubCard";
 import { useClub } from "../context/ClubContext";
+import type { bookClub } from "../utils/bookClub";
 import "../styles/ClubCarousel.css";
 
 export default function ClubCarousel() {
@@ -26,15 +27,18 @@ export default function ClubCarousel() {
       ) : (
         <Carousel
           data={clubs}
-          renderItem={(item, index) => (
-            <div
-              ref={(el) => { cardRefs.current[index] = el; }}
-              key={item.id || index}
-              style={{ height: maxHeight ? `${maxHeight}px` : "auto" }}
-            >
-              <ClubCard item={item} index={index} />
-            </div>
-          )}
+          renderItem={(item, index) => {
+            const club = item as bookClub;
+            return (
+              <div
+                ref={(el) => { cardRefs.current[index] = el; }}
+                key={club.id || index}
+                style={{ height: maxHeight ? `${maxHeight}px` : "auto" }}
+              >
+                <ClubCard item={club} index={index} />
+              </div>
+            );
+          }}
         />
       )}
     </div>
