@@ -94,7 +94,7 @@ export default function Home() {
         </div>
 
         <div className="section text-center py-5 my-5 bg-light">
-          <h2 className="display-6 mb-4">Book Carousel</h2>
+          <h2 className="display-6 mb-4">Featured Books</h2>
           <p className="lead mb-5">
             Explore our curated selection of books and find your next favorite
             read.
