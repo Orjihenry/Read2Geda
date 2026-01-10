@@ -36,70 +36,6 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
     }
     return dateString;
   };
-  
-  const handleMarkAsCompleted = async () => {
-    if (!onProgressChange) return;
-    
-    const { isConfirmed } = await Swal.fire({
-      title: "Mark as Completed?",
-      text: `"${item.title}" will be moved to your completed books section.`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Mark as Completed",
-      cancelButtonText: "Cancel",
-      customClass: {
-        confirmButton: "btn btn-success",
-        cancelButton: "btn btn-outline-success",
-      },
-    });
-
-    if (isConfirmed) {
-      onProgressChange(100);
-      Swal.fire({
-        title: "Completed!",
-        text: `"${item.title}" has been marked as completed.`,
-        icon: "success",
-        confirmButtonText: "OK",
-        timer: 2000,
-        showConfirmButton: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
-      });
-    }
-  };
-
-  const handleResetProgress = async () => {
-    if (!onProgressChange) return;
-    
-    const { isConfirmed } = await Swal.fire({
-      title: "Reset Progress?",
-      text: `This action will remove "${item.title}" from your completed books section and all metadata will be lost.`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Yes, Reset",
-      cancelButtonText: "Cancel",
-      customClass: {
-        confirmButton: "btn btn-success",
-        cancelButton: "btn btn-outline-success",
-      },
-    });
-
-    if (isConfirmed) {
-      onProgressChange(0);
-      Swal.fire({
-        title: "Reset!",
-        text: `Progress for "${item.title}" has been reset.`,
-        icon: "success",
-        confirmButtonText: "OK",
-        timer: 2000,
-        showConfirmButton: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
-      });
-    }
-  };
 
   const handleProgressChange = async (newProgress: number) => {
     if (!onProgressChange) return;
@@ -162,43 +98,8 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
     return (
       <div className="mb-2">
         <div className="d-flex justify-content-between align-items-center mb-1">
-          <div>
-            <small className="text-muted">Progress:</small>
-            <small className="text-muted fw-medium ms-1">{currentProgress}%</small>
-          </div>
-          <div>
-            {onProgressChange ? (
-              <OverlayTrigger
-                placement="top"
-                overlay={
-                  <Tooltip id={`tooltip-completed-${item.id}`}>
-                    {currentProgress === 100 ? "Reset progress to 0%?" : "Mark as completed?"}
-                  </Tooltip>
-                }
-              >
-                <small 
-                  className="book-completed-text"
-                  onClick={currentProgress === 100 ? handleResetProgress : handleMarkAsCompleted}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      if (currentProgress === 100) {
-                        handleResetProgress();
-                      } else {
-                        handleMarkAsCompleted();
-                      }
-                    }
-                  }}
-                >
-                  {currentProgress === 100 ? "Reset" : "Completed"}
-                </small>
-              </OverlayTrigger>
-            ) : (
-              <small className="text-muted">Completed</small>
-            )}
-          </div>
+          <small className="text-muted">Progress:</small>
+          <small className="text-muted fw-medium ms-1">{currentProgress}%</small>
         </div>
         {onProgressChange ? (
           <input
@@ -265,7 +166,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
         </div>
 
         <h5
-          className="fw-semibold mb-1 text-primary text-truncate"
+          className="fw-semibold mb-1 text-primary text-truncate fs-5"
           title={item.title}
         >
           {item.title}
