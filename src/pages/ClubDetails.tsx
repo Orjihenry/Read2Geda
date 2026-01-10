@@ -407,7 +407,7 @@ export default function ClubDetails() {
                       if (!clubId) return;
                       const { isConfirmed } = await Swal.fire({
                         title: "Remove from Club?",
-                        text: `Are you sure you want to remove "${book.title}" from ${club?.name || "the club"}?`,
+                        html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span> from <strong>${club?.name || "the club"}</strong>?`,
                         icon: "warning",
                         showCancelButton: true,
                         confirmButtonText: "Yes, Remove",
@@ -421,7 +421,7 @@ export default function ClubDetails() {
                         removeBookFromClub(clubId, book.id);
                         Swal.fire({
                           title: "Removed",
-                          text: `${book.title} removed from ${club?.name || "club"} shelf.`,
+                          html: `<p><span class="font-italic">'${book.title}'</span> removed from <strong>${club?.name || "club"}</strong> shelf.</p>`,
                           icon: "success",
                           confirmButtonText: "OK",
                           customClass: {
@@ -498,7 +498,7 @@ export default function ClubDetails() {
                       if (!clubId) return;
                       const { isConfirmed } = await Swal.fire({
                         title: "Remove from Club?",
-                        text: `Are you sure you want to remove "${book.title}" from ${club?.name || "the club"}?`,
+                        html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span> from <strong>${club?.name || "the club"}</strong>?`,
                         icon: "warning",
                         showCancelButton: true,
                         confirmButtonText: "Yes, Remove",
