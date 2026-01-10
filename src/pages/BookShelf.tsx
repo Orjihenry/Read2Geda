@@ -8,7 +8,7 @@ import BookCard, { type BookCardActions } from "../components/BookCard";
 import Swal from "sweetalert2";
 import { useCallback } from "react";
 import { IoMdClose } from "react-icons/io";
-import { MdPlayArrow } from "react-icons/md";
+import { MdCheckCircle, MdPlayArrow } from "react-icons/md";
 
 export default function BookShelf() {
   const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, updateProgress } = useSavedBooks();
@@ -17,6 +17,10 @@ export default function BookShelf() {
 
   const completedBooks = getCompletedBooks();
   const bookList = getToReadBooks();
+
+  const handleStartReading = useCallback((book: BookData) => {
+    updateProgress(book.id, 1);
+  }, [updateProgress]);
 
   const handleRemoveBook = useCallback(async (book: BookData) => {
     const { isConfirmed } = await Swal.fire({
@@ -54,10 +58,17 @@ export default function BookShelf() {
     return [
       {
         key: "read",
-        label: started ? "Continue Reading" : "Start Reading",
-        icon: <MdPlayArrow className="me-1" />,
+        label: started ? "Mark as Completed" : "Start Reading",
+        icon: started ? 
+          <MdCheckCircle className="me-1" /> : <MdPlayArrow className="me-1" />,
         className: started ? "btn btn-outline-success flex-fill" : "btn btn-success flex-fill",
-        onClick: () => console.log("Reading book", item.id),
+        onClick: () => {
+          if (started) {
+            updateProgress(item.id, 100);
+          } else {
+          handleStartReading(item)
+          }
+        },
       },
       {
         key: "remove",
@@ -71,10 +82,17 @@ export default function BookShelf() {
 
   const completedBooksActions = (item: BookData): BookCardActions[] => [
     {
+      key: "reset",
+      label: "Reset",
+      icon: <MdPlayArrow className="me-1" />,
+      className: "btn btn-outline-success flex-fill",
+      onClick: () => updateProgress(item.id, 0),
+    },
+    {
       key: "remove",
-      label: "Remove",
+      title: "Remove",
       icon: <IoMdClose className="me-1" />,
-      className: "btn btn-outline-danger w-100",
+      className: "btn btn-outline-danger",
       onClick: () => handleRemoveBook(item),
     }
   ];
