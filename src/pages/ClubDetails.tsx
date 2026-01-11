@@ -5,7 +5,7 @@ import JoinClubButton from "../components/JoinClubButton";
 import { FaBookOpen, FaCrown, FaEdit, FaTrash } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
-import { MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdChatBubble, MdOutlineFavorite } from "react-icons/md";
+import { MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdOutlineFavorite, MdCheckCircle } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
@@ -23,6 +23,7 @@ import Button from "../components/Button";
 import Swal from "sweetalert2";
 import { getCurrentDateTime } from "../utils/dateUtils";
 import "../styles/ClubDetails.css";
+import "../styles/Profile.css";
 
 export default function ClubDetails() {
   const { clubId } = useParams();
@@ -30,7 +31,9 @@ export default function ClubDetails() {
   const { openBookSearch } = useBookSearchModal();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRulesModal, setShowRulesModal] = useState(false);
-  const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator, updateClubRules, addRule, removeRule, updateRule } = useClub();
+  const [showModeratorsModal, setShowModeratorsModal] = useState(false);
+  const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator, updateClubRules, addRule, removeRule, updateRule, updateMemberRole } = useClub();
+  const { users } = useAuthContext();
   const [upcomingBooks, setUpcomingBooks] = useState<ClubBook[]>([]);
   const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
   const { books } = useBookCache();
@@ -230,18 +233,22 @@ export default function ClubDetails() {
                     See Members
                   </button>
                 </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => console.log("See Discussions")}
-                  >
-                    <MdChatBubble className="me-2" />
-                    See Discussions
-                  </button>
-                </li>
+                {isModerator(clubId!, userId!) && (
+                  <>
+                    <li>
+                      <hr className="dropdown-divider" />
+                    </li>
+                    <li>
+                      <button
+                        className="dropdown-item"
+                        onClick={() => setShowModeratorsModal(true)}
+                      >
+                        <MdShield className="me-2" />
+                        Set Moderators
+                      </button>
+                    </li>
+                  </>
+                )}
                 </ul>
               </div>
             </div>
@@ -377,6 +384,37 @@ export default function ClubDetails() {
                   Save Rules
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showModeratorsModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{ background: "rgba(0,0,0,0.5)", zIndex: 1050 }}
+          onClick={() => setShowModeratorsModal(false)}
+        >
+          <div 
+            className="card shadow" 
+            style={{ maxWidth: "700px", width: "90%", maxHeight: "90vh", overflowY: "auto" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="card-header bg-light">
+              <h5 className="card-title mb-0 d-flex align-items-center">
+                <MdShield className="me-2" />
+                Set Moderators
+              </h5>
+            </div>
+            <div className="card-body">
+              <ModeratorsManagementSection 
+                clubId={clubId}
+                club={club}
+                users={users}
+                updateMemberRole={updateMemberRole}
+                userId={userId}
+                onClose={() => setShowModeratorsModal(false)}
+              />
             </div>
           </div>
         </div>
@@ -995,73 +1033,244 @@ function CurrentBookSection() {
           )}
         </div>
       </div>
-      {/* <RecentDiscussions /> */}
     </div>
   );
 }
 
-// function RecentDiscussions() {
-//   const recentPosts = [
-//     {
-//       id: 1,
-//       title: "Chapter 15 Analysis",
-//       author: "Sarah M.",
-//       time: "2 hours ago",
-//       replies: 8,
-//     },
-//     {
-//       id: 2,
-//       title: "Character Development Discussion",
-//       author: "Mike R.",
-//       time: "5 hours ago",
-//       replies: 12,
-//     },
-//     {
-//       id: 3,
-//       title: "Themes and Symbolism",
-//       author: "Emma L.",
-//       time: "1 day ago",
-//       replies: 15,
-//     },
-//   ];
+function ModeratorsManagementSection({ clubId, club, users, updateMemberRole,userId,onClose }: { clubId?: string; club?: { id: string; ownerId: string; members: Array<{ id: string; role?: "member" | "moderator" | "owner" }> };
+  users?: Array<{ id: string; name?: string; email?: string; avatar?: string }>;
+  updateMemberRole: (clubId: string, memberId: string, role: "member" | "moderator" | "owner", userId: string) => boolean;
+  userId: string;
+  onClose: () => void;
+}) {
+  if (!clubId || !club || !users || !userId) return null;
 
-//   return (
-//     <div className="row">
-//       <div className="col-12">
-//         <div className="d-flex justify-content-between align-items-center mb-4">
-//           <h2 className="display-6 mb-0">Recent Discussions</h2>
-//           <NavLink to="/discussions" className="btn btn-outline-success">
-//             View All Discussions
-//             <MdArrowForward />
-//           </NavLink>
-//         </div>
+  const additionalOwners = club.members.filter((m) => 
+    m.role === "owner" && m.id !== club.ownerId
+  ).length;
+  const ownerCount = (club.ownerId ? 1 : 0) + additionalOwners;
+  const canAddOwner = ownerCount < 3;
+  const canRemoveOwner = ownerCount > 1;
 
-//         <div className="row">
-//           {recentPosts.map((post) => (
-//             <div key={post.id} className="col-md-4 mb-3">
-//               <div className="card h-100">
-//                 <div className="card-body">
-//                   <h5 className="card-title">{post.title}</h5>
-//                   <p className="card-text text-muted small">
-//                     by {post.author} • {post.time}
-//                   </p>
-//                   <div className="d-flex justify-content-between align-items-center">
-//                     <span className="badge bg-secondary">
-//                       {post.replies} replies
-//                     </span>
-//                     <NavLink
-//                       to={`/discussions/${post.id}`}
-//                       className="btn btn-sm btn-outline-success"
-//                     >
-//                       Join Discussion
-//                     </NavLink>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+  const handleRoleChange = async (memberId: string, newRole: "member" | "moderator" | "owner", memberName: string, currentRole?: string) => {
+    const roleLabels: Record<string, string> = {
+      member: "Member",
+      moderator: "Moderator",
+      owner: "Owner"
+    };
+
+    const newRoleLabel = roleLabels[newRole];
+
+    let confirmTitle = "";
+    let confirmText = "";
+    
+    if (newRole === "owner") {
+      confirmTitle = "Promote to Owner?";
+      confirmText = `Are you sure you want to promote <strong>${memberName}</strong> to Owner?`;
+    } else if (currentRole === "owner") {
+      confirmTitle = "Demote from Owner?";
+      confirmText = `Are you sure you want to demote <strong>${memberName}</strong> from Owner to ${newRoleLabel}?`;
+    } else if (newRole === "moderator") {
+      confirmTitle = "Make Moderator?";
+      confirmText = `Are you sure you want to make <strong>${memberName}</strong> a Moderator?`;
+    } else {
+      confirmTitle = "Remove Moderator?";
+      confirmText = `Are you sure you want to remove <strong>${memberName}</strong> as Moderator?`;
+    }
+
+    const { isConfirmed, isDismissed } = await Swal.fire({
+      title: confirmTitle,
+      html: confirmText,
+      icon: "question",
+      showCancelButton: true,
+      showCloseButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "Cancel",
+      allowEscapeKey: true,
+      customClass: {
+        confirmButton: "btn btn-success",
+        cancelButton: "btn btn-outline-success",
+      },
+    });
+
+    if (isDismissed || !isConfirmed) return;
+
+    const success = updateMemberRole(clubId, memberId, newRole, userId);
+    if (success) {
+      Swal.fire({
+        title: "Role Updated!",
+        html: `<p><strong>${memberName}</strong> is now a ${newRoleLabel}.</p>`,
+        icon: "success",
+        confirmButtonText: "OK",
+        showCloseButton: true,
+        allowEscapeKey: true,
+        customClass: {
+          confirmButton: "btn btn-success",
+        },
+      });
+    } else {
+      let errorMessage = "Failed to update member role. Please try again.";
+      
+      if (newRole === "owner" && !canAddOwner) {
+        errorMessage = "Cannot have more than 3 owners. Please demote an existing owner first.";
+      } else if (currentRole === "owner" && !canRemoveOwner) {
+        errorMessage = "Cannot have less than 1 owner. Please promote another member to owner first.";
+      }
+
+      Swal.fire({
+        title: "Error",
+        html: `<p>${errorMessage}</p>`,
+        icon: "error",
+        confirmButtonText: "OK",
+        showCloseButton: true,
+        allowEscapeKey: true,
+        customClass: {
+          confirmButton: "btn btn-danger",
+        },
+      });
+    }
+  };
+
+  const members = club.members
+    .map((member) => {
+      const user = users.find((u) => u.id === member.id);
+      return {
+        ...member,
+        name: user?.name || "Unknown User",
+        email: user?.email || "",
+        avatar: user?.avatar,
+      };
+    })
+    .filter((m) => m.id !== club.ownerId);
+
+  const owners = members.filter((m) => m.role === "owner");
+  const moderators = members.filter((m) => m.role === "moderator");
+  const regularMembers = members.filter((m) => m.role === "member" || !m.role);
+
+  const renderMemberCard = (member: typeof members[0]) => (
+    <div key={member.id} className="list-group-item d-flex justify-content-between align-items-center club-card-hover">
+      <div className="d-flex align-items-center">
+        {member.avatar ? (
+          <img
+            src={member.avatar}
+            alt={member.name}
+            className="rounded-circle me-2"
+            style={{ width: "40px", height: "40px", objectFit: "cover" }}
+          />
+        ) : (
+          <div
+            className="rounded-circle me-2 d-flex align-items-center justify-content-center bg-secondary text-white"
+            style={{ width: "40px", height: "40px" }}
+          >
+            {member.name.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div>
+          <div className="fw-semibold">{member.name}</div>
+          <small className="text-muted">{member.email}</small>
+        </div>
+      </div>
+      <div className="d-flex gap-2">
+        {member.role === "owner" && canRemoveOwner && (
+          <button
+            className="btn btn-sm btn-outline-warning"
+            onClick={() => handleRoleChange(member.id, "moderator", member.name, member.role)}
+            title="Demote to Moderator"
+          >
+            <FaCrown className="me-1" />
+            Demote
+          </button>
+        )}
+        {member.role === "moderator" && (
+          <>
+            {canAddOwner && (
+              <button
+                className="btn btn-sm btn-warning"
+                onClick={() => handleRoleChange(member.id, "owner", member.name, member.role)}
+                title="Promote to Owner"
+              >
+                <FaCrown className="me-1" />
+                Make Owner
+              </button>
+            )}
+            <button
+              className="btn btn-sm btn-outline-danger"
+              onClick={() => handleRoleChange(member.id, "member", member.name, member.role)}
+              title="Remove Moderator"
+            >
+              Remove Moderator
+            </button>
+          </>
+        )}
+        {(!member.role || member.role === "member") && (
+          <>
+            {canAddOwner && (
+              <button
+                className="btn btn-sm btn-warning"
+                onClick={() => handleRoleChange(member.id, "owner", member.name, member.role)}
+                title="Promote to Owner"
+              >
+                <FaCrown className="me-1" />
+                Make Owner
+              </button>
+            )}
+            <button
+              className="btn btn-sm btn-outline-info"
+              onClick={() => handleRoleChange(member.id, "moderator", member.name, member.role)}
+              title="Make Moderator"
+            >
+              <MdCheckCircle className="me-1" />
+              Make Moderator
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      {owners.length > 0 && (
+        <div className="mb-4">
+          <h6 className="text-muted mb-3">
+            Owners <span className="badge bg-warning text-dark ms-2">{ownerCount}/3</span>
+          </h6>
+          <div className="list-group">
+            {owners.map(renderMemberCard)}
+          </div>
+        </div>
+      )}
+
+      <div className="mb-4">
+        <h6 className="text-muted mb-3">Current Moderators</h6>
+        {moderators.length > 0 ? (
+          <div className="list-group">
+            {moderators.map(renderMemberCard)}
+          </div>
+        ) : (
+          <p className="text-muted">No moderators assigned yet.</p>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <h6 className="text-muted mb-3">Members</h6>
+        {regularMembers.length > 0 ? (
+          <div className="list-group">
+            {regularMembers.map(renderMemberCard)}
+          </div>
+        ) : (
+          <p className="text-muted">No members available.</p>
+        )}
+      </div>
+
+      <div className="d-flex justify-content-end">
+        <button
+          className="btn btn-outline-success"
+          onClick={onClose}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+}
