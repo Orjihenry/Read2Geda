@@ -38,6 +38,7 @@ type ClubContextType = {
   addRule: (rules: ClubRule[]) => ClubRule[];
   removeRule: (rules: ClubRule[], index: number) => ClubRule[];
   updateRule: (rules: ClubRule[], index: number, field: "title" | "description", value: string) => ClubRule[];
+  updateMemberRole: (clubId: string, memberId: string, role: "member" | "moderator" | "owner", userId: string) => boolean;
 };
 
 const ClubContext = createContext<ClubContextType | undefined>(undefined);
@@ -75,6 +76,12 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     clubs.map((c) => (c.id === clubId ? updatedClub : c)),
     [clubs]
   );
+
+  const isOwner = useCallback((clubId: string, userId: string): boolean => {
+    const club = findClub(clubId);
+    if (!club) return false;
+    return club.ownerId === userId;
+  }, [findClub]);
 
   // End of Helper functions
 
@@ -178,8 +185,9 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
 
   const leaveClub = useCallback((clubId: string, userId: string) => {
     const club = findClub(clubId);
-    
+
     if (!club) return;
+    if (isOwner(clubId, userId)) return;
     if (!isClubMember(club.id, userId)) return;
     const updatedMembers = club.members.filter((m) => m.id !== userId);
     const updatedClub = { ...club, members: updatedMembers };
@@ -416,6 +424,49 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return club?.suggestions || [];
   }, [findClub]);
 
+  const updateMemberRole = useCallback((clubId: string, memberId: string, role: "member" | "moderator" | "owner", userId: string): boolean => {
+    const club = findClub(clubId);
+    if (!club) return false;
+
+    if (!isOwner(clubId, userId)) return false;
+
+    const currentMember = club.members.find((m) => m.id === memberId);
+    if (!currentMember) return false;
+
+    const currentRole = currentMember.role || "member";
+    const isCurrentlyOwner = club.ownerId === memberId || currentRole === "owner";
+
+    const additionalOwners = club.members.filter((m) => 
+      m.role === "owner" && m.id !== club.ownerId
+    ).length;
+    const actualOwnerCount = (club.ownerId ? 1 : 0) + additionalOwners;
+
+    if (role === "owner" && !isCurrentlyOwner) {
+      if (actualOwnerCount >= 3) {
+        return false;
+      }
+    }
+
+    if (isCurrentlyOwner && role !== "owner") {
+      if (actualOwnerCount <= 1) {
+        return false;
+      }
+    }
+
+    const updatedMembers = club.members.map((m) =>
+      m.id === memberId ? { ...m, role } : m
+    );
+
+    const updatedClub = {
+      ...club,
+      members: updatedMembers,
+      updatedAt: getCurrentDateTime(),
+    };
+
+    saveClubs(updateClubList(clubId, updatedClub));
+    return true;
+  }, [findClub, saveClubs, updateClubList, isOwner]);
+
   return (
     <ClubContext.Provider
       value={{
@@ -446,6 +497,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         addRule,
         removeRule,
         updateRule,
+        updateMemberRole,
       }}
     >
       {children}
