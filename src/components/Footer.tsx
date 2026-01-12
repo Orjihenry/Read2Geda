@@ -37,13 +37,12 @@ export default function Footer() {
                 <div className="col-md-4 px-0">
                   <a href="/clubs" className="nav-link quick-links">Join A Book Club</a>
                   <a href="/community-guidelines" className="nav-link quick-links">Community Guidelines</a>
-                  <a href="/faqs" className="nav-link quick-links">FAQs</a>
+                  <a href="/how_it_works" className="nav-link quick-links">How It Works</a>
                 </div>
 
                 <div className="col-md-4 px-0">
-                  <a href="/discussions" className="nav-link quick-links">Community Discussions</a>
+                  <a href="/faqs" className="nav-link quick-links">FAQs</a>
                   <a href="/contact" className="nav-link quick-links">Contact Us</a>
-                  <a href="/how_it_works" className="nav-link quick-links">How It Works</a>
                 </div>
               </div>
             </nav>
