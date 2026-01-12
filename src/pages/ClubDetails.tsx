@@ -259,7 +259,17 @@ export default function ClubDetails() {
           </div>
 
           <div className="d-flex gap-2 pt-2 justify-content-start">
-            <JoinClubButton clubId={clubId} />
+            {isLoggedIn ? (
+              <JoinClubButton clubId={clubId} />
+            ) : (
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => navigate("/login")}
+              >
+                Join Club
+              </button>
+            )}
+
             {isModerator(clubId!, userId!) && (
               <Button
                 label="Add a Book"
