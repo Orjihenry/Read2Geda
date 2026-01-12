@@ -438,63 +438,65 @@ export default function ClubDetails() {
 
                 const actions: BookCardActions[] = [];
                 
-                if (canModifyClub) {
-                  actions.push({
-                    key: "remove",
-                    label: "Remove",
-                    icon: <IoMdClose className="me-1" />,
-                    className: "btn btn-outline-danger flex-fill",
-                    title: "Remove from club",
-                    onClick: async () => {
-                      if (!clubId) return;
-                      const { isConfirmed } = await Swal.fire({
-                        title: "Remove from Club?",
-                        html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span> from <strong>${club?.name || "the club"}</strong>?`,
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Yes, Remove",
-                        cancelButtonText: "Cancel",
-                        customClass: {
-                          confirmButton: "btn btn-success",
-                          cancelButton: "btn btn-outline-success",
-                        },
-                      });
-                      if (isConfirmed) {
-                        removeBookFromClub(clubId, book.id);
+                if (isLoggedIn) {
+                  if (canModifyClub) {
+                    actions.push({
+                      key: "remove",
+                      label: "Remove",
+                      icon: <IoMdClose className="me-1" />,
+                      className: "btn btn-outline-danger flex-fill",
+                      title: "Remove from club",
+                      onClick: async () => {
+                        if (!clubId) return;
+                        const { isConfirmed } = await Swal.fire({
+                          title: "Remove from Club?",
+                          html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span> from <strong>${club?.name || "the club"}</strong>?`,
+                          icon: "warning",
+                          showCancelButton: true,
+                          confirmButtonText: "Yes, Remove",
+                          cancelButtonText: "Cancel",
+                          customClass: {
+                            confirmButton: "btn btn-success",
+                            cancelButton: "btn btn-outline-success",
+                          },
+                        });
+                        if (isConfirmed) {
+                          removeBookFromClub(clubId, book.id);
+                          Swal.fire({
+                            title: "Removed",
+                            html: `<p><span class="font-italic">'${book.title}'</span> removed from <strong>${club?.name || "club"}</strong> shelf.</p>`,
+                            icon: "success",
+                            confirmButtonText: "OK",
+                            customClass: {
+                              confirmButton: "btn btn-success",
+                            },
+                          });
+                        }
+                      },
+                    });
+                  }
+                  
+                  if (!inPersonalShelf) {
+                    actions.push({
+                      key: "add",
+                      label: "Add",
+                      icon: <MdOutlineFavorite className="me-1" />,
+                      className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+                      title: "Add to shelf",
+                      onClick: () => {
+                        addBook(book);
                         Swal.fire({
-                          title: "Removed",
-                          html: `<p><span class="font-italic">'${book.title}'</span> removed from <strong>${club?.name || "club"}</strong> shelf.</p>`,
+                          title: "Added!",
+                          text: `${book.title} added to your shelf.`,
                           icon: "success",
                           confirmButtonText: "OK",
                           customClass: {
                             confirmButton: "btn btn-success",
                           },
                         });
-                      }
-                    },
-                  });
-                }
-                
-                if (!inPersonalShelf) {
-                  actions.push({
-                    key: "add",
-                    label: "Add",
-                    icon: <MdOutlineFavorite className="me-1" />,
-                    className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
-                    title: "Add to shelf",
-                    onClick: () => {
-                      addBook(book);
-                      Swal.fire({
-                        title: "Added!",
-                        text: `${book.title} added to your shelf.`,
-                        icon: "success",
-                        confirmButtonText: "OK",
-                        customClass: {
-                          confirmButton: "btn btn-success",
-                        },
-                      });
-                    },
-                  });
+                      },
+                    });
+                  }
                 }
 
                 return (
@@ -529,63 +531,65 @@ export default function ClubDetails() {
 
                 const actions: BookCardActions[] = [];
                 
-                if (canModifyClub) {
-                  actions.push({
-                    key: "remove",
-                    label: "Remove",
-                    icon: <IoMdClose className="me-1" />,
-                    className: "btn btn-outline-danger flex-fill",
-                    title: "Remove from club",
-                    onClick: async () => {
-                      if (!clubId) return;
-                      const { isConfirmed } = await Swal.fire({
-                        title: "Remove from Club?",
-                        html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span> from <strong>${club?.name || "the club"}</strong>?`,
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Yes, Remove",
-                        cancelButtonText: "Cancel",
-                        customClass: {
-                          confirmButton: "btn btn-success",
-                          cancelButton: "btn btn-outline-success",
-                        },
-                      });
-                      if (isConfirmed) {
-                        removeBookFromClub(clubId, book.id);
+                if (isLoggedIn) {
+                  if (canModifyClub) {
+                    actions.push({
+                      key: "remove",
+                      label: "Remove",
+                      icon: <IoMdClose className="me-1" />,
+                      className: "btn btn-outline-danger flex-fill",
+                      title: "Remove from club",
+                      onClick: async () => {
+                        if (!clubId) return;
+                        const { isConfirmed } = await Swal.fire({
+                          title: "Remove from Club?",
+                          html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span> from <strong>${club?.name || "the club"}</strong>?`,
+                          icon: "warning",
+                          showCancelButton: true,
+                          confirmButtonText: "Yes, Remove",
+                          cancelButtonText: "Cancel",
+                          customClass: {
+                            confirmButton: "btn btn-success",
+                            cancelButton: "btn btn-outline-success",
+                          },
+                        });
+                        if (isConfirmed) {
+                          removeBookFromClub(clubId, book.id);
+                          Swal.fire({
+                            title: "Removed",
+                            text: `${book.title} removed from ${club?.name || "club"} shelf.`,
+                            icon: "success",
+                            confirmButtonText: "OK",
+                            customClass: {
+                              confirmButton: "btn btn-success",
+                            },
+                          });
+                        }
+                      },
+                    });
+                  }
+                  
+                  if (!inPersonalShelf) {
+                    actions.push({
+                      key: "add",
+                      label: "Add",
+                      icon: <MdOutlineFavorite className="me-1" />,
+                      className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
+                      title: "Add to shelf",
+                      onClick: () => {
+                        addBook(book);
                         Swal.fire({
-                          title: "Removed",
-                          text: `${book.title} removed from ${club?.name || "club"} shelf.`,
+                          title: "Added!",
+                          text: `${book.title} added to your shelf.`,
                           icon: "success",
                           confirmButtonText: "OK",
                           customClass: {
                             confirmButton: "btn btn-success",
                           },
                         });
-                      }
-                    },
-                  });
-                }
-                
-                if (!inPersonalShelf) {
-                  actions.push({
-                    key: "add",
-                    label: "Add",
-                    icon: <MdOutlineFavorite className="me-1" />,
-                    className: actions.length > 0 ? "btn btn-outline-success flex-fill" : "btn btn-outline-success w-100",
-                    title: "Add to shelf",
-                    onClick: () => {
-                      addBook(book);
-                      Swal.fire({
-                        title: "Added!",
-                        text: `${book.title} added to your shelf.`,
-                        icon: "success",
-                        confirmButtonText: "OK",
-                        customClass: {
-                          confirmButton: "btn btn-success",
-                        },
-                      });
-                    },
-                  });
+                      },
+                    });
+                  }
                 }
 
                 const startedAt = inPersonalShelf ? getUserBookStartedAt(book.id) : undefined;
@@ -926,7 +930,7 @@ function CurrentBookSection() {
     useClub();
   const { getBook } = useBookCache();
   const isLoggedIn = !!currentUser;
-  
+
   const clubProgress = getBookClubProgress(clubId!);
   const club = clubs.find((c) => c.id === clubId);
   const userId = currentUser?.id;
