@@ -41,6 +41,7 @@ export default function ClubDetails() {
   const { isInShelf, addBook, updateProgress, getUserBookStartedAt, getUserBookCompletedAt } = useSavedBooks();
   const userId = currentUser?.id || "";
   const club = clubs.find((c) => c.id === clubId);
+  const isLoggedIn = !!currentUser;
   
   const [editingRules, setEditingRules] = useState<ClubRule[]>([]);
   
@@ -184,9 +185,11 @@ export default function ClubDetails() {
               </div>
             </div>
             <div className="ms-3">
+              {isLoggedIn && (
               <div className="dropdown">
                 <button
                   className="btn btn-outline-success btn-sm dropdown-toggle"
+                  disabled={!isLoggedIn}
                   type="button"
                   id="clubSettingsDropdown"
                   data-bs-toggle="dropdown"
@@ -251,6 +254,7 @@ export default function ClubDetails() {
                 )}
                 </ul>
               </div>
+              )}
             </div>
           </div>
 
@@ -656,11 +660,12 @@ function BackButton() {
 function ClubMembersSection() {
   const { clubId } = useParams();
   const { clubs } = useClub();
-  const { users } = useAuthContext();
+  const { users, currentUser } = useAuthContext();
   const { getUserBookProgressById } = useClub();
   const club = clubs.find((c) => c.id === clubId);
   const [showAll, setShowAll] = useState(false);
   const INITIAL_DISPLAY_COUNT = 6;
+  const isLoggedIn = !!currentUser;
 
   const currentBookId = club?.currentBook?.bookId;
 
@@ -770,6 +775,7 @@ function ClubMembersSection() {
                 placeholder="Search members..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                disabled={!isLoggedIn}
               />
               {searchQuery && (
                 <button
@@ -791,18 +797,19 @@ function ClubMembersSection() {
             <p className="text-muted text-center py-3">No members found matching your search.</p>
           ) : (
             <>
-              <div className="row g-2">
+              <div className="row g-2" style={!isLoggedIn ? { filter: "blur(5px)", pointerEvents: "none" } : undefined}>
                 {membersToShow.map((member) => {
                   const memberProgress = currentBookId 
                     ? getUserBookProgressById(member.id, currentBookId) : 0;
                   
                     return (
                       <div key={member.id} className="col-md-6 col-lg-4">
-                      <NavLink 
-                        to={`/user/${member.id}`} 
-                        className="text-decoration-none h-100 d-block"
-                      >
-                        <div className="d-flex flex-column p-2 border rounded h-100 member-card-hover">
+                      {isLoggedIn ? (
+                        <NavLink 
+                          to={`/user/${member.id}`} 
+                          className="text-decoration-none h-100 d-block"
+                        >
+                          <div className="d-flex flex-column p-2 border rounded h-100 member-card-hover">
                           <div className="d-flex align-items-center mb-2">
                             <div
                               className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
@@ -837,6 +844,42 @@ function ClubMembersSection() {
                           )}
                         </div>
                       </NavLink>
+                      ) : (
+                        <div className="d-flex flex-column p-2 border rounded h-100">
+                          <div className="d-flex align-items-center mb-2">
+                            <div
+                              className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
+                              style={{ width: "40px", height: "40px", fontSize: "14px" }}
+                            >
+                              {member.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="flex-grow-1 min-w-0">
+                              <div className="fw-semibold small text-truncate" title={member.name}>
+                                {member.name}
+                              </div>
+                              <div className="small">{getRoleBadge(member.role)}</div>
+                            </div>
+                          </div>
+                          {currentBookId && (
+                            <div className="mt-2">
+                              <div className="d-flex justify-content-between align-items-center mb-1">
+                                <span className="small text-muted">Current Book Progress</span>
+                                <span className="small text-muted fw-semibold">{memberProgress}%</span>
+                              </div>
+                              <div className="progress" style={{ height: "6px" }}>
+                                <div
+                                  className="progress-bar bg-success"
+                                  role="progressbar"
+                                  style={{ width: `${memberProgress}%` }}
+                                  aria-valuenow={memberProgress}
+                                  aria-valuemin={0}
+                                  aria-valuemax={100}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -882,7 +925,8 @@ function CurrentBookSection() {
   const { clubs, isModerator, getBookClubProgress, getClubBooks, updateClubBookStatus, updateClub } =
     useClub();
   const { getBook } = useBookCache();
-
+  const isLoggedIn = !!currentUser;
+  
   const clubProgress = getBookClubProgress(clubId!);
   const club = clubs.find((c) => c.id === clubId);
   const userId = currentUser?.id;
@@ -1016,6 +1060,7 @@ function CurrentBookSection() {
                     </div>
                   </div>
                 </div>
+                {isLoggedIn && (
                 <div className="col-md-3 text-center">
                   <Button
                     className="btn btn-outline-success mb-2 d-block"
@@ -1024,6 +1069,7 @@ function CurrentBookSection() {
                      {currentBookStatus === "completed" ? "Return to Club Shelf" : "Mark as Completed"}
                   </Button>
                 </div>
+                )}
               </div>
             </div>
           ) : (
