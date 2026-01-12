@@ -87,7 +87,7 @@ export default function Clubs() {
                       </p>
                     </div>
                     <div className="d-flex gap-2 justify-content-center">
-                      <NavLink to="/clubs" className="btn btn-dark">
+                      <NavLink to="/clubs" className="btn btn-secondary">
                         <i className="fas fa-search me-2"></i>
                         Discover Clubs
                       </NavLink>

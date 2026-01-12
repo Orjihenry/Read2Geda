@@ -23,11 +23,11 @@ export default function JoinClubButton({ clubId, className }: { clubId?: string,
   return (
     <>
       {isClubMember(club.id, userId || "") ? (
-        <button onClick={handleLeaveClub} className={`btn btn-dark btn-sm ${className}`}>
+        <button onClick={handleLeaveClub} className={`btn btn-secondary btn-sm ${className}`}>
           Leave Club
         </button>
       ) : (
-        <button onClick={handleJoinClub} className={`btn btn-dark btn-sm ${className}`}>
+        <button onClick={handleJoinClub} className={`btn btn-secondary btn-sm ${className}`}>
           Join Club
         </button>
       )}

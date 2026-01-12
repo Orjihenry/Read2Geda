@@ -105,7 +105,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
         allowEscapeKey: true,
         customClass: {
           confirmButton: "btn btn-success",
-          denyButton: "btn btn-outline-dark",
+          denyButton: "btn btn-outline-secondary",
         },
       });
 

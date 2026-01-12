@@ -196,7 +196,7 @@ export default function EditProfile() {
             </div>
 
             <div className="col-12 text-center">
-              <button type="submit" className="btn btn-dark px-4">
+              <button type="submit" className="btn btn-secondary px-4">
                 Save Changes
               </button>
               <button

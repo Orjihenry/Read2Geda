@@ -195,7 +195,7 @@ export default function ClubForm() {
             </div>
 
             <div className="col-12 text-center">
-              <button type="submit" className="btn btn-dark px-4">
+              <button type="submit" className="btn btn-secondary px-4">
                 {componentMode === "create" ? "Create Club" : "Update Club"}
               </button>
               <button

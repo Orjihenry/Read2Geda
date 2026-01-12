@@ -28,7 +28,7 @@ export default function Home() {
             </p>
             <div className="row px-1">
               <NavButton
-                className="col col-md-4 btn-dark text-light mx-2"
+                className="col col-md-4 btn-secondary text-light mx-2"
                 href="/clubs"
                 label="Discover"
               />

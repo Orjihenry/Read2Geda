@@ -209,7 +209,7 @@ export default function Profile() {
                   <div className="pb-3">
                     <NavButton
                       href="#"
-                      className="btn-dark text-light"
+                      className="btn-secondary text-light"
                       label="My Clubs"
                       onClick={myClubsSection}
                     />
@@ -402,7 +402,7 @@ export default function Profile() {
               </div>
               <div className="d-flex justify-content-end gap-2">
                 <button
-                  className="btn btn-outline-secondary"
+                  className="btn btn-outline-success"
                   onClick={closeModal}
                 >
                   Cancel
@@ -569,7 +569,7 @@ function MyClubsSection({ isOwnProfile, displayUser }: { isOwnProfile: boolean; 
               </h3>
               {myClubs.length > INITIAL_DISPLAY_COUNT && (
                 <button
-                  className="btn btn-sm btn-outline-secondary"
+                  className="btn btn-sm btn-outline-success"
                   onClick={() => setShowAll(!showAll)}
                 >
                   {showAll ? (
@@ -602,7 +602,7 @@ function MyClubsSection({ isOwnProfile, displayUser }: { isOwnProfile: boolean; 
                 />
                 {searchQuery && (
                   <button
-                    className="btn btn-outline-secondary"
+                    className="btn btn-outline-success"
                     type="button"
                     onClick={() => setSearchQuery("")}
                   >
@@ -668,7 +668,7 @@ function MyClubsSection({ isOwnProfile, displayUser }: { isOwnProfile: boolean; 
                 {hasMore && !showAll && (
                   <div className="text-center mt-3">
                     <button
-                      className="btn btn-outline-primary btn-sm"
+                      className="btn btn-outline-success btn-sm"
                       onClick={() => setShowAll(true)}
                     >
                       <MdExpandMore className="me-1" />
@@ -680,7 +680,7 @@ function MyClubsSection({ isOwnProfile, displayUser }: { isOwnProfile: boolean; 
                 {showAll && hasMore && (
                   <div className="text-center mt-3">
                     <button
-                      className="btn btn-outline-secondary btn-sm"
+                      className="btn btn-outline-success btn-sm"
                       onClick={() => {
                         setShowAll(false);
                         setSearchQuery("");
