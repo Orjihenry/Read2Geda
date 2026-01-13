@@ -88,7 +88,7 @@ export default function Home() {
 
           <NavButton
             className="btn-outline-success mt-5"
-            href="/book-club"
+            href="/clubs"
             label="Discover More"
           />
         </div>
