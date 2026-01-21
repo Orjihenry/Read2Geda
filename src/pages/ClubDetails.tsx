@@ -20,7 +20,8 @@ import { useBookSearchModal } from "../context/BookSearchModalContext";
 import { useBookCache } from "../context/BookCacheContext";
 import useSearchFilter from "../hooks/useSearchFilter";
 import Button from "../components/Button";
-import Swal from "sweetalert2";
+import { confirmAlert, notifyAlert } from "../alerts/sweetAlert.ts";
+import { clubAlerts } from "../alerts/clubAlerts";
 import { getCurrentDateTime } from "../utils/dateUtils";
 import "../styles/ClubDetails.css";
 import "../styles/Profile.css";
@@ -63,25 +64,9 @@ export default function ClubDetails() {
     
     if (success) {
       setShowRulesModal(false);
-      Swal.fire({
-        title: "Rules Updated!",
-        text: "Club rules have been successfully updated.",
-        icon: "success",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
-      });
+      notifyAlert(clubAlerts.rulesUpdated());
     } else {
-      Swal.fire({
-        title: "Error",
-        text: "Failed to update club rules. Please try again.",
-        icon: "error",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton: "btn btn-danger",
-        },
-      });
+      notifyAlert(clubAlerts.rulesUpdateError());
     }
   };
   
@@ -458,29 +443,20 @@ export default function ClubDetails() {
                       title: "Remove from club",
                       onClick: async () => {
                         if (!clubId) return;
-                        const { isConfirmed } = await Swal.fire({
-                          title: "Remove from Club?",
-                          html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span> from <strong>${club?.name || "the club"}</strong>?`,
-                          icon: "warning",
-                          showCancelButton: true,
-                          confirmButtonText: "Yes, Remove",
-                          cancelButtonText: "Cancel",
-                          customClass: {
-                            confirmButton: "btn btn-success",
-                            cancelButton: "btn btn-outline-success",
-                          },
-                        });
+                        const { isConfirmed } = await confirmAlert(
+                          clubAlerts.confirmRemoveClubBook(
+                            book.title,
+                            club?.name || "the club"
+                          )
+                        );
                         if (isConfirmed) {
                           removeBookFromClub(clubId, book.id);
-                          Swal.fire({
-                            title: "Removed",
-                            html: `<p><span class="font-italic">'${book.title}'</span> removed from <strong>${club?.name || "club"}</strong> shelf.</p>`,
-                            icon: "success",
-                            confirmButtonText: "OK",
-                            customClass: {
-                              confirmButton: "btn btn-success",
-                            },
-                          });
+                          notifyAlert(
+                            clubAlerts.clubBookRemoved(
+                              book.title,
+                              club?.name || "club"
+                            )
+                          );
                         }
                       },
                     });
@@ -495,15 +471,7 @@ export default function ClubDetails() {
                       title: "Add to shelf",
                       onClick: () => {
                         addBook(book);
-                        Swal.fire({
-                          title: "Added!",
-                          text: `${book.title} added to your shelf.`,
-                          icon: "success",
-                          confirmButtonText: "OK",
-                          customClass: {
-                            confirmButton: "btn btn-success",
-                          },
-                        });
+                        notifyAlert(clubAlerts.shelfBookAdded(book.title));
                       },
                     });
                   }
@@ -551,29 +519,20 @@ export default function ClubDetails() {
                       title: "Remove from club",
                       onClick: async () => {
                         if (!clubId) return;
-                        const { isConfirmed } = await Swal.fire({
-                          title: "Remove from Club?",
-                          html: `Are you sure you want to remove <span class="font-italic">'${book.title}'</span> from <strong>${club?.name || "the club"}</strong>?`,
-                          icon: "warning",
-                          showCancelButton: true,
-                          confirmButtonText: "Yes, Remove",
-                          cancelButtonText: "Cancel",
-                          customClass: {
-                            confirmButton: "btn btn-success",
-                            cancelButton: "btn btn-outline-success",
-                          },
-                        });
+                      const { isConfirmed } = await confirmAlert(
+                        clubAlerts.confirmRemoveClubBook(
+                          book.title,
+                          club?.name || "the club"
+                        )
+                      );
                         if (isConfirmed) {
                           removeBookFromClub(clubId, book.id);
-                          Swal.fire({
-                            title: "Removed",
-                            text: `${book.title} removed from ${club?.name || "club"} shelf.`,
-                            icon: "success",
-                            confirmButtonText: "OK",
-                            customClass: {
-                              confirmButton: "btn btn-success",
-                            },
-                          });
+                          notifyAlert(
+                            clubAlerts.clubBookRemoved(
+                              book.title,
+                              club?.name || "club"
+                            )
+                          );
                         }
                       },
                     });
@@ -588,15 +547,7 @@ export default function ClubDetails() {
                       title: "Add to shelf",
                       onClick: () => {
                         addBook(book);
-                        Swal.fire({
-                          title: "Added!",
-                          text: `${book.title} added to your shelf.`,
-                          icon: "success",
-                          confirmButtonText: "OK",
-                          customClass: {
-                            confirmButton: "btn btn-success",
-                          },
-                        });
+                        notifyAlert(clubAlerts.shelfBookAdded(book.title));
                       },
                     });
                   }
@@ -1113,81 +1064,24 @@ function ModeratorsManagementSection({ clubId, club, users, updateMemberRole,use
   const canRemoveOwner = ownerCount > 1;
 
   const handleRoleChange = async (memberId: string, newRole: "member" | "moderator" | "owner", memberName: string, currentRole?: string) => {
-    const roleLabels: Record<string, string> = {
-      member: "Member",
-      moderator: "Moderator",
-      owner: "Owner"
-    };
-
-    const newRoleLabel = roleLabels[newRole];
-
-    let confirmTitle = "";
-    let confirmText = "";
-    
-    if (newRole === "owner") {
-      confirmTitle = "Promote to Owner?";
-      confirmText = `Are you sure you want to promote <strong>${memberName}</strong> to Owner?`;
-    } else if (currentRole === "owner") {
-      confirmTitle = "Demote from Owner?";
-      confirmText = `Are you sure you want to demote <strong>${memberName}</strong> from Owner to ${newRoleLabel}?`;
-    } else if (newRole === "moderator") {
-      confirmTitle = "Make Moderator?";
-      confirmText = `Are you sure you want to make <strong>${memberName}</strong> a Moderator?`;
-    } else {
-      confirmTitle = "Remove Moderator?";
-      confirmText = `Are you sure you want to remove <strong>${memberName}</strong> as Moderator?`;
-    }
-
-    const { isConfirmed, isDismissed } = await Swal.fire({
-      title: confirmTitle,
-      html: confirmText,
-      icon: "question",
-      showCancelButton: true,
-      showCloseButton: true,
-      confirmButtonText: "Yes",
-      cancelButtonText: "Cancel",
-      allowEscapeKey: true,
-      customClass: {
-        confirmButton: "btn btn-success",
-        cancelButton: "btn btn-outline-success",
-      },
-    });
+    const { isConfirmed, isDismissed } = await confirmAlert(
+      clubAlerts.roleChangeConfirm(memberName, newRole, currentRole)
+    );
 
     if (isDismissed || !isConfirmed) return;
 
     const success = updateMemberRole(clubId, memberId, newRole, userId);
     if (success) {
-      Swal.fire({
-        title: "Role Updated!",
-        html: `<p><strong>${memberName}</strong> is now a ${newRoleLabel}.</p>`,
-        icon: "success",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
-      });
+      notifyAlert(clubAlerts.roleUpdated(memberName, newRole));
     } else {
-      let errorMessage = "Failed to update member role. Please try again.";
-      
-      if (newRole === "owner" && !canAddOwner) {
-        errorMessage = "Cannot have more than 3 owners. Please demote an existing owner first.";
-      } else if (currentRole === "owner" && !canRemoveOwner) {
-        errorMessage = "Cannot have less than 1 owner. Please promote another member to owner first.";
-      }
-
-      Swal.fire({
-        title: "Error",
-        html: `<p>${errorMessage}</p>`,
-        icon: "error",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-danger",
-        },
-      });
+      notifyAlert(
+        clubAlerts.roleUpdateError({
+          newRole,
+          currentRole,
+          canAddOwner,
+          canRemoveOwner,
+        })
+      );
     }
   };
 
