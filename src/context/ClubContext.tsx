@@ -29,6 +29,7 @@ type ClubContextType = {
   getClubBooks: (clubId: string, status?: ClubBookStatus) => ClubBook[];
   isWishListBook: (bookId: string) => boolean;
   updateClubBookStatus: (clubId: string, userId: string, bookId: string, status: ClubBookStatus) => void;
+  isOwner: (clubId: string, userId: string) => boolean;
   isModerator: (clubId: string, userId: string) => boolean;
   suggestBook: (clubId: string, bookId: string, userId: string) => boolean;
   approveSuggestion: (clubId: string, bookId: string, userId: string) => boolean;
@@ -80,7 +81,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   const isOwner = useCallback((clubId: string, userId: string): boolean => {
     const club = findClub(clubId);
     if (!club) return false;
-    return club.ownerId === userId;
+    return club.ownerId === userId || club.members.some((m) => m.id === userId && m.role === "owner");
   }, [findClub]);
 
   // End of Helper functions
@@ -101,12 +102,11 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     saveClubs([...clubs, newClub]);
   }, [clubs, saveClubs]);
 
-  const isModerator = useCallback(( clubId: string, userId: string): boolean => {
+  const isModerator = useCallback((clubId: string, userId: string): boolean => {
     const club = findClub(clubId);
     if (!club) return false;
-    
     const member = club.members.find((m) => m.id === userId);
-    return member?.role === 'owner' || member?.role === 'moderator';
+    return club.ownerId === userId || member?.role === "owner" || member?.role === "moderator";
   }, [findClub]);
 
   const updateClub = useCallback((club: bookClub) => {
@@ -488,6 +488,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         getClubBooks,
         isWishListBook,
         updateClubBookStatus,
+        isOwner,
         isModerator,
         suggestBook,
         approveSuggestion,
