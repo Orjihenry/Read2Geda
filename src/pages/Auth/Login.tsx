@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 
 import read2gedaLogo from "../../assets/read2geda.ico"
-import Swal from "sweetalert2";
+import { notifyAlert } from "../../alerts/sweetAlert";
 
 export default function Login() {
   const { login, currentUser } = useAuthContext();
@@ -70,7 +70,7 @@ export default function Login() {
       </tr>`
     ).join('');
 
-    Swal.fire({
+    notifyAlert({
       icon: "info",
       title: "Dummy Accounts Available",
       html: `
@@ -92,16 +92,17 @@ export default function Login() {
           </div>
         </div>
       `,
-      showCloseButton: true,
-      focusConfirm: false,
-      confirmButtonText: "Got it!",
-      confirmButtonAriaLabel: "Understood",
-      width: '800px',
-      customClass: {
-        confirmButton: "btn btn-outline-success",
-        popup: "rounded-3 shadow-lg"
+      confirmText: "Got it!",
+      options: {
+        focusConfirm: false,
+        confirmButtonAriaLabel: "Understood",
+        width: "800px",
+        customClass: {
+          confirmButton: "btn btn-outline-success",
+          popup: "rounded-3 shadow-lg",
+        },
+        buttonsStyling: false,
       },
-      buttonsStyling: false
     });
   }
 

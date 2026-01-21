@@ -1,7 +1,7 @@
 import { type BookData } from "../utils/bookData";
 import { MdAddLocationAlt, MdPeopleAlt, MdStar, MdCalendarToday, MdCheckCircle } from "react-icons/md";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import Swal from "sweetalert2";
+import { confirmAlert, notifyAlert } from "../alerts/sweetAlert";
 import dayjs from "dayjs";
 import "../styles/BookCard.css";
 
@@ -41,47 +41,35 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
     if (!onProgressChange) return;
 
     if (progress === 100 && newProgress < 100) {
-      const { isConfirmed } = await Swal.fire({
+      const { isConfirmed } = await confirmAlert({
         title: "Update Progress?",
         text: `This will remove "${item.title}" from your completed books section. The completed date will be reset.`,
         icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, Update Progress",
-        cancelButtonText: "Cancel",
-        customClass: {
-          confirmButton: "btn btn-success",
-          cancelButton: "btn btn-outline-success",
-        },
+        confirmText: "Yes, Update Progress",
+        cancelText: "Cancel",
       });
 
       if (isConfirmed) {
         onProgressChange(newProgress);
       }
     } else if (newProgress === 100 && progress !== 100) {
-      const { isConfirmed } = await Swal.fire({
+      const { isConfirmed } = await confirmAlert({
         title: "Mark as Completed?",
         text: `"${item.title}" will be moved to your completed books section.`,
         icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Yes, Mark as Completed",
-        cancelButtonText: "Cancel",
-        customClass: {
-          confirmButton: "btn btn-success",
-          cancelButton: "btn btn-outline-success",
-        },
+        confirmText: "Yes, Mark as Completed",
+        cancelText: "Cancel",
       });
 
       if (isConfirmed) {
         onProgressChange(100);
-        Swal.fire({
+        notifyAlert({
           title: "Completed!",
           text: `"${item.title}" has been marked as completed.`,
           icon: "success",
-          confirmButtonText: "OK",
-          timer: 2000,
-          showConfirmButton: true,
-          customClass: {
-            confirmButton: "btn btn-success",
+          options: {
+            timer: 2000,
+            showConfirmButton: true,
           },
         });
       }

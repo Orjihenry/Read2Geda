@@ -5,7 +5,7 @@ import JoinClubButton from "../components/JoinClubButton";
 import { FaBookOpen, FaCrown, FaEdit, FaTrash } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
-import { MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdOutlineFavorite, MdCheckCircle } from "react-icons/md";
+import { MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdOutlineFavorite, MdCheckCircle, MdPerson } from "react-icons/md";
 import { useEffect, useState } from "react";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
@@ -33,7 +33,7 @@ export default function ClubDetails() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [showModeratorsModal, setShowModeratorsModal] = useState(false);
-  const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator, updateClubRules, addRule, removeRule, updateRule, updateMemberRole } = useClub();
+  const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator, isOwner, updateClubRules, addRule, removeRule, updateRule, updateMemberRole } = useClub();
   const { users } = useAuthContext();
   const [upcomingBooks, setUpcomingBooks] = useState<ClubBook[]>([]);
   const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
@@ -47,6 +47,7 @@ export default function ClubDetails() {
   const [editingRules, setEditingRules] = useState<ClubRule[]>([]);
   
   const canModifyRules = clubId ? isModerator(clubId, userId) : false;
+  const isClubOwner = clubId ? isOwner(clubId, userId) : false;
   
   const handleOpenRulesModal = () => {
     if (club) {
@@ -221,7 +222,7 @@ export default function ClubDetails() {
                     See Members
                   </button>
                 </li>
-                {isModerator(clubId!, userId!) && (
+                {isClubOwner && (
                   <>
                     <li>
                       <hr className="dropdown-divider" />
@@ -412,6 +413,7 @@ export default function ClubDetails() {
                 users={users}
                 updateMemberRole={updateMemberRole}
                 userId={userId}
+                canManageRoles={isClubOwner}
                 onClose={() => setShowModeratorsModal(false)}
               />
             </div>
@@ -1048,13 +1050,14 @@ function CurrentBookSection() {
   );
 }
 
-function ModeratorsManagementSection({ clubId, club, users, updateMemberRole,userId,onClose }: { clubId?: string; club?: { id: string; ownerId: string; members: Array<{ id: string; role?: "member" | "moderator" | "owner" }> };
+function ModeratorsManagementSection({ clubId, club, users, updateMemberRole, userId, canManageRoles, onClose, }: { clubId?: string; club?: { id: string; ownerId: string; members: Array<{ id: string; role?: "member" | "moderator" | "owner" }> };
   users?: Array<{ id: string; name?: string; email?: string; avatar?: string }>;
   updateMemberRole: (clubId: string, memberId: string, role: "member" | "moderator" | "owner", userId: string) => boolean;
   userId: string;
+  canManageRoles: boolean;
   onClose: () => void;
 }) {
-  if (!clubId || !club || !users || !userId) return null;
+  if (!clubId || !club || !users || !userId || !canManageRoles) return null;
 
   const additionalOwners = club.members.filter((m) => 
     m.role === "owner" && m.id !== club.ownerId
@@ -1126,14 +1129,24 @@ function ModeratorsManagementSection({ clubId, club, users, updateMemberRole,use
       </div>
       <div className="d-flex gap-2">
         {member.role === "owner" && canRemoveOwner && (
-          <button
-            className="btn btn-sm btn-outline-warning"
-            onClick={() => handleRoleChange(member.id, "moderator", member.name, member.role)}
-            title="Demote to Moderator"
-          >
-            <FaCrown className="me-1" />
-            Demote
-          </button>
+          <>
+            <button
+              className="btn btn-sm btn-success"
+              onClick={() => handleRoleChange(member.id, "member", member.name, member.role)}
+              title="Demote to Member"
+            >
+              <MdPerson className="me-1" />
+              Demote
+            </button>
+            <button
+              className="btn btn-sm btn-outline-info"
+              onClick={() => handleRoleChange(member.id, "moderator", member.name, member.role)}
+              title="Make Moderator"
+            >
+              <MdShield className="me-1" />
+              Make Moderator
+            </button>
+          </>
         )}
         {member.role === "moderator" && (
           <>

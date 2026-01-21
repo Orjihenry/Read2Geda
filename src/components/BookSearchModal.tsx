@@ -8,7 +8,7 @@ import { useClub } from "../context/ClubContext";
 import { useAuthContext } from "../context/AuthContext";
 import { MdOutlineFavorite } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
-import Swal from "sweetalert2";
+import { notifyAlert } from "../alerts/sweetAlert";
 import type { BookData } from "../utils/bookData";
 
 type BookSearchModalProps = {
@@ -54,31 +54,20 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
     }
 
     if (!isModerator(clubId, userId)) {
-      Swal.fire({
+      notifyAlert({
         title: "Permission Denied",
         html: `<p>Only moderators can add books to <strong>${clubName}</strong>.</p>`,
         icon: "error",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
+        confirmVariant: "danger",
       });
       return;
     }
 
     addBookToClub(clubId, book, userId);
-    Swal.fire({
+    notifyAlert({
       title: "Added!",
       html: `<p><span class="font-italic">'${book.title}'</span> added to <strong>${clubName}</strong>.</p>`,
       icon: "success",
-      confirmButtonText: "OK",
-      showCloseButton: true,
-      allowEscapeKey: true,
-      customClass: {
-        confirmButton: "btn btn-success",
-      },
     });
   }, [clubId, userId, addBookToClub, isModerator, getClubBooks, clubs, handleAddToPersonalShelf]);
 

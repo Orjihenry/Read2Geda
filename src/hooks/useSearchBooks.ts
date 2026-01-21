@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import Swal from "sweetalert2";
+import { notifyAlert } from "../alerts/sweetAlert";
 import { type BookData } from "../utils/bookData";
 import { convertDataSet } from "../utils/convertDataSet";
 
@@ -39,13 +39,16 @@ export default function useSearchBooks() {
       console.warn("Error fetching books from API:", err);
       setError("Couldn't fetch books from API.");
 
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        timer: 3000,
+      notifyAlert({
+        title: "Failed to fetch books from API.",
         icon: "error",
-        text: "Failed to fetch books from API.",
-        showConfirmButton: false,
+        confirmVariant: "danger",
+        options: {
+          toast: true,
+          position: "top-end",
+          timer: 3000,
+          showConfirmButton: false,
+        },
       });
     } finally {
       setLoading(false);

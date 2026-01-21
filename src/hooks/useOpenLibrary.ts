@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import type { BookData } from "../utils/bookData";
 import { useBookCache } from "../context/BookCacheContext";
-import Swal from "sweetalert2";
+import { notifyAlert } from "../alerts/sweetAlert";
 
 export default function useRandomBooks(subject: string = "fiction") {
   const [books, setBooks] = useState<BookData[]>([]);
@@ -34,13 +34,16 @@ export default function useRandomBooks(subject: string = "fiction") {
         setBooks(shuffled.slice(0, 10));
       } catch (err: any) {
         setError(err.message);
-        Swal.fire({
-          toast: true,
-          position: "top-end",
-          timer: 4000,
+        notifyAlert({
+          title: "Couldn't fetch books from API.",
           icon: "error",
-          text: "Couldn't fetch books from API.",
-          showConfirmButton: false,
+          confirmVariant: "danger",
+          options: {
+            toast: true,
+            position: "top-end",
+            timer: 4000,
+            showConfirmButton: false,
+          },
         });
       } finally {
         setLoading(false);

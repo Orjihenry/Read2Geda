@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from 'react'
 import { useAuthContext } from "../../context/AuthContext";
-import Swal from "sweetalert2";
+import { sweetAlert } from "../../alerts/sweetAlert";
 
 import read2gedaLogo from "../../assets/read2geda.ico"
 
@@ -42,7 +42,7 @@ export default function Register() {
     }
     
     if (!isLoggedIn && !currentUser) {
-      Swal.fire({
+      sweetAlert.fire({
         icon: "info",
         html: `
           You can sign up with dummy data. No real info needed.<br />

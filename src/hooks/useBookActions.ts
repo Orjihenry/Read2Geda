@@ -3,7 +3,7 @@ import { useAuthContext } from "../context/AuthContext";
 import { useClub } from "../context/ClubContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import type { BookData } from "../utils/bookData";
-import Swal from "sweetalert2";
+import { confirmAlert, notifyAlert, sweetAlert } from "../alerts/sweetAlert";
 
 type UseBookActionsProps = {
   clubId?: string;
@@ -43,16 +43,10 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
   const checkLogin = useCallback((): boolean => {
     if (!userId) {
-      Swal.fire({
+      notifyAlert({
         title: "Login Required",
         text: "Please log in to add books.",
         icon: "info",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
       });
       return false;
     }
@@ -60,30 +54,20 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
   }, [userId]);
 
   const showAlreadyInShelf = useCallback((bookTitle: string) => {
-    return Swal.fire({
+    return notifyAlert({
       title: "Already in Shelf",
       html: `<p><span class="font-italic">'${bookTitle}'</span> is already on your shelf.</p>`,
       icon: "info",
-      confirmButtonText: "OK",
-      showCloseButton: true,
-      allowEscapeKey: true,
-      customClass: {
-        confirmButton: "btn btn-success",
-      },
     });
   }, []);
 
   const showAddedSuccess = useCallback((bookTitle: string, location: string, allowOutsideClick: boolean = true) => {
-    return Swal.fire({
+    return notifyAlert({
       title: "Added!",
       html: `<p><span class="font-italic">'${bookTitle}'</span> added to ${location}.</p>`,
       icon: "success",
-      confirmButtonText: "OK",
-      showCloseButton: true,
-      allowOutsideClick,
-      allowEscapeKey: true,
-      customClass: {
-        confirmButton: "btn btn-success",
+      options: {
+        allowOutsideClick,
       },
     });
   }, []);
@@ -94,7 +78,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
     const { inPersonalShelf, inClubShelf } = getBookStatus(book.id);
 
     if (moderatorClubs.length > 0) {
-      const { value: addToClub, isDismissed } = await Swal.fire({
+      const { value: addToClub, isDismissed } = await sweetAlert.fire({
         title: "Add to where?",
         text: book.title,
         icon: "question",
@@ -119,7 +103,7 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
         return showAddedSuccess(book.title, "your shelf", false);
       }
 
-      const { value: selectedClubId, isDismissed: isClubSelectionDismissed } = await Swal.fire({
+      const { value: selectedClubId, isDismissed: isClubSelectionDismissed } = await sweetAlert.fire({
         title: "Select a Club",
         input: "select",
         inputOptions: Object.fromEntries(
@@ -149,31 +133,24 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
       const clubName = getClubName(clubId);
       
       if (!isModerator(clubId, userId)) {
-        Swal.fire({
+        notifyAlert({
           title: "Permission Denied",
           html: `<p>Only moderators can add books to <strong>${clubName}</strong>.</p>`,
           icon: "error",
-          confirmButtonText: "OK",
-          showCloseButton: true,
-          allowOutsideClick: false,
-          allowEscapeKey: true,
-          customClass: {
-            confirmButton: "btn btn-success",
+          confirmVariant: "danger",
+          options: {
+            allowOutsideClick: false,
           },
         });
         return;
       }
       if (inClubShelf) {
-        Swal.fire({
+        notifyAlert({
           title: "Already Added",
           html: `<p><span class="font-italic">'${book.title}'</span> is already in <strong>${clubName}</strong>.</p>`,
           icon: "info",
-          confirmButtonText: "OK",
-          showCloseButton: true,
-          allowOutsideClick: false,
-          allowEscapeKey: true,
-          customClass: {
-            confirmButton: "btn btn-success",
+          options: {
+            allowOutsideClick: false,
           },
         });
         return;
@@ -196,18 +173,16 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
     const clubName = getClubName(clubId);
 
-    const { isConfirmed, isDismissed } = await Swal.fire({
+    const { isConfirmed, isDismissed } = await confirmAlert({
       title: "Remove book?",
       html: `<p>Remove <span class="font-italic">'${book.title}'</span> from <strong>${clubName}</strong>?</p>`,
       icon: "warning",
-      showCancelButton: true,
-      showCloseButton: true,
-      confirmButtonText: "Yes, Remove",
-      cancelButtonText: "Cancel",
-      allowEscapeKey: true,
-      customClass: {
-        confirmButton: "btn btn-success",
-        cancelButton: "btn btn-outline-danger",
+      confirmText: "Yes, Remove",
+      cancelText: "Cancel",
+      options: {
+        customClass: {
+          cancelButton: "btn btn-outline-danger",
+        },
       },
     });
 
@@ -215,16 +190,10 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
     if (isConfirmed) {
       removeBookFromClub(clubId, book.id);
-      Swal.fire({
+      notifyAlert({
         title: "Removed!",
         html: `<p><span class="font-italic">'${book.title}'</span> removed from <strong>${clubName}</strong>.</p>`,
         icon: "success",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
       });
     }
   }, [clubId, userId, removeBookFromClub, getClubName]);
@@ -243,18 +212,16 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
   const handleRemoveFromPersonalShelf = useCallback(async (book: BookData) => {
     if (!userId) return;
 
-    const { isConfirmed, isDismissed } = await Swal.fire({
+    const { isConfirmed, isDismissed } = await confirmAlert({
       title: "Remove from Shelf?",
       html: `<p>Are you sure you want to remove <span class="font-italic">'${book.title}'</span>?</p>`,
       icon: "warning",
-      showCancelButton: true,
-      showCloseButton: true,
-      confirmButtonText: "Yes, Remove",
-      cancelButtonText: "Cancel",
-      allowEscapeKey: true,
-      customClass: {
-        confirmButton: "btn btn-success",
-        cancelButton: "btn btn-outline-danger",
+      confirmText: "Yes, Remove",
+      cancelText: "Cancel",
+      options: {
+        customClass: {
+          cancelButton: "btn btn-outline-danger",
+        },
       },
     });
 
@@ -262,16 +229,10 @@ export function useBookActions({ clubId }: UseBookActionsProps = {}) {
 
     if (isConfirmed) {
       removeBook(book.id);
-      Swal.fire({
+      notifyAlert({
         title: "Removed",
         html: `<p><span class="font-italic">'${book.title}'</span> removed.</p>`,
         icon: "success",
-        confirmButtonText: "OK",
-        showCloseButton: true,
-        allowEscapeKey: true,
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
       });
     }
   }, [userId, removeBook]);

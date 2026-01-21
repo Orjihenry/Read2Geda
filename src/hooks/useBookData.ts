@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { bookData, type BookData } from "../utils/bookData";
-import Swal from "sweetalert2";
+import { notifyAlert } from "../alerts/sweetAlert";
 
 export default function useBookData() {
     const [books, setBooks] = useState<BookData[]>([]);
@@ -25,25 +25,30 @@ export default function useBookData() {
         const newBooks = [...books, book];
         setBooks(newBooks);
         localStorage.setItem("bookData", JSON.stringify(newBooks));
-        Swal.fire({
-          toast: true,
-          position: "top-end",
-          timer: 3000,
+        notifyAlert({
+          title: "Book added successfully.",
           icon: "success",
-          text: "Book added successfully.",
-          showConfirmButton: false,
-        })
+          options: {
+            toast: true,
+            position: "top-end",
+            timer: 3000,
+            showConfirmButton: false,
+          },
+        });
       } catch (err) {
         console.warn("Error adding book:", err);
         setError("Couldn't add book.");
-        Swal.fire({
-          toast: true,
-          position: "top-end",
-          timer: 3000,
+        notifyAlert({
+          title: "Couldn't add book.",
           icon: "error",
-          text: "Couldn't add book.",
-          showConfirmButton: false,
-        })
+          confirmVariant: "danger",
+          options: {
+            toast: true,
+            position: "top-end",
+            timer: 3000,
+            showConfirmButton: false,
+          },
+        });
       } finally {
         setLoading(false);
         setError(null);
@@ -55,25 +60,30 @@ export default function useBookData() {
         const newBooks = books.filter(b => b.author !== book.author);
         setBooks(newBooks);
         localStorage.setItem("bookData", JSON.stringify(newBooks));
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        timer: 3000,
+      notifyAlert({
+        title: "Book removed successfully.",
         icon: "success",
-        text: "Book removed successfully.",
-          showConfirmButton: false,
-        })
-      } catch (err) {
-        console.warn("Error removing book:", err);
-        setError("Couldn't remove book.");
-        Swal.fire({
+        options: {
           toast: true,
           position: "top-end",
           timer: 3000,
-          icon: "error",
-          text: "Couldn't remove book.",
           showConfirmButton: false,
-        })
+        },
+      });
+      } catch (err) {
+        console.warn("Error removing book:", err);
+        setError("Couldn't remove book.");
+        notifyAlert({
+          title: "Couldn't remove book.",
+          icon: "error",
+          confirmVariant: "danger",
+          options: {
+            toast: true,
+            position: "top-end",
+            timer: 3000,
+            showConfirmButton: false,
+          },
+        });
       } finally {
         setLoading(false);
         setError(null);

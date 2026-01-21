@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import Swal from "sweetalert2";
+import { notifyAlert } from "../alerts/sweetAlert";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -28,14 +28,10 @@ export default function Contact() {
 
     setTimeout(() => {
       setIsSubmitting(false);
-      Swal.fire({
+      notifyAlert({
         title: "Message Sent!",
         text: "Thank you for contacting us. We'll get back to you soon.",
         icon: "success",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton: "btn btn-success",
-        },
       });
       setFormData({
         name: "",

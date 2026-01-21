@@ -3,7 +3,7 @@ import type { User } from "../types/user.ts";
 import { UsersData } from "../utils/userData.ts";
 import { getCurrentDateTime } from "../utils/dateUtils.ts";
 import { v4 as uuidv4 } from "uuid";
-import Swal from "sweetalert2";
+import { notifyAlert } from "../alerts/sweetAlert.ts";
 
 type AuthContextType = {
   users: User[];
@@ -64,14 +64,15 @@ export default function AuthProvider({
     };
 
     if (users.some((u: { email: string }) => u.email === email)) {
-      Swal.fire({
-        icon: "error",
+      notifyAlert({
         title: "Email already exists",
         text: "Please use a different email or login",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton: "btn btn-success",
-          popup: "rounded-3 shadow",
+        icon: "error",
+        confirmVariant: "danger",
+        options: {
+          customClass: {
+            popup: "rounded-3 shadow",
+          },
         },
       });
       return false;
@@ -93,14 +94,15 @@ export default function AuthProvider({
     );
 
     if (!user) {
-      Swal.fire({
-        icon: "error",
+      notifyAlert({
         title: "Invalid credentials",
         text: "Please try again",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton: "btn btn-success",
-          popup: "rounded-3 shadow",
+        icon: "error",
+        confirmVariant: "danger",
+        options: {
+          customClass: {
+            popup: "rounded-3 shadow",
+          },
         },
       });
       return false;
