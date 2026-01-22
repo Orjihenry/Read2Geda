@@ -23,7 +23,7 @@ export type ConfirmAlertOptions = {
 
 export const sweetAlert = Swal.mixin({ showCloseButton: true, allowEscapeKey: true,
   customClass: {
-    confirmButton: "btn btn-success",
+    confirmButton: "btn btn-outline-success",
     cancelButton: "btn btn-outline-success",
     denyButton: "btn btn-outline-secondary",
   },
@@ -38,43 +38,42 @@ export const notifyAlert = ({
   confirmVariant = "success",
   options,
 }: NotifyAlertOptions) =>
-  sweetAlert.fire((() => {
-    const { customClass: customClassOverride, ...restOptions } = options || {};
-    const mergedCustomClass =
-      confirmVariant === "danger"
-        ? {
-            confirmButton: "btn btn-danger",
-            ...(customClassOverride || {}),
-          }
-        : customClassOverride;
-
-    return {
-      ...restOptions,
-      title,
-      text,
-      html,
-      icon,
-      confirmButtonText: confirmText,
-      customClass: mergedCustomClass,
-    } as SweetAlertOptions;
-  })());
-
-export const confirmAlert = ({
-  title,
-  text,
-  html,
-  icon = "question",
-  confirmText = "Yes",
-  cancelText = "Cancel",
-  options,
-}: ConfirmAlertOptions) =>
   sweetAlert.fire({
     ...(options || {}),
     title,
     text,
     html,
     icon,
-    showCancelButton: true,
     confirmButtonText: confirmText,
-    cancelButtonText: cancelText,
+    customClass: {
+      confirmButton:
+        confirmVariant === "danger"
+          ? "btn btn-danger"
+          : "btn btn-outline-success",
+      ...(options?.customClass || {}),
+    },
   } as SweetAlertOptions);
+
+  export const confirmAlert = ({
+    title,
+    text,
+    html,
+    icon = "question",
+    confirmText = "Yes",
+    cancelText = "Cancel",
+    options,
+  }: ConfirmAlertOptions) =>
+    sweetAlert.fire({
+      ...(options || {}),
+      title,
+      text,
+      html,
+      icon,
+      showCancelButton: true,
+      confirmButtonText: confirmText,
+      cancelButtonText: cancelText,
+      customClass: {
+        confirmButton: "btn btn-outline-success",
+        ...(options?.customClass || {}),
+      },
+    } as SweetAlertOptions);
