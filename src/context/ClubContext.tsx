@@ -7,6 +7,8 @@ import { useAuthContext } from "./AuthContext";
 import type { UserBooks } from "../types/user";
 import type { BookData } from "../utils/bookData";
 import { useBookCache } from "./BookCacheContext";
+import { notifyAlert } from "../alerts/sweetAlert";
+import { clubAlerts } from "../alerts/clubAlerts";
 
 type ClubBookStatus = 'upcoming' | 'current' | 'completed';
 
@@ -197,8 +199,13 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     const club = findClub(clubId);
 
     if (!club) return;
-    if (isOwner(clubId, userId)) return;
     if (!isClubMember(club.id, userId)) return;
+    
+    if (isOwner(clubId, userId)) {
+      notifyAlert(clubAlerts.ownerCannotLeaveClub());
+      return;
+    };
+
     const updatedMembers = club.members.filter((m) => m.id !== userId);
     const updatedClub = { ...club, members: updatedMembers };
     const updatedClubs = updateClubList(club.id, updatedClub);

@@ -1,5 +1,7 @@
 import { useClub } from "../context/ClubContext";
 import { useAuthContext } from "../context/AuthContext";
+import { confirmAlert } from "../alerts/sweetAlert";
+import { clubAlerts } from "../alerts/clubAlerts";
 
 export default function JoinClubButton({ clubId, className }: { clubId?: string, className?: string }) {
   const { currentUser } = useAuthContext();
@@ -15,9 +17,17 @@ export default function JoinClubButton({ clubId, className }: { clubId?: string,
     joinClub(club, userId);
   };
 
-  const handleLeaveClub = () => {
+  const handleLeaveClub = async () => {
     if (!club || !userId) return;
-    leaveClub(club.id, userId);
+
+    const { isConfirmed, isDismissed } = await confirmAlert({
+      ...clubAlerts.confirmLeaveClub(club.name),
+    });
+
+    if (isDismissed) return;
+    if (isConfirmed) {
+      leaveClub(club.id, userId);
+    }
   };
 
   return (
