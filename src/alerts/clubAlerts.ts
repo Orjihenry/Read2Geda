@@ -2,6 +2,22 @@ import type { NotifyAlertOptions, ConfirmAlertOptions } from "./sweetAlert";
 import { getRoleChangeConfirmMessage, getRoleLabel, getRoleUpdateErrorMessage, type MemberRole } from "../utils/clubRoleMessages";
 
 export const clubAlerts = {
+  confirmLeaveClub(clubName: string): ConfirmAlertOptions {
+    return {
+      title: "Leave Club?",
+      html: `Are you sure you want to leave <span class="font-italic fw-bold">'${clubName}'</span>?`,
+      icon: "warning",
+      confirmText: "Yes, Leave",
+      cancelText: "Cancel",
+    };
+  },
+  ownerCannotLeaveClub(): NotifyAlertOptions {
+    return {
+      title: "Cannot Leave Club",
+      text: "You cannot leave a club you own. Please transfer ownership to another member and request demotion from owner.",
+      icon: "error",
+    };
+  },
   rulesUpdated(): NotifyAlertOptions {
     return {
       title: "Rules Updated!",
