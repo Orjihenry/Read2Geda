@@ -40,6 +40,7 @@ type ClubContextType = {
   removeRule: (rules: ClubRule[], index: number) => ClubRule[];
   updateRule: (rules: ClubRule[], index: number, field: "title" | "description", value: string) => ClubRule[];
   updateMemberRole: (clubId: string, memberId: string, role: "member" | "moderator" | "owner", userId: string) => boolean;
+  getClubAccess: (clubId?: string) => {userId: string; isLoggedIn: boolean; canModerate: boolean; isClubOwner: boolean;};
 };
 
 const ClubContext = createContext<ClubContextType | undefined>(undefined);
@@ -47,7 +48,7 @@ const ClubContext = createContext<ClubContextType | undefined>(undefined);
 export function ClubProvider({ children }: { children: React.ReactNode }) {
   const [clubs, setClubs] = useState<bookClub[]>([]);
   const [loading, setLoading] = useState(false);
-  const { users } = useAuthContext();
+  const { users, currentUser } = useAuthContext();
   const { addBook: addBookToCache } = useBookCache();
 
   useEffect(() => {
@@ -108,6 +109,15 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     const member = club.members.find((m) => m.id === userId);
     return club.ownerId === userId || member?.role === "owner" || member?.role === "moderator";
   }, [findClub]);
+
+  const getClubAccess = useCallback((clubId?: string) => {
+    const userId = currentUser?.id || "";
+    const isLoggedIn = !!currentUser;
+    const canModerate = clubId ? isModerator(clubId, userId) : false;
+    const isClubOwner = clubId ? isOwner(clubId, userId) : false;
+
+    return { userId, isLoggedIn, canModerate, isClubOwner };
+  }, [currentUser, isModerator, isOwner]);
 
   const updateClub = useCallback((club: bookClub) => {
     const currentDate = getCurrentDateTime();
@@ -499,6 +509,7 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         removeRule,
         updateRule,
         updateMemberRole,
+        getClubAccess,
       }}
     >
       {children}
@@ -512,3 +523,4 @@ export function useClub() {
   if (!context) throw new Error("useClub must be used within a ClubProvider");
   return context;
 }
+

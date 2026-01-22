@@ -33,21 +33,17 @@ export default function ClubDetails() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [showModeratorsModal, setShowModeratorsModal] = useState(false);
-  const { clubs, deleteClub, getClubBooks, removeBookFromClub, isModerator, isOwner, updateClubRules, addRule, removeRule, updateRule, updateMemberRole } = useClub();
+  const { clubs, deleteClub, getClubBooks, removeBookFromClub, updateClubRules, addRule, removeRule, updateRule, updateMemberRole, getClubAccess } = useClub();
   const { users } = useAuthContext();
   const [upcomingBooks, setUpcomingBooks] = useState<ClubBook[]>([]);
   const [completedBooks, setCompletedBooks] = useState<ClubBook[]>([]);
   const { books } = useBookCache();
-  const { currentUser } = useAuthContext();
   const { isInShelf, addBook, updateProgress, getUserBookStartedAt, getUserBookCompletedAt } = useSavedBooks();
-  const userId = currentUser?.id || "";
   const club = clubs.find((c) => c.id === clubId);
-  const isLoggedIn = !!currentUser;
+  const { userId, isLoggedIn, canModerate, isClubOwner } = getClubAccess(clubId);
   
   const [editingRules, setEditingRules] = useState<ClubRule[]>([]);
-  
-  const canModifyRules = clubId ? isModerator(clubId, userId) : false;
-  const isClubOwner = clubId ? isOwner(clubId, userId) : false;
+  const canModifyRules = canModerate;
   
   const handleOpenRulesModal = () => {
     if (club) {
@@ -186,7 +182,7 @@ export default function ClubDetails() {
                   Settings
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="clubSettingsDropdown">
-                {isModerator(clubId!, userId!) && (
+                {canModerate && (
                   <>
                     <li>
                       <button
@@ -202,7 +198,7 @@ export default function ClubDetails() {
                     </li>
                   </>
                 )}
-                {isModerator(clubId!, userId!) && (
+                {isClubOwner && (
                   <li>
                     <button
                       className="dropdown-item text-danger"
@@ -256,7 +252,7 @@ export default function ClubDetails() {
               </button>
             )}
 
-            {isModerator(clubId!, userId!) && (
+            {canModerate && (
               <Button
                 label="Add a Book"
                 onClick={() => openBookSearch(clubId)}
@@ -431,7 +427,7 @@ export default function ClubDetails() {
                 if (!book) return null;
 
                 const inPersonalShelf = isInShelf(book.id);
-                const canModifyClub = clubId ? isModerator(clubId, userId) : false;
+                const canModifyClub = canModerate;
 
                 const actions: BookCardActions[] = [];
                 
@@ -507,7 +503,7 @@ export default function ClubDetails() {
                 if (!book) return null;
                 
                 const inPersonalShelf = isInShelf(book.id);
-                const canModifyClub = clubId ? isModerator(clubId, userId) : false;
+                const canModifyClub = canModerate;
 
                 const actions: BookCardActions[] = [];
                 
@@ -627,12 +623,12 @@ function BackButton() {
 function ClubMembersSection() {
   const { clubId } = useParams();
   const { clubs } = useClub();
-  const { users, currentUser } = useAuthContext();
-  const { getUserBookProgressById } = useClub();
+  const { users } = useAuthContext();
+  const { getUserBookProgressById, getClubAccess } = useClub();
+  const { isLoggedIn } = getClubAccess(clubId);
   const club = clubs.find((c) => c.id === clubId);
   const [showAll, setShowAll] = useState(false);
   const INITIAL_DISPLAY_COUNT = 6;
-  const isLoggedIn = !!currentUser;
 
   const currentBookId = club?.currentBook?.bookId;
 
@@ -887,16 +883,14 @@ function ClubMembersSection() {
 }
 
 function CurrentBookSection() {
-  const { currentUser } = useAuthContext();
   const { clubId } = useParams();
-  const { clubs, isModerator, getBookClubProgress, getClubBooks, updateClubBookStatus, updateClub } =
+  const { clubs, getBookClubProgress, getClubBooks, updateClubBookStatus, updateClub, getClubAccess } =
     useClub();
   const { getBook } = useBookCache();
-  const isLoggedIn = !!currentUser;
-
+  const { userId, canModerate } = getClubAccess(clubId);
+  
   const clubProgress = getBookClubProgress(clubId!);
   const club = clubs.find((c) => c.id === clubId);
-  const userId = currentUser?.id;
 
   const [currentBook, setCurrentBook] = useState<BookData | null>(null);
   
@@ -965,7 +959,7 @@ function CurrentBookSection() {
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h2 className="display-6 mb-0">Current Book</h2>
-            {isModerator(clubId!, userId!) && 
+            {canModerate && 
              club?.currentBook?.status !== "completed" && (
               <div className="d-flex gap-2">
                 <div className="input-group" style={{ maxWidth: 360 }}>
@@ -1027,7 +1021,7 @@ function CurrentBookSection() {
                     </div>
                   </div>
                 </div>
-                {isLoggedIn && (
+                {canModerate && (
                 <div className="col-md-3 text-center">
                   <Button
                     className="btn btn-outline-success mb-2 d-block"
