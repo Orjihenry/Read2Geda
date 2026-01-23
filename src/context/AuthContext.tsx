@@ -30,9 +30,10 @@ export default function AuthProvider({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const loadUsers = useCallback(() => {
-    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
     if (users.length === 0) {
       localStorage.setItem("users", JSON.stringify(UsersData));
+      users = UsersData;
     }
     setUsers(users);
 
