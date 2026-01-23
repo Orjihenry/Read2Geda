@@ -38,7 +38,7 @@ export default function Clubs() {
       <Header />
       <div className="container my-5">
         <NavLink className="btn btn-outline-success my-3" to="/create_club">
-          Create New Group
+          Create New Club
         </NavLink>
 
         {currentUser && (
