@@ -14,8 +14,32 @@ export const clubAlerts = {
   ownerCannotLeaveClub(): NotifyAlertOptions {
     return {
       title: "Cannot Leave Club",
-      text: "You cannot leave a club you own. Please transfer ownership to another member and request demotion from owner.",
+      text: "You cannot leave a club you own. Please transfer ownership to another member.",
       icon: "error",
+    };
+  },
+  confirmTransferOwnership(currentOwnerName: string, targetName: string, demotedRole: MemberRole): ConfirmAlertOptions {
+    return {
+      title: "Transfer Ownership?",
+      html: `<p><strong>${currentOwnerName}</strong> will transfer primary ownership to <strong>${targetName}</strong> and become a ${getRoleLabel(demotedRole)}.</p>`,
+      icon: "warning",
+      confirmText: "Yes, Transfer",
+      cancelText: "Cancel",
+    };
+  },
+  transferOwnershipSuccess(targetName: string): NotifyAlertOptions {
+    return {
+      title: "Ownership Transferred",
+      text: `${targetName} is now the primary owner.`,
+      icon: "success",
+    };
+  },
+  transferOwnershipError(reason: string): NotifyAlertOptions {
+    return {
+      title: "Error",
+      text: reason,
+      icon: "error",
+      confirmVariant: "danger",
     };
   },
   rulesUpdated(): NotifyAlertOptions {
