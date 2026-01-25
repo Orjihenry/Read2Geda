@@ -20,7 +20,7 @@ import { useBookSearchModal } from "../context/BookSearchModalContext";
 import { useBookCache } from "../context/BookCacheContext";
 import useSearchFilter from "../hooks/useSearchFilter";
 import Button from "../components/Button";
-import { confirmAlert, notifyAlert } from "../alerts/sweetAlert.ts";
+import { confirmAlert, notifyAlert, sweetAlert } from "../alerts/sweetAlert";
 import { clubAlerts } from "../alerts/clubAlerts";
 import { getCurrentDateTime } from "../utils/dateUtils";
 import "../styles/ClubDetails.css";
@@ -1046,7 +1046,7 @@ function CurrentBookSection() {
 
 function ModeratorsManagementSection({ clubId, club, users, updateMemberRole, userId, canManageRoles, onClose, }: { clubId?: string; club?: { id: string; ownerId: string; members: Array<{ id: string; role?: "member" | "moderator" | "owner" }> };
   users?: Array<{ id: string; name?: string; email?: string; avatar?: string }>;
-  updateMemberRole: (clubId: string, memberId: string, role: "member" | "moderator" | "owner", userId: string) => boolean;
+  updateMemberRole: (clubId: string, memberId: string, role: "member" | "moderator" | "owner", userId: string, transferOwnerId?: string) => boolean;
   userId: string;
   canManageRoles: boolean;
   onClose: () => void;
@@ -1061,6 +1061,85 @@ function ModeratorsManagementSection({ clubId, club, users, updateMemberRole, us
   const canRemoveOwner = ownerCount > 1;
 
   const handleRoleChange = async (memberId: string, newRole: "member" | "moderator" | "owner", memberName: string, currentRole?: string) => {
+    const isPrimaryOwner = memberId === club.ownerId;
+
+    if (isPrimaryOwner && newRole !== "owner") {
+      if (!canRemoveOwner) {
+        notifyAlert(
+          clubAlerts.transferOwnershipError(
+            "You must have another owner before transferring ownership."
+          )
+        );
+        return;
+      }
+
+      const eligibleOwners = club.members
+        .filter((member) => member.role === "owner" && member.id !== memberId)
+        .map((member) => {
+          const user = users.find((u) => u.id === member.id);
+          return {
+            id: member.id,
+            name: user?.name || "Unknown User",
+          };
+        });
+
+      if (eligibleOwners.length === 0) {
+        notifyAlert(
+          clubAlerts.transferOwnershipError(
+            "No eligible owners found to transfer ownership."
+          )
+        );
+        return;
+      }
+
+      let selectedOwnerId = eligibleOwners[0].id;
+
+      if (eligibleOwners.length > 1) {
+        const { value, isDismissed: dismissedSelection } = await sweetAlert.fire({
+          title: "Select Primary Owner",
+          input: "select",
+          inputOptions: Object.fromEntries(
+            eligibleOwners.map((owner) => [owner.id, owner.name])
+          ),
+          showCancelButton: true,
+          confirmButtonText: "Continue",
+          cancelButtonText: "Cancel",
+        });
+
+        if (dismissedSelection || !value) return;
+        selectedOwnerId = value;
+      }
+
+      const selectedOwner = eligibleOwners.find((owner) => owner.id === selectedOwnerId);
+      const targetName = selectedOwner?.name || "Selected Owner";
+
+      const { isConfirmed, isDismissed } = await confirmAlert(
+        clubAlerts.confirmTransferOwnership(memberName, targetName, newRole)
+      );
+
+      if (isDismissed || !isConfirmed) return;
+
+      const success = updateMemberRole(
+        clubId,
+        memberId,
+        newRole,
+        userId,
+        selectedOwnerId
+      );
+
+      if (success) {
+        notifyAlert(clubAlerts.transferOwnershipSuccess(targetName));
+      } else {
+        notifyAlert(
+          clubAlerts.transferOwnershipError(
+            "Failed to transfer ownership. Please try again."
+          )
+        );
+      }
+
+      return;
+    }
+
     const { isConfirmed, isDismissed } = await confirmAlert(
       clubAlerts.roleChangeConfirm(memberName, newRole, currentRole)
     );
@@ -1091,8 +1170,7 @@ function ModeratorsManagementSection({ clubId, club, users, updateMemberRole, us
         email: user?.email || "",
         avatar: user?.avatar,
       };
-    })
-    .filter((m) => m.id !== club.ownerId);
+    });
 
   const owners = members.filter((m) => m.role === "owner");
   const moderators = members.filter((m) => m.role === "moderator");
