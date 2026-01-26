@@ -24,7 +24,7 @@ export default function useSearchBooks() {
     try {
       const quotedQuery = `"${query.trim()}"`;
       const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(quotedQuery)}&limit=20&fields=key,title,author_name,author_key,first_publish_year,cover_i,subject,ratings_average`,
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(quotedQuery)}&limit=20&fields=key,title,author_name,author_key,first_publish_year,cover_i,subject`,
         { signal: abortRef.current.signal }
       );
       
