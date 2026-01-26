@@ -5,8 +5,9 @@ import JoinClubButton from "../components/JoinClubButton";
 import { FaBookOpen, FaCrown, FaEdit, FaTrash } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { FaArrowLeftLong, FaPlus } from "react-icons/fa6";
-import { MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdOutlineFavorite, MdCheckCircle, MdPerson } from "react-icons/md";
+import { MdPeopleAlt, MdShield, MdSearch, MdExpandMore, MdExpandLess, MdSettings, MdOutlineFavorite, MdCheckCircle, MdPerson, MdStar } from "react-icons/md";
 import { useEffect, useState } from "react";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import type { BookData } from "../utils/bookData";
 import { useClub } from "../context/ClubContext";
 import { useFetchImage } from "../hooks/useFetchImage";
@@ -624,13 +625,23 @@ function ClubMembersSection() {
   const { clubId } = useParams();
   const { clubs } = useClub();
   const { users } = useAuthContext();
-  const { getUserBookProgressById, getClubAccess } = useClub();
+  const { getClubAccess, getUserBookMetadata } = useClub();
+  const { getBook } = useBookCache();
   const { isLoggedIn } = getClubAccess(clubId);
   const club = clubs.find((c) => c.id === clubId);
   const [showAll, setShowAll] = useState(false);
   const INITIAL_DISPLAY_COUNT = 6;
+  const [currentBook, setCurrentBook] = useState<BookData | null>(null);
 
-  const currentBookId = club?.currentBook?.bookId;
+  useEffect(() => {
+    if (!club) return;
+    if (club.currentBook?.bookId) {
+      const selected = getBook(club.currentBook.bookId);
+      setCurrentBook(selected || null);
+    } else {
+      setCurrentBook(null);
+    }
+  }, [club, getBook]);
 
   const clubMembers = club?.members?.length
     ? club.members.map((member) => {
@@ -762,8 +773,18 @@ function ClubMembersSection() {
             <>
               <div className="row g-2" style={!isLoggedIn ? { filter: "blur(5px)", pointerEvents: "none" } : undefined}>
                 {membersToShow.map((member) => {
-                  const memberProgress = currentBookId 
-                    ? getUserBookProgressById(member.id, currentBookId) : 0;
+                  const activeBookId = currentBook?.id;
+                  const meta = activeBookId ? getUserBookMetadata(member.id, activeBookId) : undefined;
+                  const memberRating = meta?.rating;
+                  const memberProgress = meta?.progress ?? 0;
+                  const memberStartedAt = meta?.startedAt;
+                  const memberCompletedAt = meta?.completedAt;
+
+                  const formatMemberDate = (value?: string) => {
+                    if (!value) return "";
+                    const date = new Date(value);
+                    return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString();
+                  };
                   
                     return (
                       <div key={member.id} className="col-md-6 col-lg-4">
@@ -772,39 +793,89 @@ function ClubMembersSection() {
                           to={`/user/${member.id}`} 
                           className="text-decoration-none h-100 d-block"
                         >
-                          <div className="d-flex flex-column p-2 border rounded h-100 member-card-hover">
-                          <div className="d-flex align-items-center mb-2">
-                            <div
-                              className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
-                              style={{ width: "40px", height: "40px", fontSize: "14px" }}
-                            >
-                              {member.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="flex-grow-1 min-w-0">
-                              <div className="fw-semibold small text-truncate" title={member.name}>
-                                {member.name}
+                        <div className="member-card-hover border rounded h-100 member-card-flip">
+                          <div className="member-card-inner">
+                            <div className="member-card-front d-flex flex-column p-2 h-100">
+                              <div className="d-flex align-items-center mb-2">
+                                <div
+                                  className={`rounded-circle ${getAvatarColor(member.role)} d-flex align-items-center justify-content-center me-3 flex-shrink-0`}
+                                  style={{ width: "40px", height: "40px", fontSize: "14px" }}
+                                >
+                                  {member.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div className="flex-grow-1 min-w-0">
+                                  <div className="fw-semibold small text-truncate" title={member.name}>
+                                    {member.name}
+                                  </div>
+                                  <div className="small">{getRoleBadge(member.role)}</div>
+                                </div>
                               </div>
-                              <div className="small">{getRoleBadge(member.role)}</div>
+                              <div className="mt-2">
+                                <div className="d-flex justify-content-between align-items-center mb-1">
+                                  <span className="small text-muted">Current Book Progress</span>
+                                  <span className="small text-muted fw-semibold">{memberProgress}%</span>
+                                </div>
+                                <div className="progress" style={{ height: "6px" }}>
+                                  <div
+                                    className="progress-bar bg-success"
+                                    role="progressbar"
+                                    style={{ width: `${memberProgress}%` }}
+                                    aria-valuenow={memberProgress}
+                                    aria-valuemin={0}
+                                    aria-valuemax={100}
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="member-card-back d-flex flex-column p-2 h-100">
+                              {currentBook ? (
+                                <div className="small text-muted">
+                                  <div className="d-flex align-items-center gap-1">
+                                    {memberRating ? (
+                                      <>
+                                        <span className="text-muted fw-semibold">Rating:</span>
+                                        <OverlayTrigger
+                                          placement="top"
+                                          overlay={
+                                            <Tooltip id={`member-rating-${member.id}`}>
+                                              {memberRating} / 5
+                                            </Tooltip>
+                                          }
+                                        >
+                                          <span className="d-flex align-items-center">
+                                            {Array.from({ length: 5 }, (_, index) => (
+                                              <MdStar
+                                                key={index}
+                                                className={index < memberRating ? "text-warning" : "text-muted"}
+                                              />
+                                            ))}
+                                          </span>
+                                        </OverlayTrigger>
+                                      </>
+                                    ) : (
+                                      <span className="fw-semibold">Not rated yet</span>
+                                    )}
+                                  </div>
+                                  {memberStartedAt ? (
+                                    <div className="d-flex align-items-center mt-1 gap-1">
+                                      <span className="text-muted fw-semibold">Started:</span>
+                                      <span className="fw-semibold">{formatMemberDate(memberStartedAt)}</span>
+                                    </div>
+                                  ) : (
+                                    <span className="fw-semibold">Not started</span>
+                                  )}
+                                  {memberCompletedAt && (
+                                    <div className="d-flex align-items-center mt-1 gap-1">
+                                      <span className="text-muted fw-semibold">Completed:</span>
+                                      <span className="fw-semibold">{formatMemberDate(memberCompletedAt)}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="small text-muted text-center">No current book selected.</div>
+                              )}
                             </div>
                           </div>
-                          {currentBookId && (
-                            <div className="mt-2">
-                              <div className="d-flex justify-content-between align-items-center mb-1">
-                                <span className="small text-muted">Current Book Progress</span>
-                                <span className="small text-muted fw-semibold">{memberProgress}%</span>
-                              </div>
-                              <div className="progress" style={{ height: "6px" }}>
-                                <div
-                                  className="progress-bar bg-success"
-                                  role="progressbar"
-                                  style={{ width: `${memberProgress}%` }}
-                                  aria-valuenow={memberProgress}
-                                  aria-valuemin={0}
-                                  aria-valuemax={100}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
                         </div>
                       </NavLink>
                       ) : (
@@ -823,7 +894,7 @@ function ClubMembersSection() {
                               <div className="small">{getRoleBadge(member.role)}</div>
                             </div>
                           </div>
-                          {currentBookId && (
+                          {currentBook && (
                             <div className="mt-2">
                               <div className="d-flex justify-content-between align-items-center mb-1">
                                 <span className="small text-muted">Current Book Progress</span>

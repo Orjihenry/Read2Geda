@@ -8,3 +8,33 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   border-color: #198754 !important;
 }
+
+.member-card-flip {
+  perspective: 1000px;
+}
+
+.member-card-inner {
+  position: relative;
+  min-height: 140px;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.member-card-flip:hover .member-card-inner {
+  transform: rotateY(180deg);
+}
+
+.member-card-front,
+.member-card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background-color: #fff;
+}
+
+.member-card-back {
+  transform: rotateY(180deg);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

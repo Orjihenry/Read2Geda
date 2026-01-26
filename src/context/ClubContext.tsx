@@ -12,6 +12,13 @@ import { clubAlerts } from "../alerts/clubAlerts";
 
 type ClubBookStatus = 'upcoming' | 'current' | 'completed';
 
+type UserBookMetadata = {
+  rating: number | undefined;
+  progress: number | undefined;
+  startedAt: string | undefined;
+  completedAt: string | undefined;
+};
+
 type ClubContextType = {
   clubs: bookClub[];
   loading: boolean;
@@ -26,9 +33,9 @@ type ClubContextType = {
   addBookToClub: (clubId: string, book: BookData, userId: string) => void;
   selectCurrentBook: (clubId: string, bookId: string, userId: string) => void;
   removeBookFromClub: (clubId: string, bookId: string) => void;
-  getUserBookProgressById: (userId: string, bookId: string) => number;
   getBookClubProgress: (clubId: string) => number;
   getClubBooks: (clubId: string, status?: ClubBookStatus) => ClubBook[];
+  getUserBookMetadata: (userId: string, bookId: string) => UserBookMetadata | undefined;
   isWishListBook: (bookId: string) => boolean;
   updateClubBookStatus: (clubId: string, userId: string, bookId: string, status: ClubBookStatus) => void;
   isOwner: (clubId: string, userId: string) => boolean;
@@ -307,14 +314,6 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
     return updatedClub;
   }, [findClub, isClubMember, saveClubs, updateClubList]);
 
-  const getUserBookProgressById = useCallback((userId: string, bookId: string): number => {
-    const user = users.find((u) => u.id === userId);
-    if (!user || !user.books) return 0;
-
-    const userBooks: UserBooks = user.books;
-    return userBooks[bookId]?.progress || 0;
-  }, [users]);
-
   const getBookClubProgress = useCallback((clubId: string): number => {
     const club = findClub(clubId);
     if (!club || club.members.length === 0 || !club.currentBook) return 0;
@@ -340,6 +339,24 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
       ? club.books.filter((b) => b.status === status)
       : club.books;
   }, [findClub]);
+  
+  const getUserBookMetadata = useCallback(
+    (userId: string, bookId: string): UserBookMetadata | undefined => {
+      const user = users.find((u) => u.id === userId);
+      if (!user || !user.books) return undefined;
+  
+      const book = user.books[bookId];
+      if (!book) return undefined;
+  
+      return {
+        rating: book.rating ?? undefined,
+        progress: book.progress,
+        startedAt: book.startedAt,
+        completedAt: book.completedAt,
+      };
+    },
+    [users]
+  );
   
   const isWishListBook = (bookId: string) => {
     return clubs.some((club) => club.books?.some((book) => book.bookId === bookId && book.status === 'upcoming' && book.isWishList));
@@ -525,9 +542,9 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
         addBookToClub,
         selectCurrentBook,
         removeBookFromClub,
-        getUserBookProgressById,
         getBookClubProgress,
         getClubBooks,
+        getUserBookMetadata,
         isWishListBook,
         updateClubBookStatus,
         isOwner,
