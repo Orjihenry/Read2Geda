@@ -132,6 +132,7 @@ export default function BookSearchModal({ isOpen, onClose, clubId }: BookSearchM
         <BookCard
           item={item}
           actions={actions}
+          showRating={false}
         />
       </div>
     );

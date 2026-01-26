@@ -23,12 +23,13 @@ export type BookCardProps = {
   actions?: BookCardActions[];
   progress?: number;
   showProgress?: boolean;
+  showRating?: boolean;
   onProgressChange?: (progress: number) => void;
   startedAt?: string;
   completedAt?: string;
 };
 
-export default function BookCard({ item, actions = [], progress, showProgress = false, onProgressChange, startedAt, completedAt }: BookCardProps) {
+export default function BookCard({ item, actions = [], progress, showProgress = false, showRating = true, onProgressChange, startedAt, completedAt }: BookCardProps) {
   const { setUserBookRating, getUserBookRating } = useSavedBooks();
   const { users } = useAuthContext();
   const userRating = getUserBookRating(item.id);
@@ -52,6 +53,9 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
       ratingsCount: count,
     };
   }, [users, item.id]);
+
+  const formatNumber = (value: number) =>
+    new Intl.NumberFormat().format(value);
   
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "";
@@ -211,7 +215,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
         </h5>
 
         <div className="mt-3" style={{ fontSize: "0.875rem" }}>
-          <p className="mb-1 small d-flex align-items-center text-secondary">
+          <p className="mb-1 small d-flex align-items-center text-muted">
             <span className="me-2 text-muted">
               <MdAddLocationAlt />
             </span>
@@ -221,7 +225,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             </span>
           </p>
 
-          <p className="mb-1 small d-flex align-items-center text-secondary">
+          <p className="mb-1 small d-flex align-items-center text-muted">
             <span className="me-2 text-muted">
               <MdPeopleAlt />
             </span>
@@ -229,12 +233,12 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             <span className="ms-1 fw-medium">{item.author || "Unknown"}</span>
           </p>
 
-          {hasRating && (
+          {showRating && hasRating && (
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip id={`tooltip-rating-${item.id}`}>{rating} / 5</Tooltip>}
+              overlay={<Tooltip id={`tooltip-your-rating-${item.id}`}>Your Rating: {rating}</Tooltip>}
             >
-              <div className="d-flex align-items-center small text-secondary mb-1">
+              <p className="d-flex align-items-center small text-muted mb-1 cursor-pointer">
                 <span className="me-2 text-muted">
                   <MdStar />
                 </span>
@@ -250,22 +254,36 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                     </span>
                   ))}
                 </div>
-              </div>
+              </p>
             </OverlayTrigger>
           )}
 
-          <span className="fw-medium">
-            <span className="me-2 text-muted">
-              <MdStar />
-            </span>
-            <span className="text-muted">Average Rating:</span>
-            <span className="ms-1 fw-medium">
-              {ratingsCount > 0 ? `${averageRating} / 5 (${ratingsCount})` : "No ratings yet"}
-            </span>
-          </span>
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip id={`tooltip-average-rating-${item.id}`}>Global Rating: {averageRating}</Tooltip>}
+          >
+            <p className="d-flex align-items-center small text-muted mb-1 cursor-pointer">
+              <span className="me-2 text-muted">
+                <MdStar />
+              </span>
+              <span className="fw-semibold text-muted">Rating:</span>
+              <div className="d-flex">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <span
+                      key={i}
+                      className={i < averageRating ? "text-warning" : "text-muted"}
+                      style={{ fontSize: "1rem", lineHeight: 1 }}
+                    >
+                      ★
+                    </span>
+                  ))}
+                  <span className={'{ratingsCount > 0 ? "text-muted ms-2" : "d-none"}'}>({formatNumber(ratingsCount)})</span>
+                </div>
+            </p>
+          </OverlayTrigger>
 
           {startedAt && (progress === undefined || progress > 0) && (
-            <p className="mb-1 small d-flex align-items-center text-secondary">
+            <p className="mb-1 small d-flex align-items-center text-muted">
               <span className="me-2 text-muted">
                 <MdCalendarToday />
               </span>
