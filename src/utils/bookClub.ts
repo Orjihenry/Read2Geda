@@ -22,12 +22,6 @@ export type ClubBook = {
   isWishList?: boolean;
 };
 
-export type BookSuggestion = {
-  bookId: string;
-  suggestedBy: string;
-  suggestedAt: string;
-};
-
 export type ClubRule = {
   title: string;
   description: string;
@@ -53,7 +47,6 @@ export type bookClub = {
   meetingPlatform?: string;
   currentBook?: ClubBook;
   books?: ClubBook[];
-  suggestions?: BookSuggestion[];
   rules?: ClubRule[];
 };
 
