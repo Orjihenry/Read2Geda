@@ -10,6 +10,8 @@ type SavedBooksContextType = {
   addBook: (book: BookData) => void;
   removeBook: (bookId: string) => void;
   updateProgress: (bookId: string, progress: number) => void;
+  setUserBookRating: (bookId: string, rating: number) => void;
+  getUserBookRating: (bookId: string) => number | undefined;
   getUserBookProgress: (bookId: string) => number;
   getUserBookStartedAt: (bookId: string) => string | undefined;
   getUserBookCompletedAt: (bookId: string) => string | undefined;
@@ -97,6 +99,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
       status: (newProgress >= 100 ? "completed" : newProgress > 0 ? "reading" : "to-read") as "reading" | "completed" | "to-read",
       startedAt: newProgress === 0 ? undefined : (existing.startedAt || (newProgress > 0 ? currentDate : undefined)),
       completedAt: newProgress >= 100 ? currentDate : undefined,
+      rating: newProgress === 0 ? undefined : existing.rating,
     };
 
     const updatedUser: User = {
@@ -109,6 +112,36 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
 
     updateUser(updatedUser);
   }, [currentUser, updateUser]);
+
+  const setUserBookRating = useCallback((bookId: string, rating: number) => {
+    if (!currentUser) return;
+
+    const userBooks: UserBooks = currentUser.books ? { ...currentUser.books } : {};
+    const existing = userBooks[bookId];
+    if (!existing) return;
+
+    const normalizedRating = Math.max(1, Math.min(Math.round(rating), 5));
+    const updatedEntry = {
+      ...existing,
+      rating: normalizedRating,
+    };
+
+    const updatedUser: User = {
+      ...currentUser,
+      books: {
+        ...userBooks,
+        [bookId]: updatedEntry,
+      },
+    };
+
+    updateUser(updatedUser);
+  }, [currentUser, updateUser]);
+
+  const getUserBookRating = useCallback((bookId: string): number | undefined => {
+    if (!currentUser) return undefined;
+    const userBooks: UserBooks = currentUser.books || {};
+    return userBooks[bookId]?.rating;
+  }, [currentUser]);
 
   const getUserBookProgress = useCallback((bookId: string): number => {
     if (!currentUser) return 0;
@@ -178,6 +211,8 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
         addBook,
         removeBook,
         updateProgress,
+        setUserBookRating,
+        getUserBookRating,
         getUserBookProgress,
         getUserBookStartedAt,
         getUserBookCompletedAt,

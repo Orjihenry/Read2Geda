@@ -5,13 +5,13 @@ import type { BookData } from "../utils/bookData";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import BookCard, { type BookCardActions } from "../components/BookCard";
-import { confirmAlert, notifyAlert } from "../alerts/sweetAlert";
+import { confirmAlert, notifyAlert, sweetAlert } from "../alerts/sweetAlert";
 import { useCallback } from "react";
 import { IoMdClose } from "react-icons/io";
 import { MdCheckCircle, MdPlayArrow, MdRefresh } from "react-icons/md";
 
 export default function BookShelf() {
-  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, updateProgress } = useSavedBooks();
+  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, updateProgress, setUserBookRating } = useSavedBooks();
   const { loading } = useBookCache();
   const { openBookSearch } = useBookSearchModal();
 
@@ -21,6 +21,28 @@ export default function BookShelf() {
   const handleStartReading = useCallback((book: BookData) => {
     updateProgress(book.id, 1);
   }, [updateProgress]);
+
+  const promptForRating = useCallback(async (book: BookData): Promise<number | null> => {
+    const { value, isConfirmed } = await sweetAlert.fire({
+      title: "Rate this book",
+      text: book.title,
+      input: "select",
+      inputOptions: {
+        5: "5 - Excellent",
+        4: "4 - Great",
+        3: "3 - Good",
+        2: "2 - Fair",
+        1: "1 - Poor",
+      },
+      inputPlaceholder: "Select rating",
+      showCancelButton: true,
+      confirmButtonText: "Submit Rating",
+      cancelButtonText: "Skip",
+    });
+
+    if (!isConfirmed || !value) return null;
+    return Number(value);
+  }, []);
 
   const handleMarkAsCompleted = useCallback(async (book: BookData) => {
     const { isConfirmed } = await confirmAlert({
@@ -32,6 +54,9 @@ export default function BookShelf() {
     });
 
     if (isConfirmed) {
+      const ratingValue = await promptForRating(book);
+      if (ratingValue == null) return;
+      setUserBookRating(book.id, ratingValue);
       updateProgress(book.id, 100);
       notifyAlert({
         title: "Completed!",
@@ -43,7 +68,7 @@ export default function BookShelf() {
         },
       });
     }
-  }, [updateProgress]);
+  }, [updateProgress, promptForRating, setUserBookRating]);
 
   const handleResetProgress = useCallback(async (book: BookData) => {
     const { isConfirmed } = await confirmAlert({

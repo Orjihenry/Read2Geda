@@ -34,6 +34,6 @@ export const convertDataSet = async (book: any): Promise<BookData> => {
         publishedYear: book.first_publish_year || book.publish_year?.[0] || 0,
         summary: description || "No description available.",
         coverImage: coverImage,
-        rating: book.ratings_average || book.ratings?.average || 0,
+        rating: 0,
     };
 };

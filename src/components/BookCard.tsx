@@ -1,7 +1,10 @@
 import { type BookData } from "../utils/bookData";
+import { useMemo } from "react";
 import { MdAddLocationAlt, MdPeopleAlt, MdStar, MdCalendarToday, MdCheckCircle } from "react-icons/md";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { confirmAlert, notifyAlert } from "../alerts/sweetAlert";
+import { confirmAlert, notifyAlert, sweetAlert } from "../alerts/sweetAlert";
+import { useSavedBooks } from "../context/SavedBooksContext";
+import { useAuthContext } from "../context/AuthContext";
 import dayjs from "dayjs";
 import "../styles/BookCard.css";
 
@@ -26,7 +29,29 @@ export type BookCardProps = {
 };
 
 export default function BookCard({ item, actions = [], progress, showProgress = false, onProgressChange, startedAt, completedAt }: BookCardProps) {
-  const rating = Math.round((item.rating || 0) * 10) / 10;
+  const { setUserBookRating, getUserBookRating } = useSavedBooks();
+  const { users } = useAuthContext();
+  const userRating = getUserBookRating(item.id);
+  const ratingValue = userRating ?? item.rating ?? 0;
+  const rating = Math.round(ratingValue * 10) / 10;
+  const hasRating = userRating != null || item.rating != null;
+  const { averageRating, ratingsCount } = useMemo(() => {
+    if (!users?.length) {
+      return { averageRating: 0, ratingsCount: 0 };
+    }
+
+    const ratings = users
+      .map((user) => user.books?.[item.id]?.rating)
+      .filter((value): value is number => typeof value === "number");
+
+    const count = ratings.length;
+    const avg = count ? ratings.reduce((sum, value) => sum + value, 0) / count : 0;
+
+    return {
+      averageRating: Math.round(avg * 10) / 10,
+      ratingsCount: count,
+    };
+  }, [users, item.id]);
   
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "";
@@ -35,6 +60,28 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
       return date.format("MMM DD, YYYY");
     }
     return dateString;
+  };
+
+  const promptForRating = async (): Promise<number | null> => {
+    const { value, isConfirmed } = await sweetAlert.fire({
+      title: "Rate this book",
+      text: item.title,
+      input: "select",
+      inputOptions: {
+        5: "5 - Excellent",
+        4: "4 - Great",
+        3: "3 - Good",
+        2: "2 - Fair",
+        1: "1 - Poor",
+      },
+      inputPlaceholder: "Select rating",
+      showCancelButton: true,
+      confirmButtonText: "Submit Rating",
+      cancelButtonText: "Skip",
+    });
+
+    if (!isConfirmed || !value) return null;
+    return Number(value);
   };
 
   const handleProgressChange = async (newProgress: number) => {
@@ -62,6 +109,9 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
       });
 
       if (isConfirmed) {
+        const ratingValue = await promptForRating();
+        if (ratingValue == null) return;
+        setUserBookRating(item.id, ratingValue);
         onProgressChange(100);
         notifyAlert({
           title: "Completed!",
@@ -179,7 +229,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             <span className="ms-1 fw-medium">{item.author || "Unknown"}</span>
           </p>
 
-          {item.rating != null && (
+          {hasRating && (
             <OverlayTrigger
               placement="top"
               overlay={<Tooltip id={`tooltip-rating-${item.id}`}>{rating} / 5</Tooltip>}
@@ -188,12 +238,12 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                 <span className="me-2 text-muted">
                   <MdStar />
                 </span>
-                <span className="fw-semibold text-muted">Rating:</span>
+                <span className="fw-semibold text-muted">Your Rating:</span>
                 <div className="d-flex">
                   {Array.from({ length: 5 }, (_, i) => (
                     <span
                       key={i}
-                      className={i < (item.rating || 0) ? "text-warning" : "text-muted"}
+                      className={i < ratingValue ? "text-warning" : "text-muted"}
                       style={{ fontSize: "1rem", lineHeight: 1 }}
                     >
                       ★
@@ -203,6 +253,16 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
               </div>
             </OverlayTrigger>
           )}
+
+          <span className="fw-medium">
+            <span className="me-2 text-muted">
+              <MdStar />
+            </span>
+            <span className="text-muted">Average Rating:</span>
+            <span className="ms-1 fw-medium">
+              {ratingsCount > 0 ? `${averageRating} / 5 (${ratingsCount})` : "No ratings yet"}
+            </span>
+          </span>
 
           {startedAt && (progress === undefined || progress > 0) && (
             <p className="mb-1 small d-flex align-items-center text-secondary">
