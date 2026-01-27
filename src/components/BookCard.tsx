@@ -94,9 +94,12 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
 
       if (isConfirmed) {
         const ratingValue = await promptForRating(item.title);
-        if (ratingValue == null) return;
+        
+        if (ratingValue != null) {
+          setUserBookRating(item.id, ratingValue);
+        }
+
         onProgressChange(100);
-        setUserBookRating(item.id, ratingValue);
         notifyAlert({
           title: "Completed!",
           text: `"${item.title}" has been marked as completed.`,

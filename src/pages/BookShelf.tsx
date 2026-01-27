@@ -35,9 +35,12 @@ export default function BookShelf() {
 
     if (isConfirmed) {
       const ratingValue = await promptForRating(book.title);
-      if (ratingValue == null) return;
+
+      if (ratingValue != null) {
+        setUserBookRating(book.id, ratingValue);
+      }
+
       updateProgress(book.id, 100);
-      setUserBookRating(book.id, ratingValue);
       notifyAlert({
         title: "Completed!",
         text: `"${book.title}" has been marked as completed.`,
