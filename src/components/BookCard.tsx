@@ -2,9 +2,10 @@ import { type BookData } from "../utils/bookData";
 import { useMemo } from "react";
 import { MdAddLocationAlt, MdPeopleAlt, MdStar, MdCalendarToday, MdCheckCircle } from "react-icons/md";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { confirmAlert, notifyAlert, sweetAlert } from "../alerts/sweetAlert";
+import { confirmAlert, notifyAlert } from "../alerts/sweetAlert";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import { useAuthContext } from "../context/AuthContext";
+import { useBookRatingPrompt } from "../hooks/useBookRating";
 import dayjs from "dayjs";
 import "../styles/BookCard.css";
 
@@ -32,6 +33,7 @@ export type BookCardProps = {
 export default function BookCard({ item, actions = [], progress, showProgress = false, showRating = true, onProgressChange, startedAt, completedAt }: BookCardProps) {
   const { setUserBookRating, getUserBookRating } = useSavedBooks();
   const { users } = useAuthContext();
+  const { promptForRating } = useBookRatingPrompt();
   const userRating = getUserBookRating(item.id);
   const ratingValue = userRating ?? item.rating ?? 0;
   const rating = Math.round(ratingValue * 10) / 10;
@@ -66,28 +68,6 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
     return dateString;
   };
 
-  const promptForRating = async (): Promise<number | null> => {
-    const { value, isConfirmed } = await sweetAlert.fire({
-      title: "Rate this book",
-      text: item.title,
-      input: "select",
-      inputOptions: {
-        5: "5 - Excellent",
-        4: "4 - Great",
-        3: "3 - Good",
-        2: "2 - Fair",
-        1: "1 - Poor",
-      },
-      inputPlaceholder: "Select rating",
-      showCancelButton: true,
-      confirmButtonText: "Submit Rating",
-      cancelButtonText: "Skip",
-    });
-
-    if (!isConfirmed || !value) return null;
-    return Number(value);
-  };
-
   const handleProgressChange = async (newProgress: number) => {
     if (!onProgressChange) return;
 
@@ -113,10 +93,10 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
       });
 
       if (isConfirmed) {
-        const ratingValue = await promptForRating();
+        const ratingValue = await promptForRating(item.title);
         if (ratingValue == null) return;
-        setUserBookRating(item.id, ratingValue);
         onProgressChange(100);
+        setUserBookRating(item.id, ratingValue);
         notifyAlert({
           title: "Completed!",
           text: `"${item.title}" has been marked as completed.`,
@@ -243,7 +223,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                   <MdStar />
                 </span>
                 <span className="fw-semibold text-muted">Your Rating:</span>
-                <div className="d-flex">
+                <span className="d-flex">
                   {Array.from({ length: 5 }, (_, i) => (
                     <span
                       key={i}
@@ -253,7 +233,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                       ★
                     </span>
                   ))}
-                </div>
+                </span>
               </p>
             </OverlayTrigger>
           )}
@@ -267,7 +247,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                 <MdStar />
               </span>
               <span className="fw-semibold text-muted">Rating:</span>
-              <div className="d-flex">
+              <span className="d-flex">
                   {Array.from({ length: 5 }, (_, i) => (
                     <span
                       key={i}
@@ -278,7 +258,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                     </span>
                   ))}
                   <span className={'{ratingsCount > 0 ? "text-muted ms-2" : "d-none"}'}>({formatNumber(ratingsCount)})</span>
-                </div>
+                </span>
             </p>
           </OverlayTrigger>
 

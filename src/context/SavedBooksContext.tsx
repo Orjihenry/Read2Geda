@@ -116,7 +116,9 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
   const setUserBookRating = useCallback((bookId: string, rating: number) => {
     if (!currentUser) return;
 
-    const userBooks: UserBooks = currentUser.books ? { ...currentUser.books } : {};
+    const storedUsers = JSON.parse(localStorage.getItem("users") || "[]") as User[];
+    const latestUser = storedUsers.find((u) => u.id === currentUser.id) || currentUser;
+    const userBooks: UserBooks = latestUser.books ? { ...latestUser.books } : {};
     const existing = userBooks[bookId];
     if (!existing) return;
 
@@ -127,7 +129,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
     };
 
     const updatedUser: User = {
-      ...currentUser,
+      ...latestUser,
       books: {
         ...userBooks,
         [bookId]: updatedEntry,
