@@ -29,7 +29,7 @@ export default function Home() {
             <div className="row px-1">
               <NavButton
                 className="col col-md-4 btn-secondary text-light mx-2"
-                href="/clubs"
+                href="/clubs#book-clubs"
                 label="Discover"
               />
               <NavButton
@@ -88,7 +88,7 @@ export default function Home() {
 
           <NavButton
             className="btn-outline-success mt-5"
-            href="/clubs"
+            href="/clubs#book-clubs"
             label="Discover More"
           />
         </div>

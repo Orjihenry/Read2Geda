@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import { useClub } from "../context/ClubContext";
 import { useAuthContext } from "../context/AuthContext";
 import Footer from "../components/Footer";
@@ -9,6 +9,7 @@ import useSearchFilter from "../hooks/useSearchFilter";
 import "../styles/Clubs.css";
 
 export default function Clubs() {
+  const { hash } = useLocation();
   const { clubs, loading, getMyClubs } = useClub();
   const { currentUser } = useAuthContext();
 
@@ -32,6 +33,18 @@ export default function Clubs() {
 
   const nClubs = Math.ceil(filteredData.length / clubsPerPage);
   const numbers = [...Array(nClubs + 1).keys()].slice(1);
+
+  if(hash){
+    window.location.replace("/clubs#book-clubs");
+}
+
+  useEffect(() => {
+    if (!hash) return;
+    const target = document.getElementById(hash.slice(1));
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [hash]);
 
   return (
     <>
@@ -87,7 +100,7 @@ export default function Clubs() {
                       </p>
                     </div>
                     <div className="d-flex gap-2 justify-content-center">
-                      <NavLink to="/clubs" className="btn btn-secondary">
+                      <NavLink to="/clubs#book-clubs" className="btn btn-secondary">
                         <i className="fas fa-search me-2"></i>
                         Discover Clubs
                       </NavLink>
@@ -107,7 +120,7 @@ export default function Clubs() {
         )}
 
         <div className="row g-3 my-5">
-          <h2 className="display-6 py-3">Book Clubs</h2>
+          <h2 className="display-6 py-3" id="book-clubs">Book Clubs</h2>
 
           <div className="container mt-4">
             <div className="row g-3 align-items-center">
