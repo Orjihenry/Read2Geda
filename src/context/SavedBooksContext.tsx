@@ -27,7 +27,9 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
 
   // Helpers
   const updateUser = useCallback((updatedUser: User) => {
-    const updatedUsers = users.map((u) =>
+    const storedUsers = JSON.parse(localStorage.getItem("users") || "[]") as User[];
+    const baseUsers = storedUsers.length ? storedUsers : users;
+    const updatedUsers = baseUsers.map((u) =>
       u.id === updatedUser.id ? updatedUser : u
     );
 
@@ -78,8 +80,8 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
       books: remainingBooks,
     };
 
-    updateProfile(updatedUser);
-  }, [currentUser, updateProfile]);
+    updateUser(updatedUser);
+  }, [currentUser, updateUser]);
 
   const updateProgress = useCallback((bookId: string, progress: number, rating?: number) => {
     if (!currentUser) return;
@@ -101,7 +103,11 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
       status: (completedStatus ? "completed" : newProgress > 0 ? "reading" : "to-read") as "reading" | "completed" | "to-read",
       startedAt: newProgress === 0 ? undefined : (existing.startedAt || (newProgress > 0 ? currentDate : undefined)),
       completedAt: completedStatus ? existing.completedAt || currentDate : undefined,
-      rating: completedStatus && rating !== undefined ? newRating : existing.rating,
+      rating: completedStatus && rating !== undefined
+        ? newRating
+        : newProgress === 0
+          ? undefined
+          : existing.rating,
     };
 
     const updatedUser: User = {
@@ -112,8 +118,7 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
       },
     };
 
-    console.log(updatedUser);
-    updateProfile(updatedUser);
+    updateUser(updatedUser);
   }, [currentUser, updateUser]);
 
   const getUserBookRating = useCallback((bookId: string): number | undefined => {
