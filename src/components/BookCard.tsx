@@ -31,13 +31,12 @@ export type BookCardProps = {
 };
 
 export default function BookCard({ item, actions = [], progress, showProgress = false, showRating = true, onProgressChange, startedAt, completedAt }: BookCardProps) {
-  const { setUserBookRating, getUserBookRating } = useSavedBooks();
+  const { getUserBookRating } = useSavedBooks();
   const { users } = useAuthContext();
   const { promptForRating } = useBookRatingPrompt();
   const userRating = getUserBookRating(item.id);
-  const ratingValue = userRating ?? item.rating ?? 0;
-  const rating = Math.round(ratingValue * 10) / 10;
-  const hasRating = userRating != null || item.rating != null;
+  const hasUserRating = userRating != null;
+  const rating = userRating ? Math.round(userRating * 10) / 10 : 0;
   const { averageRating, ratingsCount } = useMemo(() => {
     if (!users?.length) {
       return { averageRating: 0, ratingsCount: 0 };
@@ -96,7 +95,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
         const ratingValue = await promptForRating(item.title);
         
         if (ratingValue != null) {
-          setUserBookRating(item.id, ratingValue);
+          onProgressChange(newProgress);
         }
 
         onProgressChange(100);
@@ -216,7 +215,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
             <span className="ms-1 fw-medium">{item.author || "Unknown"}</span>
           </p>
 
-          {showRating && hasRating && (
+          {showRating && hasUserRating && (
             <OverlayTrigger
               placement="top"
               overlay={<Tooltip id={`tooltip-your-rating-${item.id}`}>Your Rating: {rating}</Tooltip>}
@@ -230,7 +229,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                   {Array.from({ length: 5 }, (_, i) => (
                     <span
                       key={i}
-                      className={i < ratingValue ? "text-warning" : "text-muted"}
+                      className={i < (userRating || 0) ? "text-warning" : "text-muted"}
                       style={{ fontSize: "1rem", lineHeight: 1 }}
                     >
                       ★
@@ -260,7 +259,9 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
                       ★
                     </span>
                   ))}
-                  <span className={'{ratingsCount > 0 ? "text-muted ms-2" : "d-none"}'}>({formatNumber(ratingsCount)})</span>
+                  <span className={ratingsCount > 0 ? "text-muted ms-2" : "d-none"}>
+                    ({formatNumber(ratingsCount)})
+                  </span>
                 </span>
             </p>
           </OverlayTrigger>

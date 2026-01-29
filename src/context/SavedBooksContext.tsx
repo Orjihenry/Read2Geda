@@ -9,8 +9,7 @@ type SavedBooksContextType = {
   isInShelf: (bookId: string) => boolean;
   addBook: (book: BookData) => void;
   removeBook: (bookId: string) => void;
-  updateProgress: (bookId: string, progress: number) => void;
-  setUserBookRating: (bookId: string, rating: number) => void;
+  updateProgress: (bookId: string, progress: number, rating?: number) => void;
   getUserBookRating: (bookId: string) => number | undefined;
   getUserBookProgress: (bookId: string) => number;
   getUserBookStartedAt: (bookId: string) => string | undefined;
@@ -79,10 +78,10 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
       books: remainingBooks,
     };
 
-    updateUser(updatedUser);
-  }, [currentUser, updateUser]);
+    updateProfile(updatedUser);
+  }, [currentUser, updateProfile]);
 
-  const updateProgress = useCallback((bookId: string, progress: number) => {
+  const updateProgress = useCallback((bookId: string, progress: number, rating?: number) => {
     if (!currentUser) return;
 
     const userBooks: UserBooks = currentUser.books ? { ...currentUser.books } : {};
@@ -92,14 +91,17 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
 
     const currentDate = getCurrentDateTime();
     const newProgress = Math.max(0, Math.min(progress, 100));
+    const newRating = rating ? Math.max(1, Math.min(rating, 5)) : undefined;
+
+    const completedStatus = newProgress === 100; 
 
     const updatedEntry = {
       ...existing,
       progress: newProgress,
-      status: (newProgress >= 100 ? "completed" : newProgress > 0 ? "reading" : "to-read") as "reading" | "completed" | "to-read",
+      status: (completedStatus ? "completed" : newProgress > 0 ? "reading" : "to-read") as "reading" | "completed" | "to-read",
       startedAt: newProgress === 0 ? undefined : (existing.startedAt || (newProgress > 0 ? currentDate : undefined)),
-      completedAt: newProgress >= 100 ? currentDate : undefined,
-      rating: newProgress === 0 ? undefined : existing.rating,
+      completedAt: completedStatus ? existing.completedAt || currentDate : undefined,
+      rating: completedStatus && rating !== undefined ? newRating : existing.rating,
     };
 
     const updatedUser: User = {
@@ -110,33 +112,8 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
       },
     };
 
-    updateUser(updatedUser);
-  }, [currentUser, updateUser]);
-
-  const setUserBookRating = useCallback((bookId: string, rating: number) => {
-    if (!currentUser) return;
-
-    const storedUsers = JSON.parse(localStorage.getItem("users") || "[]") as User[];
-    const latestUser = storedUsers.find((u) => u.id === currentUser.id) || currentUser;
-    const userBooks: UserBooks = latestUser.books ? { ...latestUser.books } : {};
-    const existing = userBooks[bookId];
-    if (!existing) return;
-
-    const normalizedRating = Math.max(1, Math.min(Math.round(rating), 5));
-    const updatedEntry = {
-      ...existing,
-      rating: normalizedRating,
-    };
-
-    const updatedUser: User = {
-      ...latestUser,
-      books: {
-        ...userBooks,
-        [bookId]: updatedEntry,
-      },
-    };
-
-    updateUser(updatedUser);
+    console.log(updatedUser);
+    updateProfile(updatedUser);
   }, [currentUser, updateUser]);
 
   const getUserBookRating = useCallback((bookId: string): number | undefined => {
@@ -213,7 +190,6 @@ export function SavedBooksProvider({ children }: { children: React.ReactNode }) 
         addBook,
         removeBook,
         updateProgress,
-        setUserBookRating,
         getUserBookRating,
         getUserBookProgress,
         getUserBookStartedAt,

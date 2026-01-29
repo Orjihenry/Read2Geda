@@ -12,7 +12,7 @@ import { IoMdClose } from "react-icons/io";
 import { MdCheckCircle, MdPlayArrow, MdRefresh } from "react-icons/md";
 
 export default function BookShelf() {
-  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, updateProgress, setUserBookRating } = useSavedBooks();
+  const { removeBook, getCompletedBooks, getToReadBooks, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, updateProgress } = useSavedBooks();
   const { loading } = useBookCache();
   const { openBookSearch } = useBookSearchModal();
   const { promptForRating } = useBookRatingPrompt();
@@ -37,10 +37,9 @@ export default function BookShelf() {
       const ratingValue = await promptForRating(book.title);
 
       if (ratingValue != null) {
-        setUserBookRating(book.id, ratingValue);
+        updateProgress(book.id, 100, ratingValue);
       }
 
-      updateProgress(book.id, 100);
       notifyAlert({
         title: "Completed!",
         text: `"${book.title}" has been marked as completed.`,
@@ -51,19 +50,19 @@ export default function BookShelf() {
         },
       });
     }
-  }, [updateProgress, promptForRating, setUserBookRating]);
+  }, [updateProgress, promptForRating]);
 
   const handleResetProgress = useCallback(async (book: BookData) => {
     const { isConfirmed } = await confirmAlert({
       title: "Reset Progress?",
-      text: "Started and Completed metadata will be lost.",
+      text: "Book's metadata will be lost.",
       icon: "question",
       confirmText: "Yes, Reset",
       cancelText: "Cancel",
     });
 
     if (isConfirmed) {
-      updateProgress(book.id, 0);
+      updateProgress(book.id, 0, undefined);
       notifyAlert({
         title: "Reset!",
         text: `Progress for "${book.title}" has been reset.`,
