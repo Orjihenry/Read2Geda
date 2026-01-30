@@ -25,11 +25,10 @@ export function useShelfHandlers() {
     });
 
     if (isConfirmed) {
-      const ratingValue = await promptForRating(book.title);
+      const { rating, shouldProceed } = await promptForRating(book.title);
+      if (!shouldProceed) return;
 
-      if (ratingValue != null) {
-        updateProgress(book.id, 100, ratingValue);
-      }
+      updateProgress(book.id, 100, rating ?? undefined);
 
       notifyAlert({
         title: "Completed!",

@@ -35,6 +35,7 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
   const { users } = useAuthContext();
   const { promptForRating } = useBookRatingPrompt();
   const userRating = getUserBookRating(item.id);
+
   const hasUserRating = userRating != null;
   const rating = userRating ? Math.round(userRating * 10) / 10 : 0;
   const { averageRating, ratingsCount } = useMemo(() => {
@@ -92,11 +93,8 @@ export default function BookCard({ item, actions = [], progress, showProgress = 
       });
 
       if (isConfirmed) {
-        const ratingValue = await promptForRating(item.title);
-        
-        if (ratingValue != null) {
-          onProgressChange(newProgress);
-        }
+        const { shouldProceed } = await promptForRating(item.title);
+        if (!shouldProceed) return;
 
         onProgressChange(100);
         notifyAlert({

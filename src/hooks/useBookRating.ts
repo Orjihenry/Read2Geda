@@ -1,9 +1,15 @@
 import { useCallback } from "react";
+import Swal from "sweetalert2";
 import { sweetAlert } from "../alerts/sweetAlert";
 
+type RatingPromptResult = {
+  rating: number | null;
+  shouldProceed: boolean;
+};
+
 export function useBookRatingPrompt() {
-  const promptForRating = useCallback(async (title: string): Promise<number | null> => {
-    const { value, isConfirmed } = await sweetAlert.fire({
+  const promptForRating = useCallback(async (title: string): Promise<RatingPromptResult> => {
+    const { value, isConfirmed, dismiss } = await sweetAlert.fire({
       title: "Rate this book",
       text: title,
       input: "select",
@@ -15,13 +21,29 @@ export function useBookRatingPrompt() {
         1: "1 - Poor",
       },
       inputPlaceholder: "Select rating",
+      showCloseButton: true,
       showCancelButton: true,
       confirmButtonText: "Submit Rating",
       cancelButtonText: "Skip",
     });
 
-    if (!isConfirmed || !value) return null;
-    return Number(value);
+    if (
+      dismiss === Swal.DismissReason.close ||
+      dismiss === Swal.DismissReason.esc ||
+      dismiss === Swal.DismissReason.backdrop
+    ) {
+      return { rating: null, shouldProceed: false };
+    }
+
+    if (!isConfirmed) {
+      return { rating: null, shouldProceed: true };
+    }
+
+    if (!value) {
+      return { rating: null, shouldProceed: true };
+    }
+
+    return { rating: Number(value), shouldProceed: true };
   }, []);
 
   return { promptForRating };
