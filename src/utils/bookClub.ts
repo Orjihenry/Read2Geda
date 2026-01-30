@@ -14,7 +14,7 @@ import bookClub11 from "../assets/norma-mortenson.jpg";
 import bookClub12 from "../assets/pexels-anton.jpg";
 import bookClub13 from "../assets/tara-winstead.jpg";
 import bookClub14 from "../assets/pexels-enginakyurt.jpg";
-import bookClub15 from "../assets/pexels-mikhail-nilov.jpg";
+import bookClub15 from "../assets/polina-tankilevitch.jpg";
 import bookClub16 from "../assets/pexels-peter-chikubula.jpg";
 
 export type clubMember = {
