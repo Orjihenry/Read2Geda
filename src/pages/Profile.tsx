@@ -9,13 +9,14 @@ import { useFetchImage } from "../hooks/useFetchImage";
 import { useAuthContext } from "../context/AuthContext";
 import { useSavedBooks } from "../context/SavedBooksContext";
 import { useBookCache } from "../context/BookCacheContext";
+import useSearchFilter from "../hooks/useSearchFilter";
+import { useBookRatingPrompt } from "../hooks/useBookRating";
 import type { BookData } from "../utils/bookData";
 import type { User } from "../types/user";
 import placeholderAvatar from "../assets/placeholder.png";
 import { MdGroups, MdSearch, MdExpandMore, MdExpandLess, MdShield, MdMoreVert } from "react-icons/md";
 import { FaCrown, FaArrowLeft } from "react-icons/fa";
 import "../styles/Profile.css";
-import useSearchFilter from "../hooks/useSearchFilter";
 
 export default function Profile() {
   const { userId } = useParams<{ userId?: string }>();
@@ -24,6 +25,7 @@ export default function Profile() {
   const { clubs } = useClub();
   const { updateProgress, getUserBookProgress, getUserBookStartedAt, getUserBookCompletedAt, getCompletedBooks, getToReadBooks, loading } = useSavedBooks();
   const { getBooks } = useBookCache();
+  const { promptForRating } = useBookRatingPrompt();
 
   const displayUser = userId ? getUserById(userId) : currentUser;
   const isOwnProfile = !userId || currentUser?.id === userId;
@@ -107,19 +109,27 @@ export default function Profile() {
 
   const closeModal = () => setShowModal(false);
 
-  const saveProgress = () => {
+  const saveProgress = async () => {
     if (!currentBook || !isOwnProfile || !displayUser) return;
     const pct = Math.max(0, Math.min(100, Number(progress) || 0));
 
-    updateProgress(currentBook.id, pct);
+    if (pct === 100) {
+      const { rating, shouldProceed } = await promptForRating(currentBook.title);
+      if (!shouldProceed) return;
+      updateProgress(currentBook.id, pct, rating ?? undefined);
+    } else {
+      updateProgress(currentBook.id, pct);
+    }
 
     setCurrentBook({ ...currentBook, readingProgress: pct });
     setProgress(pct);
     setShowModal(false);
   };
 
-  const handleMarkAsComplete = (bookId: string) => {
-    updateProgress(bookId, 100);
+  const handleMarkAsComplete = async (bookId: string, title: string) => {
+    const { rating, shouldProceed } = await promptForRating(title);
+    if (!shouldProceed) return;
+    updateProgress(bookId, 100, rating ?? undefined);
   };
 
   const handleResetProgress = (bookId: string) => {
@@ -296,7 +306,7 @@ export default function Profile() {
                               <li>
                                 <button
                                   className="dropdown-item text-success small"
-                                  onClick={() => handleMarkAsComplete(book.id)}
+                                  onClick={() => handleMarkAsComplete(book.id, book.title)}
                                 >
                                   Mark as Complete
                                 </button>
@@ -381,7 +391,8 @@ export default function Profile() {
                 </div>
                 <input
                   type="range"
-                  className="form-range"
+                  className="form-range book-progress-range"
+                  style={{ "--progress": `${progress}%` } as React.CSSProperties}
                   min={0}
                   max={100}
                   step={1}
