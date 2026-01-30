@@ -1,7 +1,21 @@
 import { v4 as uuidv4 } from "uuid";
 import { usersIds } from "./userData";
-import keepingInTouch from "../assets/keeping_in_touch.png";
-import discoverNewReads from "../assets/discover_new_reads.png";
+import bookClub1 from "../assets/book-club-cottonbro.jpg";
+import bookClub2 from "../assets/book-club-olly.jpg";
+import bookClub3 from "../assets/book-club-toned.jpg";
+import bookClub4 from "../assets/felipe-prieto-isla-.jpg";
+import bookClub5 from "../assets/pexels-thelatinaphotographer.jpg";
+import bookClub6 from "../assets/tima-miroshnichenko.jpg";
+import bookClub7 from "../assets/book-club-icon0.jpg";
+import bookClub8 from "../assets/introspectivedsgn.jpg";
+import bookClub9 from "../assets/markus-winkler.jpg";
+import bookClub10 from "../assets/mono-pixabay.jpg";
+import bookClub11 from "../assets/norma-mortenson.jpg";
+import bookClub12 from "../assets/pexels-anton.jpg";
+import bookClub13 from "../assets/tara-winstead.jpg";
+import bookClub14 from "../assets/pexels-enginakyurt.jpg";
+import bookClub15 from "../assets/pexels-mikhail-nilov.jpg";
+import bookClub16 from "../assets/pexels-peter-chikubula.jpg";
 
 export type clubMember = {
   id: string;
@@ -90,7 +104,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-10",
     updatedAt: "2024-02-15",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub1,
     ownerId: usersIds[2],
     isPublic: true,
     isActive: true,
@@ -177,7 +191,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-01",
     updatedAt: "2024-02-12",
-    imageUrl: keepingInTouch,
+    imageUrl: bookClub2,
     ownerId: usersIds[3],
     isPublic: true,
     isActive: true,
@@ -251,7 +265,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-05",
     updatedAt: "2024-02-08",
-    imageUrl: keepingInTouch,
+    imageUrl: bookClub3,
     ownerId: usersIds[5],
     isPublic: true,
     isActive: true,
@@ -340,7 +354,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-08",
     updatedAt: "2024-02-10",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub4,
     ownerId: usersIds[0],
     isPublic: true,
     isActive: true,
@@ -413,7 +427,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-10",
     updatedAt: "2024-02-15",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub5,
     ownerId: usersIds[5],
     isPublic: true,
     isActive: true,
@@ -486,7 +500,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-12",
     updatedAt: "2024-02-18",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub6,
     ownerId: usersIds[10],
     isPublic: true,
     isActive: true,
@@ -559,7 +573,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-15",
     updatedAt: "2024-02-20",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub7,
     ownerId: usersIds[0],
     isPublic: true,
     isActive: true,
@@ -632,7 +646,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-18",
     updatedAt: "2024-02-22",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub8,
     ownerId: usersIds[5],
     isPublic: true,
     isActive: true,
@@ -705,7 +719,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-20",
     updatedAt: "2024-02-25",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub9,
     ownerId: usersIds[10],
     isPublic: true,
     isActive: true,
@@ -778,7 +792,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-22",
     updatedAt: "2024-02-27",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub10,
     ownerId: usersIds[10],
     isPublic: true,
     isActive: true,
@@ -851,7 +865,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-24",
     updatedAt: "2024-02-29",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub11,
     ownerId: usersIds[15],
     isPublic: true,
     isActive: true,
@@ -924,7 +938,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-26",
     updatedAt: "2024-02-29",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub12,
     ownerId: usersIds[5],
     isPublic: true,
     isActive: true,
@@ -997,7 +1011,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-28",
     updatedAt: "2024-02-29",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub13,
     ownerId: usersIds[5],
     isPublic: true,
     isActive: true,
@@ -1070,7 +1084,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-01-30",
     updatedAt: "2024-02-29",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub14,
     ownerId: usersIds[14],
     isPublic: true,
     isActive: true,
@@ -1143,7 +1157,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-02-01",
     updatedAt: "2024-02-29",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub15,
     ownerId: usersIds[1],
     isPublic: true,
     isActive: true,
@@ -1216,7 +1230,7 @@ export const defaultBookClubs: bookClub[] = [
     ],
     createdAt: "2024-02-03",
     updatedAt: "2024-02-29",
-    imageUrl: discoverNewReads,
+    imageUrl: bookClub16,
     ownerId: usersIds[8],
     isPublic: true,
     isActive: true,
